@@ -46,3 +46,7 @@
 - [Логика редактора](vessel.js)
 - [Администрирование компании](index.html)
 
+
+## Дополнение интерфейса: Ship's Type
+
+В исходном документе **Ship's Type** — текстовое поле со значением `Reefer Carrier / Deep Reefer Cargo`. В текущем UI это поле сделано выпадающим **Select**. Список вариантов (Reefer, Bulk Carrier, Tanker, Container Ship, General Cargo, Ro-Ro, Passenger, Fishing, Gas Carrier, Offshore, Tug, Other) — **новое UI-решение**, не справочник из приложенного документа и пока не данные реальной БД. Ранее введённые значения остаются доступными при редактировании, даже если отсутствуют в списке.
