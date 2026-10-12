@@ -1,106 +1,87 @@
 <!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Monitoring Project — первичное администрирование компании">
-  <title>Администрирование компании — Monitoring Project</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css">
-</head>
-<body>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Администрирование компании — Monitoring Project</title>
+<meta name="description" content="Monitoring Project: базовая настройка компании, пользователи и карточки судов">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=2">
+</head><body>
 <div class="mp-shell">
-  <div class="mp-overlay" data-mp-overlay></div>
-  <aside class="mp-sidebar" id="tenant-sidebar" data-mp-sidebar>
-    <a class="mp-brand" href="../auth/login.html"><span class="mp-logo">M</span><span>Monitoring Project<small>Company administration</small></span></a>
-    <div class="mp-stack">
-      <span class="mp-eyebrow" style="padding:0 12px" id="tenant-sidebar-id">tenant_db_000001</span>
-      <nav class="mp-sidebar-nav" aria-label="Меню компании">
-        <a class="mp-nav-link" href="#overview" aria-current="page">⌂ &nbsp; Начальная настройка</a>
-        <a class="mp-nav-link" href="#users">◯ &nbsp; Пользователи</a>
-        <a class="mp-nav-link" href="#vessels">◇ &nbsp; Карточки судов</a>
-      </nav>
-    </div>
-    <div class="mp-sidebar-bottom">
-      <p class="mp-note">Доступ к платным модулям управляется только суперадминистратором платформы.</p>
-      <a href="../auth/login.html" class="mp-btn mp-btn--secondary">← На экран входа</a>
-    </div>
-  </aside>
-  <div class="mp-shell-main">
-    <header class="mp-topbar">
-      <div class="mp-row">
-        <button class="mp-menu" type="button" data-mp-menu aria-controls="tenant-sidebar" aria-expanded="false" aria-label="Открыть меню">☰</button>
-        <span class="mp-topbar-title" id="tenant-top-name">Monitoring Project / Company</span>
-      </div>
-      <div class="mp-topbar-actions">
-        <span class="mp-badge mp-badge--info">Администратор компании · демо</span>
-        <button type="button" class="mp-btn mp-btn--secondary" data-theme-toggle aria-pressed="false">◐ Тёмная тема</button>
-      </div>
-    </header>
-    <main class="mp-main-content">
-      <header class="mp-page-head" id="overview">
-        <div>
-          <span class="mp-eyebrow" id="tenant-head-code">tenant_db_000001</span>
-          <h1>Администрирование компании</h1>
-          <p id="tenant-company-title">Демо-компания · первичная настройка</p>
-        </div>
-        <span class="mp-badge">Базовый доступ</span>
-      </header>
-      <div class="mp-subtle">
-        <strong style="font-size:13px">Начните с пользователей и карточек судов</strong>
-        <p class="mp-note">Это единственные доступные действия первичной настройки. Все девять расширенных модулей лицензируются отдельно и могут быть включены только в platform_db. Этот интерфейс не содержит управления лицензиями.</p>
-      </div>
-      <div class="mp-kpi-grid" aria-label="Данные начальной настройки">
-        <div class="mp-kpi"><span class="mp-eyebrow">Пользователей</span><strong id="tenant-users-count">0</strong><small>Созданы в демо</small></div>
-        <div class="mp-kpi"><span class="mp-eyebrow">Карточек судов</span><strong id="tenant-vessels-count">0</strong><small>Заполнены в демо</small></div>
-        <div class="mp-kpi"><span class="mp-eyebrow">Компания</span><strong style="font-size:17px;line-height:1.6" id="tenant-company-code">COMP-001</strong><small>Идентификатор в platform_db</small></div>
-      </div>
-      <section class="mp-columns" id="users" aria-label="Создание пользователей">
-        <div class="mp-card mp-stack">
-          <div><span class="mp-eyebrow">Первичный доступ</span><h2 class="mp-section-title">Создать пользователя</h2></div>
-          <form id="tenant-user-form" class="mp-stack">
-            <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" required maxlength="100" autocomplete="off" placeholder="Имя и фамилия"></div>
-            <div class="mp-field"><label for="tenant-user-email">Email *</label><input id="tenant-user-email" type="email" required maxlength="150" autocomplete="off" placeholder="user@company.example"></div>
-            <button class="mp-btn mp-btn--primary" type="submit">+ Создать пользователя</button>
-            <p id="tenant-user-feedback" class="mp-feedback" aria-live="polite"></p>
-          </form>
-          <p class="mp-note">Создание пользователя — базовый шаг. Расширенные роли и права относятся к лицензируемому модулю Auth и здесь не настраиваются.</p>
-        </div>
-        <div class="mp-card mp-stack" aria-labelledby="users-list-heading">
-          <div class="mp-row mp-between"><h2 class="mp-section-title" id="users-list-heading">Пользователи компании</h2><span class="mp-badge" id="users-list-count">0</span></div>
-          <div id="tenant-user-list" class="mp-stack"><p class="mp-empty">Пока нет пользователей. Создайте первого пользователя.</p></div>
-        </div>
-      </section>
-      <section class="mp-columns" id="vessels" aria-label="Карточки судов">
-        <div class="mp-card mp-stack">
-          <div><span class="mp-eyebrow">Основные сведения</span><h2 id="tenant-vessel-form-title" class="mp-section-title">Заполнить карточку судна</h2></div>
-          <form id="tenant-vessel-form" class="mp-stack">
-            <input type="hidden" id="tenant-vessel-edit-id">
-            <div class="mp-field"><label for="tenant-vessel-name">Название судна *</label><input id="tenant-vessel-name" maxlength="120" required placeholder="Например, Aurora"></div>
-            <div class="mp-form-grid">
-              <div class="mp-field"><label for="tenant-vessel-imo">IMO (7 цифр) *</label><input id="tenant-vessel-imo" inputmode="numeric" pattern="[0-9]{7}" maxlength="7" required placeholder="9387421"></div>
-              <div class="mp-field"><label for="tenant-vessel-type">Тип судна</label><select id="tenant-vessel-type"><option value="">Не указан</option><option>Балкер</option><option>Танкер</option><option>Контейнеровоз</option><option>Сухогруз</option><option>Пассажирское</option><option>Другое</option></select></div>
-              <div class="mp-field"><label for="tenant-vessel-flag">Флаг</label><input id="tenant-vessel-flag" maxlength="60" placeholder="Страна флага"></div>
-              <div class="mp-field"><label for="tenant-vessel-call-sign">Позывной</label><input id="tenant-vessel-call-sign" maxlength="24" placeholder="Call sign"></div>
-            </div>
-            <div class="mp-form-actions">
-              <button type="button" class="mp-btn mp-btn--secondary" id="tenant-vessel-cancel" hidden>Отменить изменение</button>
-              <button class="mp-btn mp-btn--primary" type="submit" id="tenant-vessel-save">Сохранить карточку</button>
-            </div>
-            <p id="tenant-vessel-feedback" class="mp-feedback" aria-live="polite"></p>
-          </form>
-          <p class="mp-note">Базовая карточка содержит идентификационные сведения. Документы, маршруты, экипаж и прочие функции здесь не доступны без соответствующих платных модулей.</p>
-        </div>
-        <div class="mp-card mp-stack" aria-labelledby="vessels-list-heading">
-          <div class="mp-row mp-between"><h2 class="mp-section-title" id="vessels-list-heading">Карточки судов</h2><span class="mp-badge" id="vessels-list-count">0</span></div>
-          <div class="mp-field"><label for="tenant-vessel-search">Поиск судна</label><input id="tenant-vessel-search" type="search" placeholder="Название или IMO"></div>
-          <div id="tenant-vessel-list" class="mp-stack"><p class="mp-empty">Карточки судов пока не заполнены.</p></div>
-        </div>
-      </section>
-    </main>
+<div class="mp-overlay" data-mp-overlay></div>
+<aside class="mp-sidebar" id="tenant-sidebar" data-mp-sidebar>
+ <a class="mp-brand" href="../auth/login.html"><span class="mp-logo">M</span><span>Monitoring Project<small>Администрирование компании</small></span></a>
+ <div class="mp-stack">
+  <span class="mp-eyebrow" style="padding:0 12px" id="tenant-sidebar-id">tenant_db_000001</span>
+  <nav class="mp-sidebar-nav" aria-label="Навигация компании">
+   <a class="mp-nav-link" href="#setup" aria-current="page">▦ &nbsp; Первичная настройка</a>
+   <a class="mp-nav-link" href="#workspace" data-nav-users>◯ &nbsp; Пользователи</a>
+   <a class="mp-nav-link" href="#workspace" data-nav-vessels>◇ &nbsp; Суда</a>
+  </nav>
+ </div>
+ <div class="mp-sidebar-bottom">
+  <div class="mp-info-strip"><div><strong>Базовый доступ</strong><p>Подключение оплаченных модулей выполняется только в platform_db.</p></div></div>
+  <a href="../auth/login.html" class="mp-btn mp-btn--secondary">← Выйти из демо</a>
+ </div>
+</aside>
+<div class="mp-shell-main">
+<header class="mp-topbar">
+ <div class="mp-row"><button class="mp-menu" type="button" data-mp-menu aria-expanded="false" aria-controls="tenant-sidebar" aria-label="Открыть меню">☰</button><span class="mp-topbar-title" id="tenant-top-name">Monitoring Project / Company</span></div>
+ <div class="mp-topbar-actions"><span class="mp-badge mp-badge--info">Company · демо</span><button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle>◐ Тёмная тема</button></div>
+</header>
+<main class="mp-main-content">
+ <header class="mp-page-head" id="setup">
+  <div><span class="mp-eyebrow" id="tenant-head-code">tenant_db_000001</span><h1 id="tenant-company-heading">Настройка компании</h1><p id="tenant-company-title">Пользователи и типы объектов, назначенные платформой</p></div>
+  <span class="mp-badge">Базовый доступ</span>
+ </header>
+ <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей с ролью <b>office</b> или <b>vessel</b> и заполнение Ship Particulars для судов. Ни один платный модуль здесь не включается.</p></div></div>
+ <section id="workspace" class="mp-card mp-stack" aria-labelledby="setup-tabs-label">
+  <div class="mp-page-tools">
+   <div><span class="mp-eyebrow">Первичная настройка</span><h2 id="setup-tabs-label" class="mp-section-title">Данные компании</h2></div>
+   <span class="mp-badge" id="tenant-object-types">Vessels</span>
   </div>
+  <div class="mp-tabs--buttons" role="tablist" aria-label="Разделы настройки">
+   <button id="tenant-tab-users" role="tab" aria-controls="tenant-pane-users" aria-selected="true" tabindex="0" data-tenant-tab="users" type="button">Пользователи <span id="tenant-users-count">0</span></button>
+   <button id="tenant-tab-vessels" role="tab" aria-controls="tenant-pane-vessels" aria-selected="false" tabindex="-1" data-tenant-tab="vessels" type="button">Суда <span id="tenant-vessels-count">0</span></button>
+  </div>
+  <div id="tenant-pane-users" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-users">
+   <div class="mp-page-tools">
+    <div><h3 class="mp-section-title">Пользователи компании</h3><p class="mp-help">Базовый список пользователей с принадлежностью к office или vessel.</p></div>
+    <button class="mp-btn mp-btn--primary" type="button" id="add-user-button">+ Добавить пользователя</button>
+   </div>
+   <div id="tenant-user-list" aria-live="polite"></div>
+   <p id="tenant-user-feedback" class="mp-feedback" aria-live="polite"></p>
+  </div>
+  <div id="tenant-pane-vessels" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-vessels" hidden>
+   <div class="mp-page-tools">
+    <div><h3 class="mp-section-title">Карточки судов</h3><p class="mp-help">Полный набор Ship Particulars, сгруппированный по разделам.</p></div>
+    <a class="mp-btn mp-btn--primary" id="add-vessel-button" href="vessel.html">+ Добавить судно</a>
+   </div>
+   <div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div>
+   <div id="tenant-vessel-list" aria-live="polite"></div>
+  </div>
+ </section>
+</main>
 </div>
-<script src="../shared/app.js"></script>
-<script src="tenant.js"></script>
-</body>
-</html>
+</div>
+<dialog class="mp-dialog" id="user-dialog" aria-labelledby="user-dialog-title">
+ <form id="tenant-user-form" novalidate>
+  <div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p class="mp-help">Выберите роль пользователя в компании.</p></div>
+  <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" maxlength="100" required placeholder="Имя и фамилия"></div>
+  <div class="mp-field"><label for="tenant-user-email">Email *</label><input id="tenant-user-email" type="email" maxlength="150" required placeholder="name@company.example"></div>
+  <div class="mp-field"><label for="tenant-user-role">Роль *</label>
+   <select id="tenant-user-role" required>
+    <option value="office">office — сотрудник офиса</option>
+    <option value="vessel">vessel — судовой пользователь</option>
+   </select>
+  </div>
+  <div class="mp-field" id="user-vessel-field" hidden>
+   <label for="tenant-user-vessel">Судно (необязательно)</label><select id="tenant-user-vessel"><option value="">Не назначено</option></select>
+   <p class="mp-help">Можно назначить судно позднее, когда его карточка будет создана.</p>
+  </div>
+  <p id="user-form-error" class="mp-error" role="alert"></p>
+  <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
+ </form>
+</dialog>
+<script src="../shared/app.js?v=2"></script><script src="tenant.js?v=2"></script>
+</body></html>
