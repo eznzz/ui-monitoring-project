@@ -169,3 +169,11 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .data-table tbody .table-empty::before { content: none; }
   .table-intro { margin-bottom: 12px; }
 }
+
+/* Sort select shown only when rows become cards; desktop uses table headers. */
+.mobile-sort { display: none; }
+@media(max-width:600px) {
+  .mobile-sort { display:flex; flex-direction:column; gap:7px; margin:0 0 14px; }
+  .mobile-sort span { font-size:12px; font-weight:600; color:var(--text); }
+  .mobile-sort select { width:100%; min-width:0; min-height:44px; padding:8px 12px; background:var(--vms-color-input-bg); color:var(--text); border:1px solid var(--line); border-radius:var(--radius); }
+}
