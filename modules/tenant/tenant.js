@@ -120,12 +120,21 @@ function render(){
 }
 function populateVesselChoices(){
  const selector=$('tenant-user-vessel');selector.replaceChildren();
- selector.add(new Option('Не назначено',''));
+ selector.add(new Option('Выберите судно',''));
  records().vessels.forEach(v=>{
   const s=MP.vesselSummary(v);selector.add(new Option(s.name+' · IMO '+s.imo,s.imo));
  });
 }
-function toggleUserVessel(){ $('user-vessel-field').hidden=$('tenant-user-role').value!=='vessel'; }
+function toggleUserVessel(){
+ const vessel=$('tenant-user-role').value==='vessel';
+ $('user-vessel-field').hidden=!vessel;
+ $('tenant-user-vessel').required=vessel;
+ $('tenant-user-vessel').disabled=!vessel||!allowVessels();
+ const count=records().vessels.length;
+ $('user-vessel-help').textContent=vessel&&!count
+  ?'Нет зарегистрированных судов. Сначала создайте карточку судна в разделе «Суда».'
+  :'Для роли vessel обязательно выбрать уже существующее судно.';
+}
 $('tenant-user-role').addEventListener('change',toggleUserVessel);
 $('add-user-button').addEventListener('click',()=>{
  $('tenant-user-form').reset();$('user-form-error').textContent='';
@@ -141,6 +150,10 @@ $('tenant-user-form').addEventListener('submit',e=>{
  if(password.value.length<8){$('user-form-error').textContent='Пароль должен содержать минимум 8 символов.';password.focus();return;}
  if(password.value!==confirm.value){$('user-form-error').textContent='Подтверждение пароля не совпадает.';confirm.focus();return;}
  const role=$('tenant-user-role').value,vesselImo=role==='vessel'?$('tenant-user-vessel').value:'';
+ if(role==='vessel'&&(!vesselImo||!allowVessels()||!records().vessels.some(v=>MP.vesselSummary(v).imo===vesselImo))){
+  $('user-form-error').textContent='Для роли vessel требуется выбрать существующее судно. Сначала создайте карточку судна.';
+  $('tenant-user-vessel').focus();return;
+ }
  if(!name||!email||!MP.ROLES.some(r=>r.id===role)){
   $('user-form-error').textContent='Заполните данные и выберите роль.';return;
  }
