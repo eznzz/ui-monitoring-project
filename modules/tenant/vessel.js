@@ -10,7 +10,7 @@ const originalIMO=params.get('imo')||'';
 const company=MP.company(state,tenantId);
 const authorizedObjectType=company?.objectTypes?.includes('vessels');
 const vesselList=MP.tenant(state,tenantId).vessels;
-const source=vesselList.find(v=>MP.vesselSummary(v).imo===originalIMO);
+let source=vesselList.find(v=>MP.vesselSummary(v).imo===originalIMO);
 const originalValues=source?{...source.fields}:{};
 let holdRows=source?.holds?source.holds.map(h=>({...h})):[];
 let holdTotals=source?.holdTotals?{...source.holdTotals}:{};
@@ -177,7 +177,7 @@ function saveForm(event){
  const duplicate=vessels.some(v=>v!==source&&MP.vesselSummary(v).imo===fields.imo);
  if(duplicate){MP.setFeedback('editor-feedback','Судно с таким IMO уже существует в этой компании.',true);imo.focus();return;}
  const record={id:source?.id||'vessel-'+Date.now(),fields,holds:holdRows.map(h=>({...h})),holdTotals:{...holdTotals},updatedAt:new Date().toISOString()};
- if(source){Object.assign(source,record);}else vessels.push(record);
+ if(source){Object.assign(source,record);}else{vessels.push(record);source=record;}
  if(!MP.save(state)){MP.setFeedback('editor-feedback','Браузер не сохранил данные. Проверьте доступность localStorage.',true);return;}
  MP.setFeedback('editor-feedback','Карточка судна сохранена в локальном демо.',false);
  const url=new URL(location.href);url.searchParams.set('imo',fields.imo);url.searchParams.set('tenant',tenantId);
