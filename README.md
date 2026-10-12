@@ -67,3 +67,9 @@ Early work in progress. This is a UI demo, not a production-ready component libr
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Monitoring Project — единый UI стандарт
+
+Проект официально использует название **Monitoring Project**. Правила разработки закреплены в [UI Constitution](docs/DESIGN_SYSTEM_CONSTITUTION.md). Обязательная поддержка Light/Dark, единых компонентов и мобильных экранов. Адаптивные корректировки объединены в [mobile.css](mobile.css), а предварительный обзор каждого семейства компонентов — в [Mobile UI Audit](docs/mobile-qa.md).
+
+Технические префиксы `vms-*` внутри CSS/JavaScript сохранены для совместимости с исходным каталогом; это не пользовательский бренд.
