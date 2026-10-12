@@ -136,7 +136,7 @@ button, a, input, select, textarea { touch-action: manipulation; }
     padding: 7px 14px;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--vms-input-radius, 6px);
   }
   .data-table tbody td {
     display: flex;
@@ -176,4 +176,46 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .mobile-sort { display:flex; flex-direction:column; gap:7px; margin:0 0 14px; }
   .mobile-sort span { font-size:12px; font-weight:600; color:var(--text); }
   .mobile-sort select { width:100%; min-width:0; min-height:44px; padding:8px 12px; background:var(--vms-color-input-bg); color:var(--text); border:1px solid var(--line); border-radius:var(--radius); }
+}
+
+/* Date Range: dedicated flex layout avoids intrinsic grid sizing in mobile Safari.
+   Scoped to this component so other forms keep their established layout. */
+.date-range-panel, .date-range-grid, .date-range-grid > .field {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  box-sizing: border-box;
+}
+.date-range-grid > .field {
+  overflow: hidden; /* Some WebKit date inputs have an intrinsic width > available space. */
+}
+.date-range-grid input[type="date"] {
+  display: block;
+  inline-size: 100%;
+  width: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+@media (max-width: 760px) {
+  .date-range-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    inline-size: 100%;
+    width: 100%;
+    min-inline-size: 0;
+  }
+  .date-range-grid > .field {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+  .date-range-grid input[type="date"] {
+    font-size: 16px; /* Avoid unintended iOS zoom on focusing the input. */
+    min-height: 44px;
+  }
 }
