@@ -219,3 +219,32 @@ button, a, input, select, textarea { touch-action: manipulation; }
     min-height: 44px;
   }
 }
+
+/* Date Range width alignment: fill exactly the inner width of the panel.
+   Explicit flex-basis prevents WebKit from keeping date controls at intrinsic width. */
+@media (max-width: 760px) {
+  .date-range-panel .date-range-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+  }
+  .date-range-panel .date-range-grid > .field {
+    flex: 0 0 auto;
+    align-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
+  .date-range-panel .date-range-grid input[type="date"] {
+    display: block;
+    flex: none;
+    align-self: stretch;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    box-sizing: border-box;
+  }
+}
