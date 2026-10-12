@@ -1,4 +1,4 @@
-# Component Standards — VMS v0.5
+# Component Standards — Monitoring Project v0.5
 
 All interactive components must support visible keyboard focus, semantic HTML, and readable text in both themes. The demos are examples, not production-certified accessibility implementations.
 
