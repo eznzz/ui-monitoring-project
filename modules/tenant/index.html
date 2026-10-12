@@ -5,7 +5,7 @@
 <meta name="description" content="Monitoring Project: базовая настройка компании, пользователи и карточки судов">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=6">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=7">
 </head><body>
 <div class="mp-shell">
 <div class="mp-overlay" data-mp-overlay></div>
@@ -14,10 +14,10 @@
  <div class="mp-stack">
   <span class="mp-eyebrow" style="padding:0 12px" id="tenant-sidebar-id">tenant_db_000001</span>
   <nav class="mp-sidebar-nav" aria-label="Навигация компании">
-   <a class="mp-nav-link" href="#setup" aria-current="page">▦ &nbsp; Первичная настройка</a>
-   <a class="mp-nav-link" href="#workspace" data-nav-users>◯ &nbsp; Пользователи</a>
-   <a class="mp-nav-link" href="#workspace" data-nav-vessels>◇ &nbsp; Суда</a>
-   <a class="mp-nav-link" href="#workspace" data-nav-licenses>▣ &nbsp; Лицензии и запросы</a>
+   <a class="mp-nav-link" href="#dashboard" data-tenant-section="dashboard" aria-current="page">⌂ &nbsp; Главная</a>
+   <a class="mp-nav-link" href="#users" data-nav-users data-tenant-section="users">◯ &nbsp; Пользователи</a>
+   <a class="mp-nav-link" href="#vessels" data-nav-vessels data-tenant-section="vessels">◇ &nbsp; Суда</a>
+   <a class="mp-nav-link" href="#licenses" data-nav-licenses data-tenant-section="licenses">▣ &nbsp; Лицензии и запросы</a>
   </nav>
  </div>
  <div class="mp-sidebar-bottom">
@@ -31,6 +31,42 @@
  <div class="mp-topbar-actions"><span class="mp-badge mp-badge--info">Company · демо</span><button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle>◐ Тёмная тема</button></div>
 </header>
 <main class="mp-main-content">
+ <section id="tenant-dashboard" class="mp-dashboard" data-screen="dashboard" aria-labelledby="tenant-dashboard-title">
+  <header class="mp-dashboard-head">
+   <div><span class="mp-eyebrow" id="tenant-dashboard-id">Company / tenant_db_000001</span>
+    <h1 id="tenant-dashboard-title">Панель компании</h1>
+    <p id="tenant-dashboard-company">Начальная настройка пользователей и судов.</p></div>
+   <span class="mp-demo-chip">Базовый доступ · демо</span>
+  </header>
+  <div class="mp-dashboard-summary" aria-label="Состояние компании">
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Пользователи</span><strong id="tenant-dash-users">0</strong><small>Роли office / vessel</small></div>
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Суда</span><strong id="tenant-dash-vessels">0</strong><small>Карточки Ship Particulars</small></div>
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Подключено модулей</span><strong id="tenant-dash-active">0</strong><small>Лицензии, одобренные платформой</small></div>
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Запросы в ожидании</span><strong id="tenant-dash-pending">0</strong><small>Ожидают решения платформы</small></div>
+  </div>
+  <div>
+   <div class="mp-row mp-between" style="margin-bottom:13px">
+    <h2 class="mp-section-title">Разделы компании</h2><span class="mp-help">Продолжить первичную настройку</span>
+   </div>
+   <div class="mp-dashboard-grid">
+    <a href="#users" data-tenant-section="users" class="mp-dashboard-tile">
+     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">◯</span><div><h2>Пользователи</h2><p>Создание аккаунтов office и vessel, привязка судовых сотрудников к существующим судам.</p></div></div>
+     <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-users">0 пользователей</span><span class="mp-tile-go">Открыть →</span></div>
+    </a>
+    <a href="#vessels" data-tenant-section="vessels" id="tenant-dashboard-vessel-tile" class="mp-dashboard-tile">
+     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">◇</span><div><h2>Суда</h2><p>Реестр судов и отдельный редактор Ship Particulars с грузовыми помещениями.</p></div></div>
+     <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-vessels">0 судов</span><span class="mp-tile-go">Открыть →</span></div>
+    </a>
+    <a href="#licenses" data-tenant-section="licenses" class="mp-dashboard-tile">
+     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">▣</span><div><h2>Лицензии и запросы</h2><p>Запрос подключения по ключу, статусы и сроки действия. Подтверждает только платформа.</p></div></div>
+     <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-pending">0 запросов</span><span class="mp-tile-go">Открыть →</span></div>
+    </a>
+   </div>
+  </div>
+  <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Логика доступа</strong>
+   <p>В начале доступны только создание пользователей и заполнение карточек судов. Платные модули подключаются исключительно на платформе после оплаты и подтверждения запроса по ключу.</p></div></div>
+ </section>
+ <div id="tenant-work-area" class="mp-stack" data-screen="workspace" hidden>
  <header class="mp-page-head" id="setup">
   <div><span class="mp-eyebrow" id="tenant-head-code">tenant_db_000001</span><h1 id="tenant-company-heading">Настройка компании</h1><p id="tenant-company-title">Пользователи и типы объектов, назначенные платформой</p></div>
   <span class="mp-badge">Базовый доступ</span>
@@ -74,6 +110,7 @@
    <div id="tenant-license-requests" class="mp-stack" aria-live="polite"></div>
   </div>
  </section>
+ </div>
 </main>
 </div>
 </div>
@@ -99,5 +136,5 @@
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="tenant.js?v=6"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="tenant.js?v=7"></script>
 </body></html>
