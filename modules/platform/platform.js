@@ -146,9 +146,51 @@ $('platform-license-requests').addEventListener('click',event=>{
   MP.setFeedback('platform-request-feedback','Запрос рассмотрен '+MP_LICENSE.formatDate(new Date().toISOString())+'. Решение сохранено в демонстрационных данных.',false);
  }catch(err){MP.setFeedback('platform-request-feedback',err.message,true);}
 });
-document.querySelector('[data-nav-keys]')?.addEventListener('click',()=>{
- chooseTab('keys');
+
+function renderPlatformDashboard(){
+ const companies=data.companies.length;
+ const paid=data.companies.reduce((n,c)=>n+MP.MODULES.filter(m=>c.modules?.[m.id]?.paid).length,0);
+ const active=data.companies.reduce((n,c)=>n+MP.MODULES.filter(m=>MP_LICENSE.effective(data,c,m.id)).length,0);
+ const pending=(data.licenseRequests||[]).filter(r=>r.status==='pending').length;
+ $('platform-dash-companies').textContent=companies;
+ $('platform-dash-paid').textContent=paid;
+ $('platform-dash-active').textContent=active;
+ $('platform-dash-pending').textContent=pending;
+ $('platform-tile-companies').textContent=companies+' компаний';
+ $('platform-tile-paid').textContent=paid+' оплачено';
+ $('platform-tile-keys').textContent=(data.licenses||[]).length+' ключей';
+}
+function routeFromHash(){
+ const key=decodeURIComponent(location.hash.slice(1));
+ return ['dashboard','companies','modules','keys','principles'].includes(key)?key:
+  key==='license-workspace'?'keys':'dashboard';
+}
+function openPlatformPage(page,updateLocation=true){
+ if(!['dashboard','companies','modules','keys','principles'].includes(page))page='dashboard';
+ $('platform-dashboard').hidden=page!=='dashboard';
+ $('platform-work-area').hidden=!['companies','modules','keys'].includes(page);
+ $('principles').hidden=page!=='principles';
+ const pane={companies:'profile',modules:'licenses',keys:'keys'}[page];
+ if(pane)chooseTab(pane);
+ document.querySelectorAll('.mp-sidebar-nav [data-platform-section]').forEach(a=>{
+  if(a.dataset.platformSection===page)a.setAttribute('aria-current','page');
+  else a.removeAttribute('aria-current');
+ });
+ $('platform-topbar-title').textContent='Platform / '+({
+  dashboard:'Главная',companies:'Компании',modules:'Подписка и модули',
+  keys:'Лицензионные ключи',principles:'Правила подключения'
+ }[page]);
+ if(updateLocation){
+  history.replaceState(null,'',location.pathname+location.search+'#'+page);
+  window.scrollTo({top:0,behavior:'instant'});
+ }
+}
+document.querySelectorAll('[data-platform-section]').forEach(link=>{
+ link.addEventListener('click',event=>{
+  event.preventDefault();openPlatformPage(link.dataset.platformSection);
+ });
 });
+window.addEventListener('hashchange',()=>openPlatformPage(routeFromHash(),false));
 
 function chooseTab(id,focus){
  activeTab=id;
@@ -160,14 +202,15 @@ function chooseTab(id,focus){
  if(focus)$('platform-tab-'+id).focus();
 }
 document.querySelectorAll('[data-platform-tab]').forEach(button=>{
- button.addEventListener('click',()=>chooseTab(button.dataset.platformTab));
+ button.addEventListener('click',()=>openPlatformPage(({profile:'companies',licenses:'modules',keys:'keys'})[button.dataset.platformTab]));
  button.addEventListener('keydown',event=>{
   if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
   event.preventDefault();
   const tabs=['profile','licenses','keys'];
   const current=tabs.indexOf(button.dataset.platformTab);
   const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:event.key==='ArrowRight'?(current+1)%tabs.length:(current+tabs.length-1)%tabs.length;
-  chooseTab(tabs[next],true);
+  openPlatformPage(({profile:'companies',licenses:'modules',keys:'keys'})[tabs[next]]);
+  $('platform-tab-'+tabs[next]).focus();
  });
 });
 function render(){
@@ -180,7 +223,7 @@ function render(){
  $('company-code').textContent=c.code;
  $('company-types').textContent=typeLabels(c).join(', ')||'Не выбран';
  $('open-tenant').href='../tenant/index.html?tenant='+encodeURIComponent(c.id);
- renderModules(c);renderLicensePanel(c);chooseTab(activeTab);
+ renderModules(c);renderLicensePanel(c);renderPlatformDashboard();chooseTab(activeTab);
 }
 modules.addEventListener('change',e=>{
  const input=e.target.closest('input[data-module][data-action]');
@@ -230,9 +273,9 @@ $('company-form').addEventListener('submit',e=>{
  data.companies.push({id,name,code,objectTypes,modules:{}});
  data.tenants[id]={users:[],vessels:[]};
  selected=id;search.value='';activeTab='profile';
- store();dialog.close();render();
+ store();dialog.close();render();openPlatformPage('companies');
  MP.setFeedback('platform-feedback','Компания создана с типом объектов: '+typeLabels(selectedCompany()).join(', ')+'. Это локальные демоданные.',false);
 });
 window.addEventListener('storage',e=>{if(e.key===MP.KEY){data=MP.state();render();}});
-renderTypes();render();
+renderTypes();render();openPlatformPage(routeFromHash(),false);
 })();
