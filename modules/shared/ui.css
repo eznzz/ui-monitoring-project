@@ -253,3 +253,29 @@ a:hover{text-decoration:none}
  .mp-editor-toolbar{position:sticky}
  .mp-module{gap:10px}
 }
+
+/* Ship compartments: keep the action entirely inside its row/card.
+   Desktop table scrolls horizontally instead of squeezing the Delete action. */
+.mp-holds-table{min-width:1040px;width:100%;table-layout:auto}
+.mp-holds-table th:last-child,.mp-holds-table td:last-child{min-width:104px;width:104px;text-align:right}
+.mp-holds-table td:last-child{white-space:nowrap}
+.mp-holds-table .mp-small-action{
+ display:inline-flex;align-items:center;justify-content:center;
+ max-width:100%;min-height:36px;padding:7px 10px;box-sizing:border-box;
+ border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius,6px);
+ white-space:nowrap;line-height:1.15;
+}
+.mp-hold-card>.mp-row{min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.mp-hold-card>.mp-row strong{min-width:0;flex:1 1 auto;overflow-wrap:anywhere}
+.mp-hold-card>.mp-row .mp-small-action{flex:0 0 auto;max-width:40%;margin-left:auto}
+.mp-holds-container{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.mp-license-record{min-width:0;align-items:start}
+.mp-license-record>*{min-width:0;overflow-wrap:anywhere}
+.mp-license-key{display:block;max-width:100%;font:12px/1.5 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;user-select:all}
+.mp-license-record .mp-row{justify-content:flex-end}
+@media(max-width:700px){
+ .mp-hold-card{max-width:100%;min-width:0}
+ .mp-hold-card>.mp-row .mp-small-action{font-size:12px;padding:7px 9px}
+ .mp-license-record{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ .mp-license-record .mp-row{justify-content:flex-start}
+}
