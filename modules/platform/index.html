@@ -1,118 +1,97 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Monitoring Project — интерфейс суперадминистратора платформы">
-  <title>Администрирование платформы — Monitoring Project</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Компании и лицензии — Monitoring Project</title>
+<meta name="description" content="Monitoring Project: администрирование компаний, типов объектов и лицензируемых модулей">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=2">
 </head>
 <body>
 <div class="mp-shell">
-  <div class="mp-overlay" data-mp-overlay></div>
-  <aside class="mp-sidebar" id="platform-sidebar" data-mp-sidebar>
-    <a class="mp-brand" href="../auth/login.html"><span class="mp-logo">M</span><span>Monitoring Project<small>Platform administration</small></span></a>
-    <div class="mp-stack">
-      <span class="mp-eyebrow" style="padding:0 12px">Platform / platform_db</span>
-      <nav class="mp-sidebar-nav" aria-label="Меню платформы">
-        <a class="mp-nav-link" href="#companies" aria-current="page">▦ &nbsp; Компании</a>
-        <a class="mp-nav-link" href="#modules">◫ &nbsp; Подключение модулей</a>
-        <a class="mp-nav-link" href="#rules">ⓘ &nbsp; Правила доступа</a>
-      </nav>
-    </div>
-    <div class="mp-sidebar-bottom">
-      <p class="mp-note">Данные демонстрационные и хранятся только в этом браузере.</p>
-      <a class="mp-btn mp-btn--secondary" href="../auth/login.html">← На экран входа</a>
-    </div>
+<div class="mp-overlay" data-mp-overlay></div>
+<aside class="mp-sidebar" id="platform-sidebar" data-mp-sidebar>
+ <a class="mp-brand" href="../auth/login.html"><span class="mp-logo">M</span><span>Monitoring Project<small>Администрирование платформы</small></span></a>
+ <div class="mp-stack">
+  <span class="mp-eyebrow" style="padding:0 12px">Platform / platform_db</span>
+  <nav class="mp-sidebar-nav" aria-label="Навигация платформы">
+   <a class="mp-nav-link" href="#workspace" aria-current="page">▦ &nbsp; Компании и доступ</a>
+   <a class="mp-nav-link" href="#principles">ⓘ &nbsp; Правила подключения</a>
+  </nav>
+ </div>
+ <div class="mp-sidebar-bottom">
+  <span class="mp-demo-chip">UI prototype · mock</span>
+  <a class="mp-btn mp-btn--secondary" href="../auth/login.html">← Выйти из демо</a>
+ </div>
+</aside>
+<div class="mp-shell-main">
+<header class="mp-topbar">
+ <div class="mp-row"><button type="button" class="mp-menu" data-mp-menu aria-label="Открыть меню" aria-expanded="false" aria-controls="platform-sidebar">☰</button><span class="mp-topbar-title">Platform / Компании</span></div>
+ <div class="mp-topbar-actions"><span class="mp-badge mp-badge--info">Суперадминистратор · демо</span><button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle>◐ Тёмная тема</button></div>
+</header>
+<main class="mp-main-content">
+ <header class="mp-page-head" id="workspace">
+  <div><span class="mp-eyebrow">Platform Administration</span><h1>Компании и доступ</h1><p>Сначала создайте компанию и укажите тип объектов, затем управляйте подпиской.</p></div>
+  <button class="mp-btn mp-btn--primary" type="button" id="add-company-button">+ Новая компания</button>
+ </header>
+ <div class="mp-workspace">
+  <aside class="mp-workspace-nav">
+   <section class="mp-card mp-stack" aria-labelledby="companies-heading">
+    <div class="mp-row mp-between"><h2 id="companies-heading" class="mp-section-title">Компании</h2><span id="company-list-count" class="mp-pill">1</span></div>
+    <div class="mp-field"><label for="company-search">Поиск компании</label><input id="company-search" type="search" placeholder="Название или ID"></div>
+    <div id="company-list" class="mp-stack" aria-label="Список компаний"></div>
+   </section>
   </aside>
-  <div class="mp-shell-main">
-    <header class="mp-topbar">
-      <div class="mp-row">
-        <button class="mp-menu" type="button" data-mp-menu aria-controls="platform-sidebar" aria-expanded="false" aria-label="Открыть меню">☰</button>
-        <span class="mp-topbar-title">Monitoring Project / Platform</span>
-      </div>
-      <div class="mp-topbar-actions">
-        <span class="mp-badge mp-badge--info">Суперадминистратор · демо</span>
-        <button type="button" class="mp-btn mp-btn--secondary" data-theme-toggle aria-pressed="false">◐ Тёмная тема</button>
-      </div>
-    </header>
-    <main class="mp-main-content">
-      <div class="mp-page-head" id="companies">
-        <div>
-          <span class="mp-eyebrow">Администрирование / platform_db</span>
-          <h1>Управление платформой</h1>
-          <p>Компании, отдельная оплата модулей и предоставление доступа.</p>
-        </div>
-        <button type="button" id="add-company-button" class="mp-btn mp-btn--primary">+ Создать компанию</button>
-      </div>
-      <div class="mp-kpi-grid" aria-label="Статистика платформы">
-        <div class="mp-kpi"><span class="mp-eyebrow">Компаний</span><strong id="company-count">1</strong><small>В демонстрационном каталоге</small></div>
-        <div class="mp-kpi"><span class="mp-eyebrow">Оплаченных модулей</span><strong id="paid-count">0</strong><small>У выбранной компании</small></div>
-        <div class="mp-kpi"><span class="mp-eyebrow">Включённых модулей</span><strong id="enabled-count">0</strong><small>Доступ устанавливает платформа</small></div>
-      </div>
-      <div class="mp-columns">
-        <section class="mp-card mp-stack" aria-labelledby="company-list-heading">
-          <div class="mp-row mp-between">
-            <h2 class="mp-section-title" id="company-list-heading">Компании</h2>
-            <span class="mp-badge" id="company-list-count">1</span>
-          </div>
-          <div class="mp-field"><label for="company-search">Поиск по компании</label><input id="company-search" type="search" placeholder="Название или идентификатор"></div>
-          <div id="company-list" class="mp-stack" role="group" aria-label="Выбрать компанию"></div>
-        </section>
-        <section class="mp-card mp-stack" aria-labelledby="selected-company-heading">
-          <div class="mp-row mp-between">
-            <span class="mp-eyebrow">Выбранная компания</span>
-            <span class="mp-badge mp-badge--info">Tenant</span>
-          </div>
-          <div>
-            <h2 class="mp-section-title" id="selected-company-heading">Демо-компания</h2>
-            <p class="mp-help" id="selected-company-id">tenant_db_000001</p>
-          </div>
-          <div class="mp-subtle">
-            <strong style="font-size:12px">Первичная настройка компании</strong>
-            <p class="mp-note">Без платных модулей доступны только создание пользователей и заполнение карточек судов. Расширенные модули управляются исключительно здесь, на уровне платформы.</p>
-          </div>
-          <a class="mp-btn mp-btn--secondary" id="open-tenant" href="../tenant/index.html?tenant=tenant_db_000001">Посмотреть интерфейс компании ↗</a>
-          <p id="platform-feedback" class="mp-feedback" aria-live="polite"></p>
-        </section>
-      </div>
-      <section class="mp-card mp-stack" id="modules" aria-labelledby="modules-heading">
-        <div class="mp-row mp-between">
-          <div>
-            <span class="mp-eyebrow">Отдельное лицензирование</span>
-            <h2 class="mp-section-title" id="modules-heading">Платные модули компании</h2>
-          </div>
-          <span class="mp-badge">9 независимых модулей</span>
-        </div>
-        <p class="mp-help">Для каждого модуля сначала отмечается факт оплаты, после чего супер­администратор может включить доступ. Отметка оплаты — только имитация учёта, без платежей и API.</p>
-        <div class="mp-module-list" id="platform-module-list" aria-live="polite"></div>
-        <p class="mp-feedback" id="modules-feedback" aria-live="polite"></p>
-      </section>
-      <section class="mp-card mp-stack" id="rules" aria-labelledby="rules-heading">
-        <h2 class="mp-section-title" id="rules-heading">Разделение полномочий</h2>
-        <div class="mp-form-grid">
-          <div class="mp-subtle"><strong style="font-size:13px">Platform · platform_db</strong><p class="mp-note">Создаёт компании, фиксирует оплату и включает/выключает каждый лицензируемый модуль.</p></div>
-          <div class="mp-subtle"><strong style="font-size:13px">Company · tenant_db_*</strong><p class="mp-note">На первом этапе работает только с пользователями и карточками судов. Не может оплатить или активировать модуль.</p></div>
-        </div>
-      </section>
-    </main>
-  </div>
-</div>
-<dialog id="company-dialog" class="mp-dialog" aria-labelledby="company-dialog-title">
-  <form id="company-form" novalidate>
-    <div><h2 id="company-dialog-title">Новая компания</h2><p class="mp-help">Создание демонстрационной компании на уровне платформы.</p></div>
-    <div class="mp-field"><label for="new-company-name">Название компании *</label><input id="new-company-name" maxlength="100" required placeholder="Например, Ocean Logistics"></div>
-    <div class="mp-field"><label for="new-company-code">Код компании *</label><input id="new-company-code" maxlength="30" required placeholder="COMP-002"></div>
-    <p id="company-form-error" class="mp-error" role="alert"></p>
-    <div class="mp-form-actions">
-      <button type="button" class="mp-btn mp-btn--secondary" id="cancel-company">Отмена</button>
-      <button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button>
+  <div class="mp-workspace-content mp-stack">
+   <section class="mp-card mp-stack" aria-labelledby="selected-company-heading">
+    <div class="mp-workspace-header">
+     <div><span class="mp-eyebrow">Выбранная компания</span><h2 id="selected-company-heading">Демо-компания</h2><p id="selected-company-id">tenant_db_000001</p></div>
+     <a id="open-tenant" href="../tenant/index.html?tenant=tenant_db_000001" class="mp-btn mp-btn--secondary">Открыть Tenant ↗</a>
     </div>
-  </form>
+    <div role="tablist" aria-label="Настройки компании" class="mp-tabs--buttons">
+     <button id="platform-tab-profile" type="button" role="tab" aria-selected="true" aria-controls="platform-pane-profile" data-platform-tab="profile">Основные данные</button>
+     <button id="platform-tab-licenses" type="button" role="tab" aria-selected="false" aria-controls="platform-pane-licenses" data-platform-tab="licenses" tabindex="-1">Подписка и модули</button>
+    </div>
+    <div id="platform-pane-profile" class="mp-pane" role="tabpanel" aria-labelledby="platform-tab-profile">
+      <dl class="mp-description-grid">
+       <div><dt>Tenant ID</dt><dd id="company-tenant-id">tenant_db_000001</dd></div>
+       <div><dt>Код компании</dt><dd id="company-code">COMP-001</dd></div>
+       <div><dt>Типы объектов</dt><dd id="company-types">Суда (Vessels)</dd></div>
+       <div><dt>Подключено модулей</dt><dd id="company-active-modules">0 из 9</dd></div>
+      </dl>
+      <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Первичный доступ</strong><p>Без платных модулей компания может создавать пользователей и заполнять карточки выбранных типов объектов. Все модули включаются только платформой.</p></div></div>
+      <p id="platform-feedback" class="mp-feedback" aria-live="polite"></p>
+    </div>
+    <div id="platform-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="platform-tab-licenses" hidden>
+     <div class="mp-row mp-between">
+      <div><h3 class="mp-section-title">Лицензии выбранной компании</h3><p class="mp-help">Каждый модуль оплачивается отдельно. Включение доступно только после отметки оплаты.</p></div>
+      <span class="mp-pill" id="modules-counter">0 / 9</span>
+     </div>
+     <div class="mp-module-list" id="platform-module-list" aria-label="Подключение модулей"></div>
+     <p id="modules-feedback" class="mp-feedback" aria-live="polite"></p>
+    </div>
+   </section>
+  </div>
+ </div>
+ <section class="mp-info-strip" id="principles"><span aria-hidden="true">ⓘ</span><div><strong>Граница ответственности</strong><p><b>platform_db</b> создаёт компании, назначает типы объектов и управляет оплатой/включением модулей. <b>tenant_db_*</b> ведёт только базовые данные выбранных типов объектов и пользователей. Здесь представлены имитации без реальной БД или оплаты.</p></div></section>
+</main>
+</div>
+</div>
+<dialog class="mp-dialog" id="company-dialog" aria-labelledby="company-dialog-title">
+ <form id="company-form" novalidate>
+  <header><span class="mp-eyebrow">Шаг 1 · Platform</span><h2 id="company-dialog-title">Новая компания</h2><p class="mp-help">Укажите данные компании и тип объектов, доступный для первичного учёта.</p></header>
+  <div class="mp-field"><label for="new-company-name">Название компании *</label><input id="new-company-name" maxlength="100" required placeholder="Например, Ocean Logistics"></div>
+  <div class="mp-field"><label for="new-company-code">Код компании *</label><input id="new-company-code" maxlength="30" required placeholder="COMP-002"></div>
+  <fieldset style="border:0;padding:0;margin:0;min-width:0" class="mp-stack">
+   <legend class="mp-label">Тип объектов *</legend>
+   <div id="company-object-types" class="mp-choice-grid"></div>
+   <p class="mp-help">Список формируется из справочника типов объектов platform_db (сейчас только Vessels). Не является платным модулем.</p>
+  </fieldset>
+  <p id="company-form-error" role="alert" class="mp-error"></p>
+  <div class="mp-form-actions"><button type="button" id="cancel-company" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button></div>
+ </form>
 </dialog>
-<script src="../shared/app.js"></script>
-<script src="platform.js"></script>
+<script src="../shared/app.js?v=2"></script><script src="platform.js?v=2"></script>
 </body>
 </html>
