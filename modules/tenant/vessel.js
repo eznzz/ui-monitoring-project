@@ -30,7 +30,31 @@ function el(tag,attrs={},text){
 function standardField(f,value,required){
  const outer=el('div',{class:'mp-field'});
  const label=el('label',{for:'ship-'+f.id},f.label+(required?' *':''));
- const input=el('input',{type:'text',id:'ship-'+f.id,'data-field':f.id,autocomplete:'off'});
+ const input=f.id==='shipType'
+  ?el('select',{id:'ship-'+f.id,'data-field':f.id})
+  :el('input',{type:'text',id:'ship-'+f.id,'data-field':f.id,autocomplete:'off'});
+ if(f.id==='shipType'){
+  const types=[
+   ['', 'Выберите тип судна'],
+   ['reefer','Reefer / рефрижератор'],
+   ['bulk-carrier','Bulk Carrier / балкер'],
+   ['tanker','Tanker / танкер'],
+   ['container-ship','Container Ship / контейнеровоз'],
+   ['general-cargo','General Cargo / сухогруз'],
+   ['ro-ro','Ro-Ro'],
+   ['passenger','Passenger / пассажирское'],
+   ['fishing','Fishing / рыболовное'],
+   ['gas-carrier','Gas Carrier / газовоз'],
+   ['offshore','Offshore / специальное'],
+   ['tug','Tug / буксир'],
+   ['other','Other / другое']
+  ];
+  types.forEach(([id,label])=>input.append(el('option',{value:id},label)));
+  // Preserve ship type strings from existing Ship Particulars records.
+  if(value&&!types.some(([id])=>id===value)){
+   input.append(el('option',{value},value));
+  }
+ }
  input.value=value||'';
  if(required){input.required=true;input.setAttribute('aria-required','true');}
  if(f.id==='imo'){input.inputMode='numeric';input.maxLength=7;input.pattern='[0-9]{7}';input.placeholder='7 цифр';}
