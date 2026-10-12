@@ -241,3 +241,15 @@ a:hover{text-decoration:none}
  .mp-basic-table tbody td{display:flex;justify-content:space-between;align-items:center;text-align:right;gap:14px;border:0;padding:7px 0}
  .mp-basic-table tbody td:before{content:attr(data-label);color:var(--vms-color-muted);font-weight:600;font-size:11px;text-align:left}
 }
+
+/* Narrow-screen safeguards for long tenant names and the two admin workspaces. */
+.mp-topbar > .mp-row { flex:1 1 auto;min-width:0;flex-wrap:nowrap; }
+.mp-topbar-title {display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-topbar-actions { flex:0 0 auto;flex-wrap:nowrap; }
+.mp-dialog .mp-field, .mp-dialog input, .mp-dialog select { min-width:0;max-width:100%; }
+@media(max-width:700px){
+ .mp-editor-side {scrollbar-width:thin}
+ .mp-page-head{align-items:flex-start}
+ .mp-editor-toolbar{position:sticky}
+ .mp-module{gap:10px}
+}
