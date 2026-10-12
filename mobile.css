@@ -1,0 +1,91 @@
+/* Monitoring Project — responsive compatibility layer for dashboard and component catalog.
+   Shared stylesheet; no changes to interactive JS APIs or existing component class names. */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-wrap: break-word; }
+button, input, select, textarea { max-width: 100%; }
+button, a, input, select, textarea { touch-action: manipulation; }
+@media (pointer: coarse) {
+  .toc a { min-height: 42px; display:flex; align-items:center; }
+  .theme-button, .button, .user-menu__trigger, .burger { min-height: 44px; }
+  .vms-tab { min-height: 44px; }
+  .check, .vms-switch { min-height: 44px; }
+  .check input, .vms-radio-group input, .vms-switch input { flex-shrink:0; }
+}
+@media (max-width: 900px) {
+  .main { min-width:0; width:100%; }
+  .topbar { max-width:100%; }
+  .sidebar { overscroll-behavior:contain; }
+}
+@media (max-width: 760px) {
+  /* Component navigation remains accessible without compressing all links */
+  .site-header { gap:10px; }
+  .layout { min-width:0; }
+  .toc { max-width:100%; overscroll-behavior-x:contain; scrollbar-width:thin; }
+  .toc a { flex:0 0 auto; }
+  .page { min-width:0; max-width:100%; }
+  .section-header { flex-wrap:wrap; gap:8px; }
+  .panel { min-width:0; }
+  .table-toolbar { align-items:stretch; }
+  .table-toolbar .field, .table-search, .table-filter { min-width:0; width:100%; }
+  .table-scroll { max-width:100%; -webkit-overflow-scrolling:touch; }
+  .table-footer, .table-pagination { gap:10px; }
+  .vms-tabs { max-width:100%; -webkit-overflow-scrolling:touch; }
+  .vms-tab { flex:0 0 auto; }
+  .chart-grid { grid-template-columns:minmax(0,1fr); }
+  .vms-chart, .chart-panel, .chart-panel details { min-width:0; max-width:100%; }
+  .chart-panel svg { max-width:100%; }
+  .chart-legend { gap:8px 12px; }
+  .essential-controls { max-width:100%; }
+  .vms-alert, .vms-empty { min-width:0; }
+  .vms-dialog { max-height:calc(100dvh - 24px); overflow-y:auto; }
+  .vms-toast-region { right:12px; bottom:12px; width:min(380px,calc(100vw - 24px)); }
+  .user-menu__dropdown { max-width:calc(100vw - 24px); }
+}
+@media (max-width: 520px) {
+  .site-header { height:auto; min-height:64px; padding-block:10px; }
+  .site-header .brand { min-width:0; }
+  .site-header .brand-muted { display:none; }
+  .header-actions { flex-shrink:0; gap:8px; }
+  .theme-button { padding:9px 10px; white-space:nowrap; }
+  .page { padding:22px 14px 38px; }
+  .hero { padding:0 0 18px; }
+  .hero h1 { font-size:clamp(26px,7.5vw,34px); }
+  .hero p { font-size:14px; }
+  .section { margin:22px 0 32px; }
+  .section-header h2 { font-size:20px; }
+  .panel { padding:16px; border-radius:10px; }
+  .swatches { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .swatch { height:64px; }
+  .demo-row { gap:8px; }
+  .button { white-space:normal; text-align:center; }
+  .grid-form { gap:16px; }
+  .table-footer { flex-direction:column; align-items:stretch; }
+  .table-pagination { justify-content:space-between; }
+  .table-pagination .button { flex-shrink:0; }
+  .vms-tabs { gap:0; }
+  .vms-tab { padding:12px 14px; }
+  .vms-dialog { width:calc(100vw - 24px); }
+  .vms-dialog-content { padding:20px; }
+  .dialog-actions { justify-content:stretch; }
+  .dialog-actions .button { flex:1 1 auto; }
+  .chart-legend span { max-width:100%; }
+  .topbar__title { font-size:15px; }
+  .content { padding:14px; }
+  .content__card { padding:18px; }
+  .content__card h2 { font-size:18px; }
+  .user-menu__dropdown { right:0; width:min(280px,calc(100vw - 28px)); }
+  .sidebar__logo-text { font-size:14px; letter-spacing:0; }
+}
+@media (max-width: 360px) {
+  .page { padding:18px 10px 32px; }
+  .panel { padding:13px; }
+  .swatches { gap:7px; }
+  .table-pagination { gap:6px; }
+  .table-pagination .button { padding:5px 8px; }
+  .topbar { padding:0 10px; }
+  .topbar__title { font-size:13px; }
+  .user-menu__trigger { gap:5px; padding:6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .spinner, .vms-skeleton { animation:none !important; }
+}
