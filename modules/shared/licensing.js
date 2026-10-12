@@ -2,7 +2,7 @@
    verification, payments, server-side access control, or real activation. */
 (function(){
 'use strict';
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
 const stamp=()=>new Date().toISOString();
 const normalizeKey=s=>String(s||'').toUpperCase().replace(/\s+/g,'').trim();
 const cleanDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s))?String(s):'';
@@ -86,6 +86,7 @@ function revoke(s,id){
  if(!l)throw Error('Ключ не найден.');
  if(l.revokedAt)return l;
  l.revokedAt=stamp();
+ s.licenseRequests.filter(r=>r.licenseId===id&&r.status==='pending').forEach(r=>{r.status='rejected';r.reviewedAt=stamp();});
  const c=MP.company(s,l.tenantId);
  if(c?.modules?.[l.moduleId]&&!s.licenses.some(x=>x.id!==id&&x.moduleId===l.moduleId&&x.tenantId===l.tenantId&&isCurrent(x)&&s.licenseRequests.some(r=>r.licenseId===x.id&&r.status==='approved'))){
   c.modules[l.moduleId].enabled=false;
