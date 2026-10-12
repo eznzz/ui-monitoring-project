@@ -69,3 +69,11 @@
 - Date Range получил собственные классы `date-range-panel` / `date-range-grid`; на мобильных применяется вертикальный flex вместо CSS Grid, чтобы избежать intrinsic/min-content переполнения нативного date-input в WebKit.
 - Нативный `input[type=date]` дополнительно ограничен `inline-size:100%`, `min-inline-size:0`, `box-sizing:border-box`; внутренний wrapper предотвращает визуальный выход за границу, а шрифт 16px исключает автоматический zoom iOS при фокусе.
 - Следует повторно проверить Safari iOS на 320–390px и интерактивность системного календаря: статическая проверка CSS не подтверждает полное поведение на устройстве.
+
+## Date Range — structural fix after iPhone screenshot (2026-10-12)
+
+The iPhone screenshot showed both native date controls extending beyond the white panel's right edge. Repeated CSS-only width overrides on the native input were insufficient.
+
+**Resolution:** each `input[type=date]` is now positioned inside an explicit `.date-input-frame`. The frame owns the visible border, border radius and width; the native input uses `position:absolute; inset:0; width:100%`, preventing WebKit's intrinsic date-control width from affecting layout. Previous conflicting Date Range overrides were replaced by one scoped block in `mobile.css`.
+
+**Local verification:** in Chromium with the relevant page and layout rules, geometry assertions passed at 320, 360, 375, 390, 428, 600, 760, 768 and 1024 CSS pixels; the two input frames remained within panel content bounds and a date value was accepted. This is not a physical-iPhone/Safari confirmation; retest on the device that produced the screenshot.
