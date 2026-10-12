@@ -6,7 +6,7 @@
 <meta name="description" content="Monitoring Project: администрирование компаний, типов объектов и лицензируемых модулей">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=6">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=7">
 </head>
 <body>
 <div class="mp-shell">
@@ -16,9 +16,11 @@
  <div class="mp-stack">
   <span class="mp-eyebrow" style="padding:0 12px">Platform / platform_db</span>
   <nav class="mp-sidebar-nav" aria-label="Навигация платформы">
-   <a class="mp-nav-link" href="#workspace" aria-current="page">▦ &nbsp; Компании и доступ</a>
-   <a class="mp-nav-link" href="#license-workspace" data-nav-keys>▣ &nbsp; Лицензионные ключи</a>
-   <a class="mp-nav-link" href="#principles">ⓘ &nbsp; Правила подключения</a>
+   <a class="mp-nav-link" href="#dashboard" data-platform-section="dashboard" aria-current="page">⌂ &nbsp; Главная</a>
+   <a class="mp-nav-link" href="#companies" data-platform-section="companies">▦ &nbsp; Компании</a>
+   <a class="mp-nav-link" href="#modules" data-platform-section="modules">◫ &nbsp; Подписка и модули</a>
+   <a class="mp-nav-link" href="#keys" data-platform-section="keys">▣ &nbsp; Лицензионные ключи</a>
+   <a class="mp-nav-link" href="#principles" data-platform-section="principles">ⓘ &nbsp; Правила подключения</a>
   </nav>
  </div>
  <div class="mp-sidebar-bottom">
@@ -28,11 +30,34 @@
 </aside>
 <div class="mp-shell-main">
 <header class="mp-topbar">
- <div class="mp-row"><button type="button" class="mp-menu" data-mp-menu aria-label="Открыть меню" aria-expanded="false" aria-controls="platform-sidebar">☰</button><span class="mp-topbar-title">Platform / Компании</span></div>
+ <div class="mp-row"><button type="button" class="mp-menu" data-mp-menu aria-label="Открыть меню" aria-expanded="false" aria-controls="platform-sidebar">☰</button><span class="mp-topbar-title" id="platform-topbar-title">Platform / Dashboard</span></div>
  <div class="mp-topbar-actions"><span class="mp-badge mp-badge--info">Суперадминистратор · демо</span><button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle>◐ Тёмная тема</button></div>
 </header>
 <main class="mp-main-content">
- <header class="mp-page-head" id="workspace">
+ <section class="mp-dashboard" id="platform-dashboard" data-screen="dashboard" aria-labelledby="platform-dashboard-title">
+  <header class="mp-dashboard-head">
+   <div><span class="mp-eyebrow">Platform / platform_db</span><h1 id="platform-dashboard-title">Панель суперадминистратора</h1>
+    <p>Сводка компаний, лицензий и запросов на подключение модулей.</p></div>
+   <span class="mp-demo-chip">Демонстрационные данные</span>
+  </header>
+  <div class="mp-dashboard-summary" aria-label="Показатели платформы">
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Компании</span><strong id="platform-dash-companies">0</strong><small>Создано на платформе</small></div>
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Оплаченные модули</span><strong id="platform-dash-paid">0</strong><small>По всем компаниям</small></div>
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Активные лицензии</span><strong id="platform-dash-active">0</strong><small>Доступ подтверждён</small></div>
+   <div class="mp-dashboard-stat"><span class="mp-eyebrow">Ожидают решения</span><strong id="platform-dash-pending">0</strong><small>Запросы от компаний</small></div>
+  </div>
+  <div>
+   <div class="mp-row mp-between" style="margin-bottom:13px"><h2 class="mp-section-title">Разделы платформы</h2><span class="mp-help">Выберите раздел для продолжения</span></div>
+   <div class="mp-dashboard-grid">
+    <a class="mp-dashboard-tile" href="#companies" data-platform-section="companies"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">▦</span><div><h2>Компании</h2><p>Список клиентов, типы объектов и основные сведения.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-companies">0 компаний</span><span class="mp-tile-go">Перейти →</span></div></a>
+    <a class="mp-dashboard-tile" href="#modules" data-platform-section="modules"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">◫</span><div><h2>Подписка и модули</h2><p>Отметка оплаты и доступность каждого из девяти модулей.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-paid">0 оплачено</span><span class="mp-tile-go">Перейти →</span></div></a>
+    <a class="mp-dashboard-tile" href="#keys" data-platform-section="keys"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">▣</span><div><h2>Лицензионные ключи</h2><p>Выпуск ключей, сроки действия и решения по запросам.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-keys">0 ключей</span><span class="mp-tile-go">Перейти →</span></div></a>
+    <a class="mp-dashboard-tile" href="#principles" data-platform-section="principles"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true">ⓘ</span><div><h2>Правила подключения</h2><p>Разделение полномочий platform_db и tenant_db.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Политика доступа</span><span class="mp-tile-go">Подробнее →</span></div></a>
+   </div>
+  </div>
+ </section>
+ <div id="platform-work-area" class="mp-stack" data-screen="workspace" hidden>
+ <header class="mp-page-head" id="companies-view">
   <div><span class="mp-eyebrow">Platform Administration</span><h1>Компании и доступ</h1><p>Сначала создайте компанию и укажите тип объектов, затем управляйте подпиской.</p></div>
   <button class="mp-btn mp-btn--primary" type="button" id="add-company-button">+ Новая компания</button>
  </header>
@@ -92,7 +117,10 @@
    </section>
   </div>
  </div>
- <section class="mp-info-strip" id="principles"><span aria-hidden="true">ⓘ</span><div><strong>Граница ответственности</strong><p><b>platform_db</b> создаёт компании, назначает типы объектов и управляет оплатой/включением модулей. <b>tenant_db_*</b> ведёт только базовые данные выбранных типов объектов и пользователей. Здесь представлены имитации без реальной БД или оплаты.</p></div></section>
+ </div>
+ <section class="mp-card mp-stack" id="principles" data-screen="principles" hidden aria-labelledby="platform-rules-heading">
+ <h2 id="platform-rules-heading" class="mp-section-title">Правила подключения модулей</h2>
+ <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Граница ответственности</strong><p><b>platform_db</b> создаёт компании, назначает типы объектов, отмечает оплату и подтверждает заявки на активацию лицензий. <b>tenant_db_*</b> ведёт пользователей и базовые карточки назначенных типов объектов и может лишь направить запрос по ключу. Все данные демонстрационные.</p></div></div></section>
 </main>
 </div>
 </div>
@@ -110,6 +138,6 @@
   <div class="mp-form-actions"><button type="button" id="cancel-company" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="platform.js?v=6"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="platform.js?v=7"></script>
 </body>
 </html>
