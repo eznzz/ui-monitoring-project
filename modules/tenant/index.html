@@ -17,6 +17,7 @@
    <a class="mp-nav-link" href="#setup" aria-current="page">▦ &nbsp; Первичная настройка</a>
    <a class="mp-nav-link" href="#workspace" data-nav-users>◯ &nbsp; Пользователи</a>
    <a class="mp-nav-link" href="#workspace" data-nav-vessels>◇ &nbsp; Суда</a>
+   <a class="mp-nav-link" href="#workspace" data-nav-licenses>▣ &nbsp; Лицензии и запросы</a>
   </nav>
  </div>
  <div class="mp-sidebar-bottom">
@@ -34,7 +35,7 @@
   <div><span class="mp-eyebrow" id="tenant-head-code">tenant_db_000001</span><h1 id="tenant-company-heading">Настройка компании</h1><p id="tenant-company-title">Пользователи и типы объектов, назначенные платформой</p></div>
   <span class="mp-badge">Базовый доступ</span>
  </header>
- <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей с ролью <b>office</b> или <b>vessel</b> и заполнение Ship Particulars для судов. Ни один платный модуль здесь не включается.</p></div></div>
+ <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей с ролью <b>office</b> или <b>vessel</b> и заполнение Ship Particulars для судов. Активация модулей выполняется платформой после запроса по лицензионному ключу.</p></div></div>
  <section id="workspace" class="mp-card mp-stack" aria-labelledby="setup-tabs-label">
   <div class="mp-page-tools">
    <div><span class="mp-eyebrow">Первичная настройка</span><h2 id="setup-tabs-label" class="mp-section-title">Данные компании</h2></div>
@@ -43,6 +44,7 @@
   <div class="mp-tabs--buttons" role="tablist" aria-label="Разделы настройки">
    <button id="tenant-tab-users" role="tab" aria-controls="tenant-pane-users" aria-selected="true" tabindex="0" data-tenant-tab="users" type="button">Пользователи <span id="tenant-users-count">0</span></button>
    <button id="tenant-tab-vessels" role="tab" aria-controls="tenant-pane-vessels" aria-selected="false" tabindex="-1" data-tenant-tab="vessels" type="button">Суда <span id="tenant-vessels-count">0</span></button>
+   <button id="tenant-tab-licenses" role="tab" aria-controls="tenant-pane-licenses" aria-selected="false" tabindex="-1" data-tenant-tab="licenses" type="button">Лицензии</button>
   </div>
   <div id="tenant-pane-users" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-users">
    <div class="mp-page-tools">
@@ -60,6 +62,17 @@
    <div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div>
    <div id="tenant-vessel-list" aria-live="polite"></div>
   </div>
+  <div id="tenant-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-licenses" hidden>
+   <div class="mp-page-tools"><div><h3 class="mp-section-title">Запрос подключения модуля</h3><p class="mp-help">Введите ключ, выданный платформой, чтобы отправить запрос на активацию.</p></div><span class="mp-badge">Включает только Platform</span></div>
+   <form id="tenant-license-form" class="mp-stack">
+    <div class="mp-field"><label for="tenant-license-key">Лицензионный ключ *</label><input id="tenant-license-key" type="text" autocomplete="off" spellcheck="false" maxlength="36" placeholder="MP-XXXX-XXXX-XXXX-XXXX" required></div>
+    <div class="mp-form-actions"><button class="mp-btn mp-btn--primary" type="submit">Отправить запрос</button></div>
+    <p class="mp-help">Дата запроса фиксируется автоматически. Срок действия лицензии задаётся на платформе. Ключ сам по себе не активирует модуль.</p>
+    <p id="tenant-license-feedback" class="mp-feedback" aria-live="polite"></p>
+   </form>
+   <div class="mp-divider"></div><h3 class="mp-section-title">История запросов и даты</h3>
+   <div id="tenant-license-requests" class="mp-stack" aria-live="polite"></div>
+  </div>
  </section>
 </main>
 </div>
@@ -69,6 +82,9 @@
   <div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p class="mp-help">Выберите роль пользователя в компании.</p></div>
   <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" maxlength="100" required placeholder="Имя и фамилия"></div>
   <div class="mp-field"><label for="tenant-user-email">Email *</label><input id="tenant-user-email" type="email" maxlength="150" required placeholder="name@company.example"></div>
+  <div class="mp-field"><label for="tenant-user-password">Пароль *</label><input type="password" id="tenant-user-password" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Не менее 8 символов"></div>
+  <div class="mp-field"><label for="tenant-user-password-confirm">Подтверждение пароля *</label><input type="password" id="tenant-user-password-confirm" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Повторите пароль"></div>
+  <p class="mp-help">Только для проверки формы: пароль не сохраняется, не отправляется и не позволяет войти в демо. Не используйте настоящий пароль.</p>
   <div class="mp-field"><label for="tenant-user-role">Роль *</label>
    <select id="tenant-user-role" required>
     <option value="office">office — сотрудник офиса</option>
@@ -83,5 +99,5 @@
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=3"></script><script src="tenant.js?v=3"></script>
+<script src="../shared/app.js?v=4"></script><script src="../shared/licensing.js?v=1"></script><script src="tenant.js?v=4"></script>
 </body></html>
