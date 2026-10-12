@@ -94,8 +94,9 @@ function renderLicenseRequests(){
  requests.forEach(r=>{
   const license=data.licenses.find(l=>l.id===r.licenseId);
   const title=MP.MODULES.find(m=>m.id===r.moduleId)?.name||r.moduleId;
-  const label=r.status==='approved'?'Одобрен':r.status==='rejected'?'Отклонён':'Ожидает платформу';
   const expired=license&&!MP_LICENSE.isCurrent(license);
+  const enabled=MP_LICENSE.effective(data,company(),r.moduleId);
+  const label=expired?'Истёк / отозван':r.status==='approved'?(enabled?'Подключён':'Одобрен, но не активен'):r.status==='rejected'?'Отклонён':'Ожидает платформу';
   const node=document.createElement('article');node.className='mp-record mp-license-record';
   const info=document.createElement('div');info.className='mp-stack';info.style.gap='4px';
   const strong=document.createElement('strong');strong.textContent=title;
