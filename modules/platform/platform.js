@@ -30,10 +30,10 @@ function renderModules(c){
   const paidId='paid-'+m.id,enabledId='enabled-'+m.id;
   row.innerHTML='<div><strong>'+MP.escape(m.name)+'</strong><small>'+MP.escape(m.detail)+'</small></div>'+
   '<label class="mp-module-check" for="'+paidId+'"><input type="checkbox" id="'+paidId+'" data-action="paid" data-module="'+m.id+'"'+(entry.paid?' checked':'')+'>Оплачено</label>'+
-  '<label class="mp-module-check" for="'+enabledId+'"><input type="checkbox" id="'+enabledId+'" data-action="enabled" data-module="'+m.id+'"'+(entry.enabled?' checked':'')+(entry.paid?'':' disabled')+'>Включён</label>';
+  '<label class="mp-module-check" for="'+enabledId+'" title="Активация после запроса компании и подтверждения на платформе"><input type="checkbox" id="'+enabledId+'" disabled'+(MP_LICENSE.effective(data,c,m.id)?' checked':'')+'>Включён</label>';
   modules.append(row);
  });
- const enabled=MP.countEnabled(c),paid=MP.MODULES.filter(m=>c.modules?.[m.id]?.paid).length;
+ const enabled=MP.MODULES.filter(m=>MP_LICENSE.effective(data,c,m.id)).length,paid=MP.MODULES.filter(m=>c.modules?.[m.id]?.paid).length;
  $('modules-counter').textContent=enabled+' включено / '+paid+' оплачено';
  $('company-active-modules').textContent=enabled+' из '+MP.MODULES.length;
 }
@@ -66,7 +66,7 @@ function renderLicensePanel(company){
   const key=document.createElement('code');key.className='mp-license-key';key.textContent=license.key;
   const dates=document.createElement('small');dates.textContent='Выпущен: '+MP_LICENSE.formatDate(license.issuedAt)+' · До: '+MP_LICENSE.formatDate(license.expiresAt);
   const valid=MP_LICENSE.isCurrent(license);
-  const current=data.licenseRequests.find(r=>r.licenseId===license.id&&r.status==='approved');
+  const current=MP_LICENSE.effective(data,company,license.moduleId)&&data.licenseRequests.some(r=>r.licenseId===license.id&&r.status==='approved');
   const status=document.createElement('span');status.className='mp-badge';
   status.textContent=license.revokedAt?'Отозван':valid?(current?'Подключён':'Выдан'):'Истёк';
   info.append(title,key,dates,status);
@@ -188,17 +188,14 @@ modules.addEventListener('change',e=>{
  const c=selectedCompany(),id=input.dataset.module,action=input.dataset.action;
  if(!c||!MP.MODULES.some(m=>m.id===id))return;
  const entry=c.modules[id]||{paid:false,enabled:false};
- if(action==='paid'){
-  entry.paid=input.checked;if(!entry.paid)entry.enabled=false;
- }else{
-  if(!entry.paid){input.checked=false;MP.setFeedback('modules-feedback','Сначала требуется отметка оплаты.',true);return;}
-  entry.enabled=input.checked;
- }
+ if(action!=='paid')return;
+ entry.paid=input.checked;
+ if(!entry.paid)entry.enabled=false;
  c.modules[id]=entry;
  const restore=input.id;
  store();render();
  $(restore)?.focus();
- MP.setFeedback('modules-feedback',MP.MODULES.find(m=>m.id===id).name+': '+(entry.enabled?'доступ включён':entry.paid?'оплата отмечена':'нет оплаченного доступа')+' · mock-режим.',false);
+ MP.setFeedback('modules-feedback',MP.MODULES.find(m=>m.id===id).name+': '+(entry.paid?'оплата отмечена; выдайте ключ и подтвердите запрос для подключения':'оплата снята и доступ отключён')+' · mock-режим.',false);
 });
 search.addEventListener('input',renderCompanyList);
 function renderTypes(){
