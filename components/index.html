@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../tokens/tokens.css?v=0.6.2">
-<link rel="stylesheet" href="catalog.css?v=0.6.4"><link rel="stylesheet" href="essentials.css?v=0.6.4"><link rel="stylesheet" href="charts.css?v=0.6.5"><link rel="stylesheet" href="../mobile.css?v=1.0"></head>
+<link rel="stylesheet" href="catalog.css?v=0.6.4"><link rel="stylesheet" href="essentials.css?v=0.6.4"><link rel="stylesheet" href="charts.css?v=0.6.5"><link rel="stylesheet" href="../mobile.css?v=1.2"></head>
 <body>
 <header class="site-header"><a class="brand" href="../index.html"><span class="logo">M</span> Monitoring Project <span class="brand-muted">Design System</span></a><div class="header-actions"><a href="../index.html">Dashboard ↗</a><button id="theme-toggle" class="theme-button" aria-pressed="false" type="button">◐ <span id="theme-label">Тёмная тема</span></button></div></header>
 <div class="layout"><aside class="toc" aria-label="Разделы каталога"><span class="eyebrow">COMPONENTS / v0.6</span><a href="#foundations">Foundations</a><a href="#buttons">Buttons</a><a href="#inputs">Text Fields</a><a href="#selects">Select</a><a href="#checkboxes">Checkbox</a><a href="#data-table">Data Table</a><a href="#tabs">Tabs</a><a href="#modal">Modal</a><a href="#toast">Toast</a><a href="#essentials">Essentials</a><a href="#charts">Charts</a><a href="#guidelines">Guidelines</a></aside>
@@ -28,6 +28,7 @@
       <div class="field table-search"><label for="table-search">Поиск судна</label><input id="table-search" type="search" placeholder="Название или IMO" autocomplete="off"></div>
       <div class="field table-filter"><label for="table-status">Статус</label><select id="table-status"><option value="">Все статусы</option><option value="В пути">В пути</option><option value="В порту">В порту</option><option value="Обслуживание">Обслуживание</option></select></div>
     </div>
+    <label class="mobile-sort field" for="mobile-table-sort"><span>Сортировка карточек</span><select id="mobile-table-sort"><option value="name:1">Судно: А—Я</option><option value="name:-1">Судно: Я—А</option><option value="updated:-1">Недавно обновлённые</option><option value="status:1">По статусу</option></select></label>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Таблица судов, прокручиваемая по горизонтали">
       <table class="data-table"><caption class="visually-hidden">Демонстрационный список судов</caption><thead><tr>
         <th scope="col"><input id="table-select-all" type="checkbox" aria-label="Выбрать все строки на текущей странице"></th>
@@ -74,4 +75,4 @@
 <div class="panel chart-panel chart-kpi"><h3>KPI Card & Sparkline</h3><span class="eyebrow">АКТИВНЫЕ СУДА</span><div class="kpi-value">72 <span class="kpi-change">▲ +12.5%</span></div><div id="chart-sparkline" class="vms-chart sparkline" role="img" aria-label="Мини-график динамики: 42, 51, 47, 63, 59, 72"></div><p class="hint">Изменение — иллюстративный показатель, не вычислен из соседних значений.</p></div>
 </div></section><section id="guidelines" class="section"><div class="section-header"><div><span class="eyebrow">12 / DOCUMENTATION</span><h2>Правила использования</h2></div></div><div class="panel"><ul class="guidelines"><li>Один явный Primary action в пределах основной области решения.</li><li>Не используйте placeholder вместо label.</li><li>Показывайте ошибки текстом, а не только цветом.</li><li>Поддерживайте видимый фокус и клавиатурную навигацию.</li><li>Размеры и токены должны быть последовательны в обеих темах.</li></ul><p class="hint">Это демо компонентов, а не законченный accessibility-аудит или библиотека для production.</p></div></section>
 <footer>Monitoring Project Design System · Experimental component catalog · <a href="https://github.com/eznzz/vms-design-system">GitHub</a></footer>
-</main></div><script src="catalog.js?v=0.6.4"></script><script src="essentials.js?v=0.6.4"></script><script src="charts.js?v=0.6.5"></script></body></html>
+</main></div><script src="catalog.js?v=0.6.7"></script><script src="essentials.js?v=0.6.4"></script><script src="charts.js?v=0.6.5"></script></body></html>
