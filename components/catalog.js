@@ -60,6 +60,11 @@ all.addEventListener('change',()=>{sorted().slice(page*pageSize,(page+1)*pageSiz
 document.querySelectorAll('[data-sort]').forEach(button=>button.addEventListener('click',()=>{
  const next=button.dataset.sort;sortDir=next===sortKey?-sortDir:1;sortKey=next;page=0;render();
 }));
+const mobileSort=byId('mobile-table-sort');
+if(mobileSort) mobileSort.addEventListener('change',()=>{
+ const [key,direction]=mobileSort.value.split(':');
+ sortKey=key;sortDir=Number(direction);page=0;render();
+});
 byId('table-prev').addEventListener('click',()=>{if(page>0){page--;render();}});
 byId('table-next').addEventListener('click',()=>{if((page+1)*pageSize<sorted().length){page++;render();}});
 render();
