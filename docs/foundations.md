@@ -1,4 +1,4 @@
-# Foundations — VMS Design System v0.4
+# Foundations — Monitoring Project Design System v0.4
 
 The canonical design tokens live in [`tokens/tokens.css`](../tokens/tokens.css). Both the Dashboard and the component catalog load it **before** their own layout and component stylesheets.
 
