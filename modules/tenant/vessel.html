@@ -1,0 +1,53 @@
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ship Particulars — Monitoring Project</title>
+<meta name="description" content="Карточка судна: форма Ship Particulars по разделам предоставленного документа">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=2">
+</head><body>
+<div class="mp-shell">
+ <div class="mp-overlay" data-mp-overlay></div>
+ <aside class="mp-sidebar" id="vessel-sidebar" data-mp-sidebar>
+  <a class="mp-brand" href="../auth/login.html"><span class="mp-logo">M</span><span>Monitoring Project<small>Company / Vessels</small></span></a>
+  <div class="mp-stack">
+   <span class="mp-eyebrow" id="editor-tenant-code" style="padding:0 12px">tenant_db_000001</span>
+   <nav class="mp-sidebar-nav" aria-label="Меню компании">
+    <a id="editor-back-sidebar" class="mp-nav-link" href="index.html#vessels">← &nbsp; К реестру судов</a>
+   </nav>
+  </div>
+  <div class="mp-sidebar-bottom"><p class="mp-note">Форма первичной карточки судна. Платные модули здесь не управляются.</p></div>
+ </aside>
+ <div class="mp-shell-main">
+ <header class="mp-topbar">
+  <div class="mp-row"><button class="mp-menu" type="button" data-mp-menu aria-controls="vessel-sidebar" aria-expanded="false" aria-label="Открыть меню">☰</button><span class="mp-topbar-title">Company / Ship Particulars</span></div>
+  <div class="mp-topbar-actions"><button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle>◐ Тёмная тема</button></div>
+ </header>
+ <main class="mp-main-content">
+  <div class="mp-page-head">
+   <div><span class="mp-eyebrow">Company / Vessels</span><h1 id="editor-title">Новая карточка судна</h1><p>Identification, Dimensions, Cargo, Machinery и остальные разделы Ship Particulars.</p></div>
+   <a id="editor-back" href="index.html#vessels" class="mp-btn mp-btn--secondary">← Все суда</a>
+  </div>
+  <div class="mp-info-strip">
+   <span aria-hidden="true">ⓘ</span>
+   <div><strong>Основа формы — Ship Particulars / Marta Reefer</strong>
+   <p>Структура и названия полей взяты из предоставленного документа (2 страницы). Примерные сведения о конкретном судне не заполняются автоматически. Поля необязательны, кроме Ship's Name и IMO.</p></div>
+  </div>
+  <form id="vessel-particulars-form" novalidate>
+   <div class="mp-editor-layout">
+    <nav id="editor-sections-nav" class="mp-card mp-editor-side" aria-label="Разделы Ship Particulars"></nav>
+    <div id="editor-sections" class="mp-editor-sections"></div>
+   </div>
+   <div class="mp-editor-toolbar">
+    <div><strong id="editor-progress" style="font-size:12px">Заполнено 0 полей</strong><p class="mp-help">Демонстрационное сохранение в этом браузере</p></div>
+    <div class="mp-row"><button class="mp-btn mp-btn--secondary" type="button" id="editor-reset">Очистить</button><button type="submit" class="mp-btn mp-btn--primary">Сохранить карточку</button></div>
+   </div>
+   <p id="editor-feedback" class="mp-feedback" aria-live="polite"></p>
+  </form>
+ </main>
+ </div>
+</div>
+<script src="../shared/app.js?v=2"></script>
+<script src="ship-particulars.js?v=1"></script>
+<script src="vessel.js?v=1"></script>
+</body></html>
