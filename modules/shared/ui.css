@@ -154,3 +154,6 @@ a:hover{text-decoration:none}
 }
 @media(max-width:370px){.mp-main-content{padding-inline:10px}.mp-card{padding:14px}.mp-module{grid-template-columns:1fr}.mp-module .mp-module-check:last-child{grid-column:auto}.mp-module-check{justify-content:flex-start}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Keep in-page navigation headings visible below the sticky topbar. */
+:where(#overview,#companies,#users,#vessels,#modules,#rules){scroll-margin-top:90px}
