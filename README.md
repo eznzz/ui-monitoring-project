@@ -1,4 +1,4 @@
-# VMS Design System
+# Monitoring Project Design System
 
 A lightweight, framework-free dashboard template and a growing design system for enterprise interfaces.
 
