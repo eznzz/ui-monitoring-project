@@ -20,20 +20,60 @@ function viewSelect(next,focus){
  });
  if(focus)$('tenant-tab-'+view).focus();
 }
+function renderTenantDashboard(){
+ const c=company(),tenant=records();
+ const pending=MP_LICENSE.requestsByCompany(data,tenantId).filter(r=>r.status==='pending').length;
+ const active=MP.MODULES.filter(m=>MP_LICENSE.effective(data,c,m.id)).length;
+ $('tenant-dashboard-id').textContent=c.id+' · '+c.code;
+ $('tenant-dashboard-company').textContent=c.name+' · сведения о компании и первичная настройка';
+ $('tenant-dash-users').textContent=tenant.users.length;
+ $('tenant-dash-vessels').textContent=tenant.vessels.length;
+ $('tenant-dash-active').textContent=active;
+ $('tenant-dash-pending').textContent=pending;
+ $('tenant-tile-users').textContent=tenant.users.length+' пользователей';
+ $('tenant-tile-vessels').textContent=tenant.vessels.length+' судов';
+ $('tenant-tile-pending').textContent=pending+' ожидают решения';
+ $('tenant-dashboard-vessel-tile').hidden=!allowVessels();
+}
+function routeFromHash(){
+ const route=decodeURIComponent(location.hash.slice(1));
+ return ['dashboard','users','vessels','licenses'].includes(route)?route:'dashboard';
+}
+function showTenantPage(page,updateLocation=true){
+ if(!['dashboard','users','vessels','licenses'].includes(page))page='dashboard';
+ if(page==='vessels'&&!allowVessels())page='users';
+ $('tenant-dashboard').hidden=page!=='dashboard';
+ $('tenant-work-area').hidden=page==='dashboard';
+ if(page!=='dashboard')viewSelect(page);
+ document.querySelectorAll('.mp-sidebar-nav [data-tenant-section]').forEach(a=>{
+  if(a.dataset.tenantSection===page)a.setAttribute('aria-current','page');
+  else a.removeAttribute('aria-current');
+ });
+ $('tenant-top-name').textContent=(company()?.name||'Компания')+' / '+({
+  dashboard:'Главная',users:'Пользователи',vessels:'Суда',licenses:'Лицензии'
+ }[page]);
+ if(updateLocation){
+  history.replaceState(null,'',location.pathname+location.search+'#'+page);
+  window.scrollTo({top:0,behavior:'instant'});
+ }
+}
+document.querySelectorAll('[data-tenant-section]').forEach(link=>{
+ link.addEventListener('click',event=>{event.preventDefault();showTenantPage(link.dataset.tenantSection);});
+});
+window.addEventListener('hashchange',()=>showTenantPage(routeFromHash(),false));
+
 document.querySelectorAll('[data-tenant-tab]').forEach(button=>{
- button.addEventListener('click',()=>viewSelect(button.dataset.tenantTab));
+ button.addEventListener('click',()=>showTenantPage(button.dataset.tenantTab));
  button.addEventListener('keydown',e=>{
   if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
   e.preventDefault();
   const tabs=['users',...(allowVessels()?['vessels']:[]),'licenses'];
   const idx=tabs.indexOf(view);
   const next=e.key==='Home'?0:e.key==='End'?tabs.length-1:e.key==='ArrowRight'?(idx+1)%tabs.length:(idx-1+tabs.length)%tabs.length;
-  viewSelect(tabs[next],true);
+  showTenantPage(tabs[next]);
+  $('tenant-tab-'+tabs[next]).focus();
  });
 });
-document.querySelector('[data-nav-users]').addEventListener('click',()=>viewSelect('users'));
-document.querySelector('[data-nav-vessels]').addEventListener('click',()=>viewSelect('vessels'));
-document.querySelector('[data-nav-licenses]').addEventListener('click',()=>viewSelect('licenses'));
 function renderUsers(){
  const list=$('tenant-user-list'),users=records().users;
  $('tenant-users-count').textContent=users.length;
@@ -117,7 +157,7 @@ function render(){
  $('tenant-tab-vessels').hidden=!allowVessels();
  document.querySelector('[data-nav-vessels]').hidden=!allowVessels();
  $('add-vessel-button').href='vessel.html?tenant='+encodeURIComponent(tenantId);
- renderUsers();renderVessels();renderLicenseRequests();viewSelect(view);
+ renderUsers();renderVessels();renderLicenseRequests();renderTenantDashboard();viewSelect(view);
 }
 function populateVesselChoices(){
  const selector=$('tenant-user-vessel');selector.replaceChildren();
@@ -163,7 +203,7 @@ $('tenant-user-form').addEventListener('submit',e=>{
  }
  records().users.push({id:'user-'+Date.now(),name,email,role,vesselImo});
  // Credentials are intentionally discarded in the public mock application.
- form.reset();store();dialog.close();renderUsers();
+ form.reset();store();dialog.close();renderUsers();renderTenantDashboard();
  MP.setFeedback('tenant-user-feedback','Пользователь создан с ролью '+role+'. Это демоданные.',false);
 });
 $('tenant-vessel-search').addEventListener('input',renderVessels);
@@ -174,12 +214,10 @@ $('tenant-license-form').addEventListener('submit',event=>{
  try{
   const result=MP_LICENSE.request(data,tenantId,input.value);
   if(!MP.save(data))throw Error('Не удалось сохранить запрос в браузере.');
-  input.value='';renderLicenseRequests();
+  input.value='';renderLicenseRequests();renderTenantDashboard();
   MP.setFeedback('tenant-license-feedback','Запрос на модуль '+(MP.MODULES.find(m=>m.id===result.license.moduleId)?.name||'')+' от '+MP_LICENSE.formatDate(result.request.requestedAt)+' передан на рассмотрение платформы (демо).',false);
  }catch(error){MP.setFeedback('tenant-license-feedback',error.message,true);}
 });
 window.addEventListener('storage',e=>{if(e.key===MP.KEY){data=MP.state();render();}});
-if(location.hash==='#vessels')view='vessels';
-if(location.hash==='#licenses')view='licenses';
-render();
+render();showTenantPage(routeFromHash(),false);
 })();
