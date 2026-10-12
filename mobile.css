@@ -89,3 +89,27 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) {
  .spinner, .vms-skeleton { animation:none !important; }
 }
+
+/* Date Range: native date controls can retain intrinsic min-content width on iOS.
+   Force nested grid tracks and flex items to shrink inside their parent. */
+.grid-form, .grid-form > .field, .field:has(input[type="date"]) {
+  min-width: 0;
+  max-width: 100%;
+}
+.field input[type="date"] {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 40px;
+}
+@media (max-width: 760px) {
+  .grid-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
+  }
+  .grid-form > .field { width: 100%; min-width: 0; }
+}
