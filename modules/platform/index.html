@@ -6,7 +6,7 @@
 <meta name="description" content="Monitoring Project: администрирование компаний, типов объектов и лицензируемых модулей">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=5">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=6">
 </head>
 <body>
 <div class="mp-shell">
@@ -60,14 +60,14 @@
        <div><dt>Tenant ID</dt><dd id="company-tenant-id">tenant_db_000001</dd></div>
        <div><dt>Код компании</dt><dd id="company-code">COMP-001</dd></div>
        <div><dt>Типы объектов</dt><dd id="company-types">Суда (Vessels)</dd></div>
-       <div><dt>Подключено модулей</dt><dd id="company-active-modules">0 из 9</dd></div>
+       <div><dt>Активных лицензий</dt><dd id="company-active-modules">0 из 9</dd></div>
       </dl>
       <div class="mp-info-strip"><span aria-hidden="true">ⓘ</span><div><strong>Первичный доступ</strong><p>Без платных модулей компания может создавать пользователей и заполнять карточки выбранных типов объектов. Все модули включаются только платформой.</p></div></div>
       <p id="platform-feedback" class="mp-feedback" aria-live="polite"></p>
     </div>
     <div id="platform-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="platform-tab-licenses" hidden>
      <div class="mp-row mp-between">
-      <div><h3 class="mp-section-title">Лицензии выбранной компании</h3><p class="mp-help">Каждый модуль оплачивается отдельно. Включение доступно только после отметки оплаты.</p></div>
+      <div><h3 class="mp-section-title">Лицензии выбранной компании</h3><p class="mp-help">Каждый модуль оплачивается отдельно. После оплаты платформа выпускает ключ; компания отправляет запрос, который подтверждает суперадминистратор. Только затем модуль включается.</p></div>
       <span class="mp-pill" id="modules-counter">0 / 9</span>
      </div>
      <div class="mp-module-list" id="platform-module-list" aria-label="Подключение модулей"></div>
@@ -110,6 +110,6 @@
   <div class="mp-form-actions"><button type="button" id="cancel-company" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=2"></script><script src="platform.js?v=5"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=2"></script><script src="platform.js?v=6"></script>
 </body>
 </html>
