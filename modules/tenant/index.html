@@ -5,7 +5,7 @@
 <meta name="description" content="Monitoring Project: базовая настройка компании, пользователи и карточки судов">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=3">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=5">
 </head><body>
 <div class="mp-shell">
 <div class="mp-overlay" data-mp-overlay></div>
@@ -92,12 +92,12 @@
    </select>
   </div>
   <div class="mp-field" id="user-vessel-field" hidden>
-   <label for="tenant-user-vessel">Судно (необязательно)</label><select id="tenant-user-vessel"><option value="">Не назначено</option></select>
-   <p class="mp-help">Можно назначить судно позднее, когда его карточка будет создана.</p>
+   <label for="tenant-user-vessel">Судно *</label><select id="tenant-user-vessel"><option value="">Выберите судно</option></select>
+   <p class="mp-help" id="user-vessel-help">Для роли vessel обязательно выбрать судно из уже заполненных карточек. Если список пуст, сначала создайте судно.</p>
   </div>
   <p id="user-form-error" class="mp-error" role="alert"></p>
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=4"></script><script src="../shared/licensing.js?v=1"></script><script src="tenant.js?v=4"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=2"></script><script src="tenant.js?v=5"></script>
 </body></html>
