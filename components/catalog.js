@@ -28,12 +28,12 @@ function render(){
  if(!visible.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='table-empty';td.textContent='По вашему запросу ничего не найдено';tr.append(td);tbody.append(tr);}
  visible.forEach(row=>{
  const tr=document.createElement('tr');
- const selection=document.createElement('td');const checkbox=document.createElement('input');
+ const selection=document.createElement('td');selection.dataset.label='Выбор';const checkbox=document.createElement('input');
  checkbox.type='checkbox';checkbox.checked=selected.has(row.imo);checkbox.setAttribute('aria-label','Выбрать судно '+row.name);
  checkbox.addEventListener('change',()=>{checkbox.checked?selected.add(row.imo):selected.delete(row.imo);render();});
  selection.append(checkbox);tr.append(selection);
  for(const key of ['name','imo','status','updated']){
-  const td=document.createElement('td');
+  const td=document.createElement('td');td.dataset.label=({name:'Судно',imo:'IMO',status:'Статус',updated:'Обновлено'})[key];
   if(key==='status'){const span=document.createElement('span');span.className='table-status-pill';span.dataset.status=row[key];span.textContent=row[key];td.append(span);}
   else td.textContent=row[key];
   tr.append(td);
