@@ -6,7 +6,7 @@
 <meta name="description" content="Monitoring Project: администрирование компаний, типов объектов и лицензируемых модулей">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=3">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=5">
 </head>
 <body>
 <div class="mp-shell">
@@ -78,7 +78,7 @@
      <form id="platform-license-form" class="mp-stack">
       <div class="mp-form-grid">
        <div class="mp-field"><label for="platform-license-module">Модуль *</label><select id="platform-license-module" required></select></div>
-       <div class="mp-field"><label for="platform-license-expiry">Действует до *</label><input id="platform-license-expiry" type="date" required></div>
+       <div class="mp-field"><label for="platform-license-expiry">Действует до *</label><span class="mp-date-frame"><input id="platform-license-expiry" type="date" required></span></div>
       </div>
       <div class="mp-page-tools"><p class="mp-help">Выдача доступна после отметки оплаты на вкладке «Подписка и модули».</p><button class="mp-btn mp-btn--primary" type="submit">Выпустить ключ</button></div>
       <p class="mp-feedback" id="platform-license-feedback" aria-live="polite"></p>
@@ -110,6 +110,6 @@
   <div class="mp-form-actions"><button type="button" id="cancel-company" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=4"></script><script src="../shared/licensing.js?v=1"></script><script src="platform.js?v=4"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=2"></script><script src="platform.js?v=5"></script>
 </body>
 </html>
