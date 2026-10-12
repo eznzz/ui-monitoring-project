@@ -65,7 +65,9 @@ modules.addEventListener('change',event=>{
     entry.enabled=input.checked;
   }
   c.modules[key]=entry;
+  const controlId=input.id;
   persist();render();
+  document.getElementById(controlId)?.focus();
   MP.setFeedback('modules-feedback',key+': '+(entry.enabled?'доступ включён':entry.paid?'оплачено, ожидает включения':'доступ не предоставлен')+'. Это демонстрационная запись.',false);
 });
 search.addEventListener('input',renderCompanies);
