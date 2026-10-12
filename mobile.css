@@ -113,3 +113,59 @@ button, a, input, select, textarea { touch-action: manipulation; }
   }
   .grid-form > .field { width: 100%; min-width: 0; }
 }
+
+/* Mobile Data Table → Cards. Keep the semantic table DOM and existing JS controls. */
+@media (max-width: 600px) {
+  .table-scroll {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+  .data-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+  }
+  .data-table thead { display: none; }
+  .data-table tbody { display: grid; gap: 12px; }
+  .data-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .data-table tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+  .data-table tbody td:last-child { border-bottom: 0; }
+  .data-table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 37%;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-align: left;
+  }
+  .data-table tbody td:first-child { align-items: center; }
+  .data-table tbody td:first-child input { margin-left: auto; }
+  .data-table tbody .table-empty {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 26px 10px !important;
+  }
+  .data-table tbody .table-empty::before { content: none; }
+  .table-intro { margin-bottom: 12px; }
+}
