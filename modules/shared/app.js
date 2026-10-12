@@ -19,12 +19,14 @@ const MODULES=[
 const OBJECT_TYPES=[{id:'vessels',name:'Суда (Vessels)',description:'Карточки судов и Ship Particulars'}];
 const ROLES=[{id:'office',name:'Office'},{id:'vessel',name:'Vessel'}];
 function defaults(){
- return {version:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',code:'COMP-001',objectTypes:['vessels'],modules:{}}],
-   tenants:{tenant_db_000001:{users:[],vessels:[]}}};
+ return {version:3,companies:[{id:'tenant_db_000001',name:'Демо-компания',code:'COMP-001',objectTypes:['vessels'],modules:{}}],
+   tenants:{tenant_db_000001:{users:[],vessels:[]}},licenses:[],licenseRequests:[]};
 }
 function normalize(raw){
  if(!raw||!Array.isArray(raw.companies)||!raw.tenants)return defaults();
- raw.version=2;
+ raw.version=3;
+ if(!Array.isArray(raw.licenses))raw.licenses=[];
+ if(!Array.isArray(raw.licenseRequests))raw.licenseRequests=[];
  raw.companies.forEach(c=>{
    if(!Array.isArray(c.objectTypes))c.objectTypes=['vessels']; // migration of older mock companies
    c.objectTypes=c.objectTypes.filter(id=>OBJECT_TYPES.some(type=>type.id===id));
@@ -35,7 +37,7 @@ function normalize(raw){
    const t=raw.tenants[id];
    t.users=Array.isArray(t.users)?t.users:[];
    t.vessels=Array.isArray(t.vessels)?t.vessels:[];
-   t.users.forEach(u=>{if(!ROLES.some(r=>r.id===u.role))u.role='office';});
+   t.users.forEach(u=>{if(!ROLES.some(r=>r.id===u.role))u.role='office';delete u.password;delete u.passwordConfirm;delete u.passwordHash;});
    t.vessels=t.vessels.map(v=>{
      if(v.fields&&typeof v.fields==='object'){
        v.holds=Array.isArray(v.holds)?v.holds:[];
