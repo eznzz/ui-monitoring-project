@@ -80,15 +80,8 @@ function renderSections(){
    const append=el('button',{type:'button',class:'mp-btn mp-btn--secondary',id:'hold-add'},'+ Помещение');
    const sample=el('button',{type:'button',class:'mp-btn mp-btn--secondary',id:'hold-template'},'Добавить 1A–4C');
    actions.append(append,sample);toolbar.append(note,actions);sectionEl.append(toolbar);
-   const desktop=el('div',{class:'mp-holds-container'});
-   const table=el('table',{class:'mp-holds-table'});
-   const thead=el('thead');const headRow=el('tr');
-   schema.holdFields.forEach(f=>headRow.append(el('th',{scope:'col'},f.label)));
-   headRow.append(el('th',{scope:'col'},''));
-   thead.append(headRow);table.append(thead);
-   table.append(el('tbody',{id:'hold-desktop-body'}));desktop.append(table);
-   sectionEl.append(desktop);
-   sectionEl.append(el('div',{id:'hold-mobile-list',class:'mp-mobile-holds'}));
+   // One responsive card layout at every viewport: no horizontal scrollbar.
+   sectionEl.append(el('div',{id:'hold-mobile-list',class:'mp-mobile-holds mp-holds-grid'}));
    const totals=el('div',{class:'mp-form-grid'});
    holdTotalFields.forEach(f=>{
     const field=el('div',{class:'mp-field'});
@@ -124,29 +117,28 @@ function deleteButton(index){
  return b;
 }
 function renderHolds(){
- const tbody=$('hold-desktop-body'),mobile=$('hold-mobile-list');
- if(!tbody||!mobile)return;
- tbody.replaceChildren();mobile.replaceChildren();
+ const cards=$('hold-mobile-list');
+ if(!cards)return;
+ cards.replaceChildren();
  if(!holdRows.length){
-  const tr=el('tr');const td=el('td',{colspan:9,class:'mp-muted'},'Пока нет строк грузовых помещений. Добавьте вручную или выберите шаблон 1A–4C.');
-  tr.append(td);tbody.append(tr);
-  mobile.append(el('p',{class:'mp-empty'},'Нет грузовых помещений. Добавьте строку.'));
+  cards.append(el('p',{class:'mp-empty'},'Помещений пока нет. Нажмите «+ Помещение» или «Добавить 1A–4C».'));
  }
  holdRows.forEach((item,index)=>{
-  const tr=el('tr');
-  schema.holdFields.forEach(f=>{const td=el('td');td.append(buildHoldInput(index,f));tr.append(td);});
-  const actions=el('td');actions.append(deleteButton(index));tr.append(actions);tbody.append(tr);
   const card=el('article',{class:'mp-hold-card'});
   const header=el('div',{class:'mp-row mp-between'});
-  header.append(el('strong',{},item.holdDeck||'Помещение '+(index+1)));header.append(deleteButton(index));card.append(header);
+  header.append(el('strong',{},item.holdDeck||'Помещение '+(index+1)));
+  header.append(deleteButton(index));
+  card.append(header);
   const fields=el('div',{class:'mp-hold-card-fields'});
   schema.holdFields.forEach(f=>{
    const field=el('div',{class:'mp-field'});
-   const inp=buildHoldInput(index,f);
-   const id='hold-mobile-'+index+'-'+f.id;
-   inp.id=id;field.append(el('label',{for:id},f.label));field.append(inp);fields.append(field);
+   const input=buildHoldInput(index,f);
+   const id='hold-card-'+index+'-'+f.id;
+   input.id=id;
+   field.append(el('label',{for:id},f.label));field.append(input);
+   fields.append(field);
   });
-  card.append(fields);mobile.append(card);
+  card.append(fields);cards.append(card);
  });
  updateProgress();
 }
@@ -156,9 +148,6 @@ fieldsPane.addEventListener('input',event=>{
   const index=Number(input.dataset.holdIndex),key=input.dataset.holdKey;
   if(!holdRows[index])return;
   holdRows[index][key]=input.value;
-  fieldsPane.querySelectorAll('[data-hold-index="'+index+'"][data-hold-key="'+key+'"]').forEach(peer=>{
-   if(peer!==input)peer.value=input.value;
-  });
   if(key==='holdDeck'){
    const heading=fieldsPane.querySelectorAll('#hold-mobile-list .mp-hold-card')[index]?.querySelector('strong');
    if(heading)heading.textContent=input.value||'Помещение '+(index+1);
