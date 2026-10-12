@@ -279,3 +279,9 @@ a:hover{text-decoration:none}
  .mp-license-record{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
  .mp-license-record .mp-row{justify-content:flex-start}
 }
+
+/* Native iOS date picker: frame controls width, input's intrinsic size cannot grow the grid. */
+.mp-date-frame{position:relative;display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:var(--vms-input-height,40px);overflow:hidden;border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius,6px);background:var(--vms-color-input-bg)}
+.mp-field .mp-date-frame > input[type=date]{position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;min-width:0;max-width:100%;box-sizing:border-box;border:0;border-radius:0;padding:0 12px;margin:0;background:transparent;color:var(--vms-color-text)}
+.mp-date-frame:focus-within{border-color:var(--vms-color-focus);outline:2px solid var(--vms-color-focus);outline-offset:2px}
+@media(max-width:700px){.mp-date-frame{height:44px}.mp-date-frame>input[type=date]{font-size:16px}}
