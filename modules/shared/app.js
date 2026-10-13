@@ -29,7 +29,7 @@ function defaults(){
 }
 function normalize(raw){
  if(!raw||!Array.isArray(raw.companies)||!raw.tenants)return defaults();
- raw.version=5;
+ raw.version=6;
  const existing=raw.companies.map(c=>Number(c.id?.match(/tenant_db_(\d+)$/)?.[1]||0));
  raw.nextTenantNumber=Math.max(Number.isInteger(raw.nextTenantNumber)?raw.nextTenantNumber:1,Math.max(0,...existing)+1);
  if(!Array.isArray(raw.licenses))raw.licenses=[];
@@ -50,19 +50,35 @@ function normalize(raw){
    const t=raw.tenants[id];
    t.users=Array.isArray(t.users)?t.users:[];
    t.vessels=Array.isArray(t.vessels)?t.vessels:[];
+   // Migrate Vessels before user links so legacy vesselImo can resolve to a stable Object ID.
+   const seen=new Set();
+   t.vessels=t.vessels.map((v,i)=>{
+    const record=(v.fields&&typeof v.fields==='object')?v:{
+     id:v.id||'',fields:{shipName:v.name||'',imo:v.imo||'',shipType:v.type||'',flag:v.flag||'',callSign:v.callSign||''},
+     holds:[],updatedAt:''
+    };
+    const originalId=String(record.id||'');
+    // Legacy numeric IDs sometimes equalled IMO; do not keep a business attribute as Object identity.
+    record.id=!originalId||originalId===String(record.fields?.imo||'')||seen.has(originalId)
+     ?'object-legacy-'+id+'-'+i:originalId;
+    seen.add(record.id);
+    record.objectTypeId='vessels';
+    record.status=['active','inactive','archived'].includes(record.status)?record.status:'inactive';
+    record.holds=Array.isArray(record.holds)?record.holds:[];
+    record.holdTotals=record.holdTotals&&typeof record.holdTotals==='object'?record.holdTotals:{};
+    record.history=Array.isArray(record.history)?record.history:[];
+    return record;
+   });
    t.users.forEach((u,i)=>{
     if(!ROLES.some(r=>r.id===u.role))u.role='office';
     if(!u.id)u.id='legacy-'+id+'-'+i;
+    if(!Array.isArray(u.objectIds)){
+     const linked=t.vessels.find(v=>v.fields?.imo===u.vesselImo);
+     u.objectIds=linked?[linked.id]:[];
+    }
+    u.objectIds=[...new Set(u.objectIds)].filter(objectId=>t.vessels.some(v=>v.id===objectId));
+    delete u.vesselImo; // relationships now reference stable Object IDs
     delete u.password;delete u.passwordConfirm;delete u.passwordHash;
-   });
-   t.vessels=t.vessels.map(v=>{
-     if(v.fields&&typeof v.fields==='object'){
-       v.holds=Array.isArray(v.holds)?v.holds:[];
-       return v;
-     }
-     return {id:v.imo||'vessel-'+String(Date.now()),fields:{
-       shipName:v.name||'',imo:v.imo||'',shipType:v.type||'',flag:v.flag||'',callSign:v.callSign||''
-     },holds:[],updatedAt:''};
    });
  });
  return raw;
@@ -118,15 +134,68 @@ function removeUser(s,tenantId,userId){
  if(t.users.length===before)throw Error('Пользователь не найден.');
  return true;
 }
-function removeVessel(s,tenantId,vesselIMO){
+const VESSEL_STATUSES=Object.freeze(['active','inactive','archived']);
+function vesselById(s,tenantId,objectId){
+ return s.tenants?.[tenantId]?.vessels?.find(v=>v.id===objectId)||null;
+}
+function nextObjectId(s,tenantId){
+ let id;
+ do{id='object-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);}
+ while(vesselById(s,tenantId,id));
+ return id;
+}
+function saveVessel(s,tenantId,{id,fields,holds=[],holdTotals={}}){
  const c=company(s,tenantId),t=s.tenants?.[tenantId];
- if(!c||!t||!Array.isArray(t.vessels))throw Error('Компания или список судов не найден.');
- if(t.users?.some(u=>u.role==='vessel'&&u.vesselImo===vesselIMO))
-  throw Error('Судно привязано к аккаунту vessel. Сначала удалите привязанные аккаунты в разделе «Пользователи».');
- const before=t.vessels.length;
- t.vessels=t.vessels.filter(v=>vesselSummary(v).imo!==vesselIMO);
- if(t.vessels.length===before)throw Error('Судно не найдено.');
- return true;
+ if(!c||c.status==='archived'||!c.objectTypes?.includes('vessels')||!t)
+  throw Error('Реестр судов недоступен для этой компании.');
+ if(!fields?.shipName?.trim())throw Error('Укажите Ship\'s Name.');
+ if(!/^\d{7}$/.test(String(fields?.imo||'')))throw Error('IMO No. должен содержать ровно 7 цифр (mock).');
+ const prev=id?vesselById(s,tenantId,id):null;
+ if(id&&!prev)throw Error('Object ID не найден в этой компании.');
+ if(t.vessels.some(v=>v.id!==id&&v.fields?.imo===fields.imo))
+  throw Error('Это IMO уже есть в реестре компании.');
+ if(prev?.status==='archived')throw Error('Сначала восстановите судно из архива.');
+ const now=new Date().toISOString(),record=prev||{
+  id:nextObjectId(s,tenantId),objectTypeId:'vessels',status:'inactive',history:[]
+ };
+ record.fields={...fields};record.holds=holds.map(h=>({...h}));record.holdTotals={...holdTotals};record.updatedAt=now;
+ record.history.push({type:prev?'particulars-updated':'created',at:now,actor:'demo-admin'});
+ if(!prev)t.vessels.push(record);
+ return record;
+}
+function setVesselStatus(s,tenantId,objectId,next){
+ const c=company(s,tenantId),v=vesselById(s,tenantId,objectId);
+ if(!c||c.status==='archived'||!v)throw Error('Судно недоступно.');
+ if(!VESSEL_STATUSES.includes(next))throw Error('Неизвестный статус судна.');
+ if(v.status===next)return v;
+ if(v.status==='archived'&&next!=='inactive')
+  throw Error('Восстановление архива возможно только в inactive.');
+ if(v.status!=='archived'&&next==='active'&&v.status!=='inactive')
+  throw Error('Активация возможна только из inactive.');
+ const previous=v.status;
+ v.status=next;
+ v.history=Array.isArray(v.history)?v.history:[];
+ v.history.push({type:'status-changed',from:previous,to:next,at:new Date().toISOString(),actor:'demo-admin'});
+ // MOCK ONLY: actual fleet-limit checks must be atomic on the backend before activation.
+ return v;
+}
+function assignUserObjects(s,tenantId,userId,ids){
+ const c=company(s,tenantId),t=s.tenants?.[tenantId],u=t?.users?.find(x=>x.id===userId);
+ if(!c||c.status==='archived'||!u||!['office','vessel'].includes(u.role))
+  throw Error('Назначение недоступно.');
+ if(!Array.isArray(ids))throw Error('Список Object ID должен быть массивом.');
+ const unique=[...new Set(ids)],existing=new Set(u.objectIds||[]);
+ for(const objectId of unique){
+  const v=t.vessels.find(x=>x.id===objectId);
+  if(!v)throw Error('Судно не принадлежит компании.');
+  // Existing inactive/archived assignments can be kept, but not newly granted.
+  if(!existing.has(objectId)&&v.status!=='active')
+   throw Error('Новые назначения возможны только на активные суда.');
+ }
+ u.objectIds=unique;
+ u.assignmentHistory=Array.isArray(u.assignmentHistory)?u.assignmentHistory:[];
+ u.assignmentHistory.push({type:'assignments-updated',objectIds:[...unique],at:new Date().toISOString(),actor:'demo-admin'});
+ return u;
 }
 // Company archive/restore preserves tenant data; physical deletion is not a UI action.
 function setFeedback(id,message,error){
@@ -160,6 +229,6 @@ function initShared(){
    window.addEventListener('resize',()=>{if(innerWidth>950)close();});
  }
 }
-window.MP={KEY,MODULES,OBJECT_TYPES,ETALON_OBJECT_TYPES,availableObjectTypes,findObjectType,ROLES,defaults,state,save,company,createMockCompany,setCompanyArchived,tenant,vesselSummary,escape,countEnabled,removeUser,removeVessel,setFeedback};
+window.MP={KEY,MODULES,OBJECT_TYPES,ETALON_OBJECT_TYPES,availableObjectTypes,findObjectType,ROLES,defaults,state,save,company,createMockCompany,setCompanyArchived,tenant,vesselSummary,VESSEL_STATUSES,vesselById,saveVessel,setVesselStatus,assignUserObjects,escape,countEnabled,removeUser,setFeedback};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initShared);else initShared();
 })();
