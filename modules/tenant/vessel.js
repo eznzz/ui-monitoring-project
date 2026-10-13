@@ -5,7 +5,7 @@ const schema=window.MP_SHIP_SCHEMA;
 const params=new URLSearchParams(location.search);
 let state=MP.state();
 const requested=params.get('tenant');
-const tenantId=MP.company(state,requested)?requested:'tenant_db_000001';
+const tenantId=requested||state.companies[0]?.id||'';
 const originalIMO=params.get('imo')||'';
 const company=MP.company(state,tenantId);
 const authorizedObjectType=company?.objectTypes?.includes('vessels');
@@ -180,6 +180,9 @@ function resetEditor(){
 $('editor-reset').addEventListener('click',resetEditor);
 function saveForm(event){
  event.preventDefault();
+ if(!MP.company(MP.state(),tenantId)){
+  MP.setFeedback('editor-feedback','Компания удалена. Сохранение недоступно.',true);return;
+ }
  if(!authorizedObjectType){MP.setFeedback('editor-feedback','Компания не имеет типа объектов Vessels.',true);return;}
  const name=$('ship-shipName'),imo=$('ship-imo');
  if(!name.value.trim()){MP.setFeedback('editor-feedback','Укажите Ship\'s Name.',true);name.focus();name.scrollIntoView({block:'center'});return;}
