@@ -26,7 +26,7 @@ function normalize(raw){
  if(!raw||!Array.isArray(raw.companies)||!raw.tenants)return defaults();
  raw.version=4;
  if(!Number.isInteger(raw.nextTenantNumber)||raw.nextTenantNumber<1){
-  const existing=raw.companies.map(c=>Number(c.id?.match(/tenant_db_(\\d+)$/)?.[1]||0));
+  const existing=raw.companies.map(c=>Number(c.id?.match(/tenant_db_(\d+)$/)?.[1]||0));
   raw.nextTenantNumber=Math.max(1,...existing)+1;
  }
  if(!Array.isArray(raw.licenses))raw.licenses=[];
