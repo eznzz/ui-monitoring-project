@@ -43,7 +43,13 @@
    <div><strong>Основа формы — Ship Particulars / Marta Reefer</strong>
    <p>Структура и названия полей взяты из предоставленного документа (2 страницы). Примерные сведения о конкретном судне не заполняются автоматически. Поля необязательны, кроме Ship's Name и IMO.</p></div>
   </div>
-  <form id="vessel-particulars-form" novalidate>
+  <section class="mp-card mp-stack" aria-label="Идентификатор и история объекта">
+    <div class="mp-row mp-between"><strong>Object Registry · Vessels</strong><span class="mp-badge" id="editor-object-status">Новое судно · inactive</span></div>
+    <p class="mp-help">Object ID: <code id="editor-object-id">Будет создан при сохранении</code></p>
+    <p class="mp-help">Статус управляется в реестре судов. Активация в демо — локальная симуляция, не проверка VDMS API.</p>
+    <details><summary>История изменений объекта</summary><ol id="editor-object-history" class="mp-stack"></ol></details>
+   </section>
+   <form id="vessel-particulars-form" novalidate>
    <div class="mp-editor-layout">
     <nav id="editor-sections-nav" class="mp-card mp-editor-side" aria-label="Разделы Ship Particulars"></nav>
     <div id="editor-sections" class="mp-editor-sections"></div>
@@ -57,8 +63,8 @@
  </main>
  </div>
 </div>
-<script src="../shared/app.js?v=9"></script>
+<script src="../shared/app.js?v=10"></script>
 <script src="ship-particulars.js?v=3"></script>
-<script src="vessel.js?v=9"></script>
+<script src="vessel.js?v=10"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>
