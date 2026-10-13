@@ -244,29 +244,25 @@ modules.addEventListener('change',e=>{
 });
 search.addEventListener('input',renderCompanyList);
 function renderTypes(){
- const wrap=$('company-object-types');wrap.replaceChildren();
- MP.OBJECT_TYPES.forEach(t=>{
-  const label=document.createElement('label');label.className='mp-type-option';
-  const cb=document.createElement('input');cb.type='checkbox';cb.name='objectType';cb.value=t.id;
-  cb.checked=t.id==='vessels';
-  const div=document.createElement('div');
-  const strong=document.createElement('strong');strong.textContent=t.name;
-  const small=document.createElement('p');small.textContent=t.description;
-  div.append(strong,small);label.append(cb,div);wrap.append(label);
- });
+ const select=$('company-object-types');
+ select.replaceChildren(new Option('Выберите тип объектов',''));
+ MP.OBJECT_TYPES.forEach(type=>select.add(new Option(type.name,type.id)));
+ select.value='';
 }
 $('add-company-button').addEventListener('click',()=>{
  $('company-form').reset();$('company-form-error').textContent='';renderTypes();
  dialog.showModal();$('new-company-name').focus();
 });
 $('cancel-company').addEventListener('click',()=>dialog.close());
+document.querySelector('[data-dialog-close="company-dialog"]')?.addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
 $('company-form').addEventListener('submit',e=>{
  e.preventDefault();
  const name=$('new-company-name').value.trim(),code=$('new-company-code').value.trim();
- const objectTypes=[...document.querySelectorAll('#company-object-types input:checked')].map(el=>el.value);
+ const objectType=$('company-object-types').value;
+ const objectTypes=MP.OBJECT_TYPES.some(type=>type.id===objectType)?[objectType]:[];
  if(!name||!code){$('company-form-error').textContent='Укажите название и код компании.';return;}
- if(!objectTypes.length){$('company-form-error').textContent='Выберите хотя бы один тип объектов.';return;}
+ if(!objectTypes.length){$('company-form-error').textContent='Выберите тип объектов из списка.';return;}
  if(data.companies.some(c=>c.code.toLowerCase()===code.toLowerCase())){
   $('company-form-error').textContent='Код компании уже занят.';return;
  }
