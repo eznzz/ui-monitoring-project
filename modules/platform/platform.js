@@ -13,7 +13,7 @@ function renderCompanyList(){
  const matches=data.companies.filter(c=>[c.name,c.id].some(v=>v.toLowerCase().includes(q)));
  $('company-list-count').textContent=matches.length;
  list.replaceChildren();
- if(!matches.length){const p=document.createElement('p');p.className='mp-empty';p.textContent='Компании не найдены';list.append(p);return;}
+ if(!matches.length){const p=document.createElement('p');p.className='mp-empty';p.textContent=data.companies.length?'По запросу ничего не найдено.':'Компаний пока нет. Нажмите «Новая компания».';list.append(p);return;}
  matches.forEach(c=>{
   const b=document.createElement('button');b.type='button';b.className='mp-record mp-record--button';
   b.setAttribute('aria-pressed',String(c.id===selected));
@@ -268,7 +268,7 @@ $('delete-company-button').addEventListener('click',async()=>{
   selected=data.companies[0]?.id||'';
   search.value='';
   store();render();openPlatformPage('companies');
-  MP.setFeedback('platform-feedback','Компания «'+deletedName+'» удалена вместе со связанными демоданными.',false);
+  MP.setFeedback('platform-list-feedback','Компания «'+deletedName+'» удалена вместе со связанными демоданными.',false);
  }catch(error){MP.setFeedback('platform-feedback',error.message,true);}
 });
 $('add-company-button').addEventListener('click',()=>{
