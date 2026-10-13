@@ -11,7 +11,7 @@
 - [`modules/`](../modules/README.md) — действующих **демонстрационных экранов** на mock/localStorage;
 - [`docs/PROJECT_ARCHITECTURE.md`](../docs/PROJECT_ARCHITECTURE.md) — исторического плана UI-модулей, который может не отражать новые согласованные правила.
 
-**Демонстрационные экраны зафиксированы:** без отдельного решения не перерабатываем их бизнес-логику, авторизацию, лицензирование, маршруты или визуальную оболочку. Здесь готовим модель для последующей интеграции с API другого отдела.
+**Демонстрационные экраны:** исходно были заморожены до отдельного решения. 13.10.2026 пользователь явно разрешил привести mock UI к архитектуре Platform Object Types → Tenant Objects и согласованным статусам/назначениям/подпискам. Это не разрешение менять эталонный Dashboard Template или считать API реализованным.
 
 ## Документы
 
@@ -22,6 +22,8 @@
 5. [**LICENSING_AND_SUBSCRIPTIONS.md**](LICENSING_AND_SUBSCRIPTIONS.md) — согласованная модель **системной лицензии**, **модульных подписок**, сроков доступа, полномочий Super Admin и заявок Company Owner; платежная интеграция и API-контракты остаются открытыми.
 6. [**VESSELS_AND_SCOPES.md**](VESSELS_AND_SCOPES.md) — **единый реестр судов и активная группа**: active/inactive/archived, лимиты модулей и сохранение истории.
 7. [**SHIP_PARTICULARS_AND_USER_ASSIGNMENTS.md**](SHIP_PARTICULARS_AND_USER_ASSIGNMENTS.md) — **согласованные Ship Particulars и назначения Office/Vessel**: два обязательных поля, новое судно `inactive`, many-to-many по судам, серверный scope и границы неутверждённого API.
+8. [**OBJECT_TYPES_AND_TENANT_PROVISIONING.md**](OBJECT_TYPES_AND_TENANT_PROVISIONING.md) — утверждённый Platform каталог типов и tenant-реестр экземпляров.
+9. [**UI_API_ALIGNMENT.md**](UI_API_ALIGNMENT.md) — фактическое состояние UI и ещё не подтверждённые контракты VDMS API.
    
 Дальше здесь можно добавить `API_CONTRACTS.md`, `MODULE_NAVIGATION.md`, `FRONTEND_DATA_MODELS.md` и `INTEGRATION_CHECKLIST.md` — **после** обсуждения их содержания.
 
