@@ -6,11 +6,12 @@ const params=new URLSearchParams(location.search);
 let state=MP.state();
 const requested=params.get('tenant');
 const tenantId=requested||state.companies[0]?.id||'';
-const originalIMO=params.get('imo')||'';
+const requestedId=params.get('id')||'';
+const originalIMO=params.get('imo')||''; // Legacy demo URL, normalized after save.
 const company=MP.company(state,tenantId);
-const authorizedObjectType=company?.objectTypes?.includes('vessels');
-const vesselList=MP.tenant(state,tenantId).vessels;
-let source=vesselList.find(v=>MP.vesselSummary(v).imo===originalIMO);
+const authorizedObjectType=company?.objectTypeId==='vessels'&&company.status!=='archived';
+const vesselList=MP.vessels(state,tenantId);
+let source=vesselList.find(v=>requestedId?v.id===requestedId:MP.vesselSummary(v).imo===originalIMO);
 const originalValues=source?{...source.fields}:{};
 let holdRows=source?.holds?source.holds.map(h=>({...h})):[];
 let holdTotals=source?.holdTotals?{...source.holdTotals}:{};
@@ -178,10 +179,19 @@ function resetEditor(){
  MP.setFeedback('editor-feedback','Форма очищена. Для сохранения требуются название судна и IMO.',false);
 }
 $('editor-reset').addEventListener('click',resetEditor);
+function renderObjectMeta(){
+ const el=$('editor-object-meta');if(!el)return;
+ el.replaceChildren();
+ if(!source){el.textContent='После первого сохранения: inactive · Object ID будет назначен автоматически.';return;}
+ const text='Object ID: '+source.id+' · Статус: '+source.status+
+  ' · История изменений: '+(source.history||[]).length+' записей';
+ el.textContent=text;
+}
 function saveForm(event){
  event.preventDefault();
- if(!MP.company(MP.state(),tenantId)){
-  MP.setFeedback('editor-feedback','Компания удалена. Сохранение недоступно.',true);return;
+ const latest=MP.company(MP.state(),tenantId);
+ if(!latest||latest.status==='archived'){
+  MP.setFeedback('editor-feedback','Компания недоступна или архивирована. Сохранение недоступно.',true);return;
  }
  if(!authorizedObjectType){MP.setFeedback('editor-feedback','Компания не имеет типа объектов Vessels.',true);return;}
  const name=$('ship-shipName'),imo=$('ship-imo');
@@ -189,22 +199,33 @@ function saveForm(event){
  if(!/^\d{7}$/.test(imo.value.trim())){MP.setFeedback('editor-feedback','IMO No. должен содержать ровно 7 цифр.',true);imo.focus();imo.scrollIntoView({block:'center'});return;}
  const fields={};
  document.querySelectorAll('[data-field]').forEach(input=>{fields[input.dataset.field]=input.value.trim();});
- const vessels=MP.tenant(state,tenantId).vessels;
+ const vessels=MP.vessels(state,tenantId);
  const duplicate=vessels.some(v=>v!==source&&MP.vesselSummary(v).imo===fields.imo);
  if(duplicate){MP.setFeedback('editor-feedback','Судно с таким IMO уже существует в этой компании.',true);imo.focus();return;}
- const record={id:source?.id||'vessel-'+Date.now(),fields,holds:holdRows.map(h=>({...h})),holdTotals:{...holdTotals},updatedAt:new Date().toISOString()};
- if(source){
-  const previousIMO=MP.vesselSummary(source).imo;
-  Object.assign(source,record);
-  if(previousIMO!==fields.imo){
-   MP.tenant(state,tenantId).users.forEach(user=>{if(user.vesselImo===previousIMO)user.vesselImo=fields.imo;});
-  }
- }else{vessels.push(record);source=record;}
+ const timestamp=new Date().toISOString(),created=!source;
+ const changes=Object.keys(fields).filter(key=>fields[key]!==source?.fields?.[key]);
+ const record={
+  id:source?.id||MP.newId('object'),objectTypeId:'vessels',
+  status:source?.status||'inactive',
+  fields,holds:holdRows.map(h=>({...h})),holdTotals:{...holdTotals},
+  updatedAt:timestamp,history:source?.history||[]
+ };
+ record.history.push({at:timestamp,actor:'demo-admin',action:created?'particulars.create':'particulars.update',changedFields:changes});
+ if(source)Object.assign(source,record);
+ else{vessels.push(record);source=record;}
+ MP.addAudit(state,tenantId,created?'object.create':'object.update',record.id,
+  'Ship Particulars: '+changes.join(', '));
  if(!MP.save(state)){MP.setFeedback('editor-feedback','Браузер не сохранил данные. Проверьте доступность localStorage.',true);return;}
- MP.setFeedback('editor-feedback','Карточка судна сохранена в локальном демо.',false);
- const url=new URL(location.href);url.searchParams.set('imo',fields.imo);url.searchParams.set('tenant',tenantId);
+ MP.setFeedback('editor-feedback',
+  created?'Карточка создана в статусе inactive. Для работы в модулях её нужно включить вручную.':
+  'Карточка обновлена; Object ID и назначения не изменились.',false);
+ const url=new URL(location.href);
+ url.searchParams.delete('imo');
+ url.searchParams.set('id',record.id);
+ url.searchParams.set('tenant',tenantId);
  window.history.replaceState(null,'',url.toString());
  $('editor-title').textContent=fields.shipName||'Карточка судна';
+ renderObjectMeta();
 }
 form.addEventListener('submit',saveForm);
 if(!company||!authorizedObjectType){
@@ -216,5 +237,6 @@ $('editor-tenant-code').textContent=tenantId;
 $('editor-back').href='index.html?tenant='+encodeURIComponent(tenantId)+'#vessels';
 $('editor-back-sidebar').href=$('editor-back').href;
 $('editor-title').textContent=source?MP.vesselSummary(source).name:'Новая карточка судна';
+renderObjectMeta();
 renderSections();updateProgress();
 })();
