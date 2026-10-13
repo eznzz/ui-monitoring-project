@@ -46,7 +46,9 @@ function showTenantPage(page,updateLocation=true){
  $('tenant-work-area').hidden=page==='dashboard';
  if(page!=='dashboard')viewSelect(page);
  document.querySelectorAll('.mp-sidebar-nav [data-tenant-section]').forEach(a=>{
-  if(a.dataset.tenantSection===page)a.setAttribute('aria-current','page');
+  const active=a.dataset.tenantSection===page;
+  a.classList.toggle('active',active);
+  if(active)a.setAttribute('aria-current','page');
   else a.removeAttribute('aria-current');
  });
  $('tenant-top-name').textContent=(company()?.name||'Компания')+' / '+({
