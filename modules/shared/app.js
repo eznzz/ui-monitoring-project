@@ -69,6 +69,33 @@ function escape(value){
  return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function countEnabled(c){return MODULES.filter(m=>c.modules?.[m.id]?.paid&&c.modules?.[m.id]?.enabled).length;}
+function removeUser(s,tenantId,userId){
+ const c=company(s,tenantId),t=s.tenants?.[tenantId];
+ if(!c||!t||!Array.isArray(t.users))throw Error('Компания или список пользователей не найден.');
+ const before=t.users.length;
+ t.users=t.users.filter(u=>u.id!==userId);
+ if(t.users.length===before)throw Error('Пользователь не найден.');
+ return true;
+}
+function removeVessel(s,tenantId,vesselIMO){
+ const c=company(s,tenantId),t=s.tenants?.[tenantId];
+ if(!c||!t||!Array.isArray(t.vessels))throw Error('Компания или список судов не найден.');
+ if(t.users?.some(u=>u.role==='vessel'&&u.vesselImo===vesselIMO))
+  throw Error('Судно привязано к аккаунту vessel. Сначала удалите привязанные аккаунты в разделе «Пользователи».');
+ const before=t.vessels.length;
+ t.vessels=t.vessels.filter(v=>vesselSummary(v).imo!==vesselIMO);
+ if(t.vessels.length===before)throw Error('Судно не найдено.');
+ return true;
+}
+function removeCompany(s,tenantId){
+ const ix=s.companies.findIndex(c=>c.id===tenantId);
+ if(ix<0)throw Error('Компания не найдена.');
+ const removed=s.companies.splice(ix,1)[0];
+ delete s.tenants[tenantId];
+ s.licenses=(s.licenses||[]).filter(l=>l.tenantId!==tenantId);
+ s.licenseRequests=(s.licenseRequests||[]).filter(r=>r.tenantId!==tenantId);
+ return removed;
+}
 function setFeedback(id,message,error){
  const node=document.getElementById(id);if(!node)return;
  node.textContent=message;node.setAttribute('role',error?'alert':'status');
@@ -100,6 +127,6 @@ function initShared(){
    window.addEventListener('resize',()=>{if(innerWidth>950)close();});
  }
 }
-window.MP={KEY,MODULES,OBJECT_TYPES,ROLES,defaults,state,save,company,tenant,vesselSummary,escape,countEnabled,setFeedback};
+window.MP={KEY,MODULES,OBJECT_TYPES,ROLES,defaults,state,save,company,tenant,vesselSummary,escape,countEnabled,removeUser,removeVessel,removeCompany,setFeedback};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initShared);else initShared();
 })();
