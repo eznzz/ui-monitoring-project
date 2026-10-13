@@ -22,13 +22,14 @@
 5. [**LICENSING_AND_SUBSCRIPTIONS.md**](LICENSING_AND_SUBSCRIPTIONS.md) — согласованная модель **системной лицензии**, **модульных подписок**, сроков доступа, полномочий Super Admin и заявок Company Owner; платежная интеграция и API-контракты остаются открытыми.
 6. [**VESSELS_AND_SCOPES.md**](VESSELS_AND_SCOPES.md) — **единый реестр судов и активная группа**: active/inactive/archived, лимиты модулей и сохранение истории.
 7. [**SHIP_PARTICULARS_AND_USER_ASSIGNMENTS.md**](SHIP_PARTICULARS_AND_USER_ASSIGNMENTS.md) — **согласованные Ship Particulars и назначения Office/Vessel**: два обязательных поля, новое судно `inactive`, many-to-many по судам, серверный scope и границы неутверждённого API.
+8. [**ETALON_PLATFORM_TENANT.md**](ETALON_PLATFORM_TENANT.md) — **согласованная трёхуровневая модель** `etalon_db → platform_db → tenant_db`, поэтапное развитие эталона, выбор Object Type и разграничение утверждённых принципов и открытых вопросов к VDMS API.
    
 Дальше здесь можно добавить `API_CONTRACTS.md`, `MODULE_NAVIGATION.md`, `FRONTEND_DATA_MODELS.md` и `INTEGRATION_CHECKLIST.md` — **после** обсуждения их содержания.
 
 ## Правила архитектурного проектирования
 
 - Разрабатываем **только frontend**. Схемы БД, реальные API, авторизационный backend и маршрутизацию физических tenant-баз реализует другой отдел.
-- Термины и имена из согласованной модели сохраняем: `platform_db.platform`, `tenant_db_XXXXXX`, `platform_users`, `tenant.auth`, `licenses`, `subscriptions`, `core`, `documents` и остальные модули.
+- Термины и имена из согласованной модели сохраняем: `etalon_db` (развиваемая эталонная структура Tenant и типы объектов), `platform_db.platform`, `tenant_db_XXXXXX`, `platform_users`, `tenant.auth`, `licenses`, `subscriptions`, `core`, `documents` и остальные модули.
 - Разделяем **«Согласовано»**, **«Предлагается frontend»** и **«Требует согласования с API/БД»**. Не превращаем предварительные пути URL, JSON и имена полей в контракт без подтверждения.
 - Ни UI, ни API-клиент не подключается к базе данных напрямую и не принимает физическое имя БД как пользовательский параметр доступа.
 - Предполагаем сервисы-адаптеры: экраны вызывают один frontend-интерфейс данных, за которым временно могут находиться mock-ответы, а позднее — реальные API.

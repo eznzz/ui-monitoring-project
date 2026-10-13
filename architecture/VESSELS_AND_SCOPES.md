@@ -2,9 +2,11 @@
 
 **Статус:** согласованная бизнес-модель статусов судов, активной группы, первичного `inactive` и множественных пользовательских назначений; названия полей, API и технические детали — предложения frontend, 13.10.2026.
 
-Связанные материалы: [DECISIONS.md](DECISIONS.md), [PERMISSIONS_MATRIX.md](PERMISSIONS_MATRIX.md), [AUTH_AND_ROUTING.md](AUTH_AND_ROUTING.md), [LICENSING_AND_SUBSCRIPTIONS.md](LICENSING_AND_SUBSCRIPTIONS.md).
+Связанные материалы: [DECISIONS.md](DECISIONS.md), [PERMISSIONS_MATRIX.md](PERMISSIONS_MATRIX.md), [AUTH_AND_ROUTING.md](AUTH_AND_ROUTING.md), [LICENSING_AND_SUBSCRIPTIONS.md](LICENSING_AND_SUBSCRIPTIONS.md), [ETALON_PLATFORM_TENANT.md](ETALON_PLATFORM_TENANT.md).
 
 ## 1. Единый реестр компании и три состояния судна — согласовано
+
+**Object Type `vessels` выбирается на уровне Platform из эталонной модели `etalon_db`; эталон постепенно формирует нужную структуру Tenant.** Конкретные суда и Ship Particulars — **рабочие данные этой tenant-БД**, а не записи эталона или Platform. Механика физической подготовки БД требует согласования с VDMS API.
 
 Каждая компания располагает **единым реестром судов**, включая их **Ship Particulars**. Судно имеет постоянный серверный ID и принадлежит только своему tenant. Рабочие модули **не содержат собственные независимые копии списка судов**; они используют серверный контекст активных судов компании и назначений по модулю.
 
