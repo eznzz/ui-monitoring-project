@@ -212,7 +212,7 @@ function saveForm(event){
  };
  record.history.push({at:timestamp,actor:'demo-admin',action:created?'particulars.create':'particulars.update',changedFields:changes});
  if(source)Object.assign(source,record);
- else{vessels.push(record);source=record;}
+ else{MP.tenant(state,tenantId).objects.push(record);source=record;}
  MP.addAudit(state,tenantId,created?'object.create':'object.update',record.id,
   'Ship Particulars: '+changes.join(', '));
  if(!MP.save(state)){MP.setFeedback('editor-feedback','Браузер не сохранил данные. Проверьте доступность localStorage.',true);return;}
