@@ -24,7 +24,7 @@
 .mp-template-app .avatar { background:var(--vms-color-primary);color:var(--vms-color-on-primary); }
 .mp-template-app .content.mp-main-content { width:min(100%,1310px);padding:clamp(20px,3vw,35px);min-width:0; }
 .mp-template-app .mp-card { box-shadow:var(--shadow);border:1px solid var(--vms-color-border); }
-.mp-template-app .mp-dashboard-stat,.mp-template-app .mp-dashboard-tile { box-shadow:0 2px 7px rgba(0,0,0,.035); }
+.mp-template-app .mp-dashboard-tile { box-shadow:0 2px 7px rgba(0,0,0,.035); }
 .mp-template-app .mp-dashboard-tile { border-color:var(--vms-color-border); }
 .mp-template-app .mp-dashboard-tile:hover { border-color:var(--vms-color-primary); }
 .mp-template-app .mp-btn--primary { background:var(--blue);color:var(--vms-color-on-primary); }
@@ -160,29 +160,6 @@ dialog.mp-dialog .mp-form-actions button { min-height:40px; }
  grid-auto-rows:max-content;
  gap:14px;
 }
-.mp-template-app .mp-dashboard-summary {
- grid-template-columns:repeat(4,minmax(0,1fr));
- grid-auto-rows:max-content;
- align-content:start;
- align-items:start;
- gap:8px;
-}
-.mp-template-app .mp-dashboard-stat {
- box-sizing:border-box;
- display:flex;
- flex-direction:row;
- align-items:center;
- justify-content:space-between;
- align-self:start;
- width:100%;
- min-width:0;
- min-height:0;
- height:max-content;
- gap:7px;
- padding:10px 10px;
- border-radius:var(--vms-input-radius,6px);
- box-shadow:none;
-}
 /* A single heading pattern for dashboards and all working sections. */
 .mp-template-app :is(.mp-dashboard-head,.mp-page-head) {
  display:flex;
@@ -221,13 +198,6 @@ dialog.mp-dialog .mp-form-actions button { min-height:40px; }
 .mp-template-app .mp-workspace-header{gap:11px}
 
 
-.mp-template-app .mp-dashboard-stat .mp-eyebrow{
- color:var(--vms-color-muted);font-size:10px;line-height:1.2;letter-spacing:0;text-transform:none;font-weight:600;
-}
-.mp-template-app .mp-dashboard-stat strong{
- margin:0;font-size:19px;line-height:1.1;font-weight:650;letter-spacing:-.025em;flex:0 0 auto;
-}
-.mp-template-app .mp-dashboard-stat small{display:none}
 .mp-template-app .mp-dashboard-grid{gap:10px}
 .mp-template-app .mp-dashboard-tile{min-height:132px;padding:16px;gap:12px;box-shadow:none}
 .mp-template-app .mp-dashboard-tile h2{font-size:14px;margin:0 0 4px}
@@ -266,13 +236,11 @@ dialog.mp-confirm-dialog[open]{width:min(460px,calc(100vw - 28px))}
 @media(max-width:950px){
  .mp-template-app .content.mp-main-content{padding:16px 12px}
  .mp-template-app .mp-workspace{grid-template-columns:1fr}
- .mp-template-app .mp-dashboard-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
  .mp-template-app .mp-editor-layout{grid-template-columns:1fr}
 }
 @media(max-width:600px){
  .mp-template-app .mp-card{padding:13px}
  
- .mp-template-app .mp-dashboard-stat strong{font-size:18px}
  .mp-template-app .mp-dashboard-tile{min-height:113px;padding:13px}
  .mp-template-app .mp-dashboard-tile-icon{width:31px;height:31px;flex-basis:31px}
  .mp-template-app .mp-workspace-header .mp-admin-header-actions{width:100%}
