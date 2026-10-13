@@ -17,6 +17,20 @@ const originalValues=source?{...source.fields}:{};
 let holdRows=source?.holds?source.holds.map(h=>({...h})):[];
 let holdTotals=source?.holdTotals?{...source.holdTotals}:{};
 const form=$('vessel-particulars-form');
+const missingObject=(requestedObjectId||legacyIMO)&&!source;
+function renderObjectMeta(){
+ const statuses={active:'Активно',inactive:'Неактивно',archived:'В архиве'};
+ $('editor-object-id').textContent=source?.id||'Будет создан при сохранении';
+ $('editor-object-status').textContent=source?(statuses[source.status]||'Неактивно'):'Новое · inactive';
+ const list=$('editor-object-history');list.replaceChildren();
+ for(const item of (source?.history||[]).slice(-12).reverse()){
+  const li=document.createElement('li');
+  const event=item.event==='status'?'Статус '+(item.from||'')+' → '+(item.to||''):item.event==='particulars.updated'?'Ship Particulars обновлены':'Объект создан';
+  li.textContent=(item.at?new Date(item.at).toLocaleString('ru-RU')+' · ':'')+event+' (mock)';
+  list.append(li);
+ }
+ if(!list.children.length){const li=document.createElement('li');li.textContent='История пока пуста';list.append(li);}
+}
 const fieldsPane=$('editor-sections'),navigation=$('editor-sections-nav');
 const holdTotalFields=[
  {id:'totalCbm',label:'TOTAL CBM'},
@@ -186,6 +200,8 @@ function saveForm(event){
   MP.setFeedback('editor-feedback','Компания удалена. Сохранение недоступно.',true);return;
  }
  if(!authorizedObjectType){MP.setFeedback('editor-feedback','Компания не имеет типа объектов Vessels.',true);return;}
+ if(missingObject){MP.setFeedback('editor-feedback','Объект по этой ссылке не найден. Вернитесь в реестр судов.',true);return;}
+ if(source?.status==='archived'){MP.setFeedback('editor-feedback','Архивная карточка доступна только для просмотра.',true);return;}
  const name=$('ship-shipName'),imo=$('ship-imo');
  if(!name.value.trim()){MP.setFeedback('editor-feedback','Укажите Ship\'s Name.',true);name.focus();name.scrollIntoView({block:'center'});return;}
  if(!/^\d{7}$/.test(imo.value.trim())){MP.setFeedback('editor-feedback','IMO No. должен содержать ровно 7 цифр.',true);imo.focus();imo.scrollIntoView({block:'center'});return;}
@@ -200,17 +216,15 @@ function saveForm(event){
  const record={id:source?.id||MP.newObjectId(),objectTypeId:'vessels',status:previousStatus,
   fields,holds:holdRows.map(h=>({...h})),holdTotals:{...holdTotals},history,updatedAt:new Date().toISOString()};
  if(source){
-  const previousIMO=MP.vesselSummary(source).imo;
+  // User assignments reference the stable Object ID; changing IMO does not change them.
   Object.assign(source,record);
-  if(previousIMO!==fields.imo){
-   MP.tenant(state,tenantId).users.forEach(user=>{if(user.vesselImo===previousIMO)user.vesselImo=fields.imo;});
-  }
  }else{vessels.push(record);source=record;}
  if(!MP.save(state)){MP.setFeedback('editor-feedback','Браузер не сохранил данные. Проверьте доступность localStorage.',true);return;}
  MP.setFeedback('editor-feedback','Карточка судна сохранена в локальном демо · статус '+record.status+' · Object ID '+record.id+'.',false);
  const url=new URL(location.href);url.searchParams.delete('imo');url.searchParams.set('object',record.id);url.searchParams.set('tenant',tenantId);
  window.history.replaceState(null,'',url.toString());
  $('editor-title').textContent=fields.shipName||'Карточка судна';
+ renderObjectMeta();
 }
 form.addEventListener('submit',saveForm);
 if(!company||!authorizedObjectType){
@@ -222,5 +236,13 @@ $('editor-tenant-code').textContent=tenantId;
 $('editor-back').href='index.html?tenant='+encodeURIComponent(tenantId)+'#vessels';
 $('editor-back-sidebar').href=$('editor-back').href;
 $('editor-title').textContent=source?MP.vesselSummary(source).name:'Новая карточка судна';
-renderSections();updateProgress();
+renderSections();updateProgress();renderObjectMeta();
+if(missingObject){
+ MP.setFeedback('editor-feedback','Объект не найден. Вернитесь в реестр и создайте новую карточку из списка.',true);
+ form.querySelectorAll('input,select,button').forEach(control=>{control.disabled=true;});
+}
+if(source?.status==='archived'){
+ MP.setFeedback('editor-feedback','Архивное судно: только просмотр. Чтобы редактировать, восстановите его в реестре.',false);
+ form.querySelectorAll('input,select,button').forEach(control=>{control.disabled=true;});
+}
 })();
