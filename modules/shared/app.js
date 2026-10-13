@@ -19,12 +19,16 @@ const MODULES=[
 const OBJECT_TYPES=[{id:'vessels',name:'Суда (Vessels)',description:'Карточки судов и Ship Particulars'}];
 const ROLES=[{id:'office',name:'Office'},{id:'vessel',name:'Vessel'}];
 function defaults(){
- return {version:3,companies:[{id:'tenant_db_000001',name:'Демо-компания',code:'COMP-001',objectTypes:['vessels'],modules:{}}],
+ return {version:4,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',code:'COMP-001',objectTypes:['vessels'],modules:{}}],
    tenants:{tenant_db_000001:{users:[],vessels:[]}},licenses:[],licenseRequests:[]};
 }
 function normalize(raw){
  if(!raw||!Array.isArray(raw.companies)||!raw.tenants)return defaults();
- raw.version=3;
+ raw.version=4;
+ if(!Number.isInteger(raw.nextTenantNumber)||raw.nextTenantNumber<1){
+  const existing=raw.companies.map(c=>Number(c.id?.match(/tenant_db_(\\d+)$/)?.[1]||0));
+  raw.nextTenantNumber=Math.max(1,...existing)+1;
+ }
  if(!Array.isArray(raw.licenses))raw.licenses=[];
  if(!Array.isArray(raw.licenseRequests))raw.licenseRequests=[];
  raw.companies.forEach(c=>{
@@ -37,7 +41,11 @@ function normalize(raw){
    const t=raw.tenants[id];
    t.users=Array.isArray(t.users)?t.users:[];
    t.vessels=Array.isArray(t.vessels)?t.vessels:[];
-   t.users.forEach(u=>{if(!ROLES.some(r=>r.id===u.role))u.role='office';delete u.password;delete u.passwordConfirm;delete u.passwordHash;});
+   t.users.forEach((u,i)=>{
+    if(!ROLES.some(r=>r.id===u.role))u.role='office';
+    if(!u.id)u.id='legacy-'+id+'-'+i;
+    delete u.password;delete u.passwordConfirm;delete u.passwordHash;
+   });
    t.vessels=t.vessels.map(v=>{
      if(v.fields&&typeof v.fields==='object'){
        v.holds=Array.isArray(v.holds)?v.holds:[];
