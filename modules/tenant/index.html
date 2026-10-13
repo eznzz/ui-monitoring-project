@@ -18,10 +18,10 @@
       <ul><li><a class="mp-nav-link active" href="#dashboard" data-tenant-section="dashboard" aria-current="page"><i class="fa-solid fa-house icon" aria-hidden="true"></i><span>Главная</span></a></li>
 <li><a class="mp-nav-link" href="#users" data-tenant-section="users" data-nav-users><i class="fa-solid fa-users icon" aria-hidden="true"></i><span>Пользователи</span></a></li>
 <li><a class="mp-nav-link" href="#vessels" data-tenant-section="vessels" data-nav-vessels><i class="fa-solid fa-ship icon" aria-hidden="true"></i><span>Суда</span></a></li>
-<li><a class="mp-nav-link" href="#licenses" data-tenant-section="licenses" data-nav-licenses><i class="fa-solid fa-key icon" aria-hidden="true"></i><span>Лицензии и запросы</span></a></li></ul>
+<li><a class="mp-nav-link" href="#licenses" data-tenant-section="licenses" data-nav-licenses><i class="fa-solid fa-key icon" aria-hidden="true"></i><span>Подписки и обращения</span></a></li></ul>
     </nav>
     <div class="mp-template-sidebar-footer">
-      <p class="mp-note">Пользователи, суда и запросы на лицензии.</p>
+      <p class="mp-note">Пользователи, суда, подписки и обращения.</p>
       <div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Demo</span></div>
     </div>
   </aside>
@@ -74,20 +74,20 @@
      <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-vessels">0 судов</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
     </a>
     <a href="#licenses" data-tenant-section="licenses" class="mp-dashboard-tile">
-     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span><div><h2>Лицензии и запросы</h2><p>Запрос подключения по ключу, статусы и сроки действия. Подтверждает только платформа.</p></div></div>
+     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span><div><h2>Подписки и обращения</h2><p>Статусы лицензии, назначение судов модулям и необязательные обращения.</p></div></div>
      <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-pending">0 запросов</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
     </a>
    </div>
   </div>
   <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Логика доступа</strong>
-   <p>В начале доступны только создание пользователей и заполнение карточек судов. Платные модули подключаются исключительно на платформе после оплаты и подтверждения запроса по ключу.</p></div></div>
+   <p>Тип объектов определяет Platform. Новые суда создаются неактивными; включение вручную. Системную лицензию и подписки на модули назначает Super Admin.</p></div></div>
  </section>
  <div id="tenant-work-area" class="mp-stack" data-screen="workspace" hidden>
  <header class="mp-page-head" id="setup">
   <div><span class="mp-eyebrow" id="tenant-head-code">tenant_db_000001</span><h1 id="tenant-company-heading">Настройка компании</h1><p id="tenant-company-title">Пользователи и типы объектов, назначенные платформой</p></div>
   <span class="mp-badge">Базовый доступ</span>
  </header>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей с ролью <b>office</b> или <b>vessel</b> и заполнение Ship Particulars для судов. Активация модулей выполняется платформой после запроса по лицензионному ключу.</p></div></div>
+ <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей с ролью <b>office</b> или <b>vessel</b> и заполнение Ship Particulars для судов. Системную лицензию и модульные подписки Super Admin настраивает вручную; обращения необязательны.</p></div></div>
  <section id="workspace" class="mp-card mp-stack" aria-labelledby="setup-tabs-label">
   <div class="mp-page-tools">
    <div><span class="mp-eyebrow">Первичная настройка</span><h2 id="setup-tabs-label" class="mp-section-title">Данные компании</h2></div>
@@ -96,7 +96,7 @@
   <div class="mp-tabs--buttons" role="tablist" aria-label="Разделы настройки">
    <button id="tenant-tab-users" role="tab" aria-controls="tenant-pane-users" aria-selected="true" tabindex="0" data-tenant-tab="users" type="button">Пользователи <span id="tenant-users-count">0</span></button>
    <button id="tenant-tab-vessels" role="tab" aria-controls="tenant-pane-vessels" aria-selected="false" tabindex="-1" data-tenant-tab="vessels" type="button">Суда <span id="tenant-vessels-count">0</span></button>
-   <button id="tenant-tab-licenses" role="tab" aria-controls="tenant-pane-licenses" aria-selected="false" tabindex="-1" data-tenant-tab="licenses" type="button">Лицензии</button>
+   <button id="tenant-tab-licenses" role="tab" aria-controls="tenant-pane-licenses" aria-selected="false" tabindex="-1" data-tenant-tab="licenses" type="button">Подписки</button>
   </div>
   <div id="tenant-pane-users" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-users">
    <div class="mp-page-tools">
@@ -111,19 +111,28 @@
     <div><h3 class="mp-section-title">Карточки судов</h3><p class="mp-help">Полный набор Ship Particulars, сгруппированный по разделам.</p></div>
     <a class="mp-btn mp-btn--primary" id="add-vessel-button" href="vessel.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> Добавить судно</a>
    </div>
-   <div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div>
+   <div class="mp-form-grid"><div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div><div class="mp-field"><label for="tenant-vessel-status">Статус</label><select id="tenant-vessel-status"><option value="current">Активные и неактивные</option><option value="active">Только active</option><option value="inactive">Только inactive</option><option value="archived">Архив</option><option value="all">Все статусы</option></select></div></div>
    <div id="tenant-vessel-list" aria-live="polite"></div><p id="tenant-vessel-feedback" class="mp-feedback" aria-live="polite"></p>
   </div>
-  <div id="tenant-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-licenses" hidden>
-   <div class="mp-page-tools"><div><h3 class="mp-section-title">Запрос подключения модуля</h3><p class="mp-help">Введите ключ, выданный платформой, чтобы отправить запрос на активацию.</p></div><span class="mp-badge">Включает только Platform</span></div>
+  <div id="tenant-pane-licenses" class="mp-pane mp-stack" role="tabpanel" aria-labelledby="tenant-tab-licenses" hidden>
+   <div class="mp-page-tools"><div><h3 class="mp-section-title">Системная лицензия и подписки</h3><p class="mp-help">Сроки и условия определяет Super Admin; назначать активные суда в рамках лимита может уполномоченный администратор компании.</p></div></div>
+   <div id="tenant-license-requests" class="mp-stack" aria-live="polite"></div>
+   <div class="mp-divider"></div>
+   <h3 class="mp-section-title">Активные суда модуля</h3>
+   <form id="tenant-assignment-form" class="mp-stack">
+    <div class="mp-field"><label for="tenant-assignment-module">Подключённый модуль *</label><select id="tenant-assignment-module" required></select></div>
+    <div class="mp-field"><label for="tenant-assignment-objects">Активные суда этого модуля</label><select id="tenant-assignment-objects" multiple size="5"></select><p class="mp-help">Выберите несколько: Ctrl/Cmd + щелчок. Лимит проверяется отдельно для каждого модуля. Выключенные суда не занимают места.</p></div>
+    <div class="mp-form-actions"><button type="submit" class="mp-btn mp-btn--primary">Сохранить назначения</button></div>
+    <p id="tenant-assignment-feedback" class="mp-feedback" aria-live="polite"></p>
+   </form>
+   <div class="mp-divider"></div>
+   <div class="mp-page-tools"><div><h3 class="mp-section-title">Необязательное обращение</h3><p class="mp-help">Обращение не подключает модуль и не требуется для прямого действия Super Admin.</p></div></div>
    <form id="tenant-license-form" class="mp-stack">
-    <div class="mp-field"><label for="tenant-license-key">Лицензионный ключ *</label><input id="tenant-license-key" type="text" autocomplete="off" spellcheck="false" maxlength="36" placeholder="MP-XXXX-XXXX-XXXX-XXXX" required></div>
-    <div class="mp-form-actions"><button class="mp-btn mp-btn--primary" type="submit">Отправить запрос</button></div>
-    <p class="mp-help">Дата запроса фиксируется автоматически. Срок действия лицензии задаётся на платформе. Ключ сам по себе не активирует модуль.</p>
+    <div class="mp-field"><label for="tenant-license-module">Модуль *</label><select id="tenant-license-module" required></select></div>
+    <div class="mp-field"><label for="tenant-license-comment">Комментарий</label><textarea id="tenant-license-comment" maxlength="500" rows="3" placeholder="Необязательное описание запроса"></textarea></div>
+    <div class="mp-form-actions"><button class="mp-btn mp-btn--secondary" type="submit">Отправить обращение (демо)</button></div>
     <p id="tenant-license-feedback" class="mp-feedback" aria-live="polite"></p>
    </form>
-   <div class="mp-divider"></div><h3 class="mp-section-title">История запросов и даты</h3>
-   <div id="tenant-license-requests" class="mp-stack" aria-live="polite"></div>
   </div>
  </section>
  </div>
@@ -135,23 +144,22 @@
   <div class="mp-dialog-heading"><div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p id="user-dialog-description" class="mp-help">Заполните данные и назначьте роль пользователя.</p></div><button type="button" class="mp-modal-close" data-dialog-close="user-dialog" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
   <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" maxlength="100" required placeholder="Имя и фамилия"></div>
   <div class="mp-field"><label for="tenant-user-email">Email *</label><input id="tenant-user-email" type="email" maxlength="150" required placeholder="name@company.example"></div>
-  <div class="mp-field"><label for="tenant-user-password">Пароль *</label><input type="password" id="tenant-user-password" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Не менее 8 символов"></div>
-  <div class="mp-field"><label for="tenant-user-password-confirm">Подтверждение пароля *</label><input type="password" id="tenant-user-password-confirm" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Повторите пароль"></div>
-  <p class="mp-help">Только для проверки формы: пароль не сохраняется, не отправляется и не позволяет войти в демо. Не используйте настоящий пароль.</p>
+  <p class="mp-help">Демо не принимает пароли. Настройка реального входа выполняется через AuthN API и защищённый onboarding.</p>
   <div class="mp-field"><label for="tenant-user-role">Роль *</label>
    <select id="tenant-user-role" required>
     <option value="office">office — сотрудник офиса</option>
     <option value="vessel">vessel — судовой пользователь</option>
    </select>
   </div>
-  <div class="mp-field" id="user-vessel-field" hidden>
-   <label for="tenant-user-vessel">Судно *</label><select id="tenant-user-vessel"><option value="">Выберите судно</option></select>
-   <p class="mp-help" id="user-vessel-help">Для роли vessel обязательно выбрать судно из уже заполненных карточек. Если список пуст, сначала создайте судно.</p>
+  <div class="mp-field" id="user-vessel-field">
+   <label for="tenant-user-vessel">Назначенные суда</label><select id="tenant-user-vessel" multiple size="5"></select>
+   <p class="mp-help" id="user-vessel-help">Для роли Vessel обязательно одно или несколько активных судов; Office допускается без назначений.</p>
   </div>
+  <div class="mp-field"><label for="tenant-user-modules">Модульные разрешения (демо)</label><select id="tenant-user-modules" multiple size="5"></select><p class="mp-help">Назначение судна не даёт права на модуль; реальную RBAC-проверку выполняет API.</p></div>
   <p id="user-form-error" class="mp-error" role="alert"></p>
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=7"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="tenant.js?v=11"></script>
+<script src="../shared/app.js?v=12"></script><script src="../shared/licensing.js?v=12"></script><script src="../shared/confirm.js?v=1"></script><script src="tenant.js?v=12"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>
