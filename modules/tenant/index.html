@@ -5,7 +5,7 @@
 <meta name="description" content="Monitoring Project: базовая настройка компании, пользователи и карточки судов">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=1">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head><body>
 <div class="app mp-template-app">
   <aside class="sidebar" id="sidebar">
@@ -136,9 +136,9 @@
 </main>
 </div>
 </div>
-<dialog class="mp-dialog" id="user-dialog" aria-labelledby="user-dialog-title">
+<dialog class="mp-dialog" id="user-dialog" aria-labelledby="user-dialog-title" aria-describedby="user-dialog-description">
  <form id="tenant-user-form" novalidate>
-  <div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p class="mp-help">Выберите роль пользователя в компании.</p></div>
+  <div class="mp-dialog-heading"><div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p id="user-dialog-description" class="mp-help">Заполните данные и назначьте роль пользователя.</p></div><button type="button" class="mp-modal-close" data-dialog-close="user-dialog" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
   <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" maxlength="100" required placeholder="Имя и фамилия"></div>
   <div class="mp-field"><label for="tenant-user-email">Email *</label><input id="tenant-user-email" type="email" maxlength="150" required placeholder="name@company.example"></div>
   <div class="mp-field"><label for="tenant-user-password">Пароль *</label><input type="password" id="tenant-user-password" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Не менее 8 символов"></div>
@@ -158,6 +158,6 @@
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="tenant.js?v=7"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="tenant.js?v=8"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>
