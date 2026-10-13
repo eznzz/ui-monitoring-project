@@ -73,8 +73,9 @@ const root='http://127.0.0.1:8765';
  assert.equal(await page.locator('#tenant-vessel-list tbody tr').count(),1);
  await page.locator('[data-next-status=inactive]').click();
  await page.locator('.mp-confirm-dialog button[value=delete]').click();
- await page.locator('#tenant-vessel-list').getByText('Неактивно',{exact:true}).waitFor();
+ await page.waitForFunction(()=>window.MP.state().tenants.tenant_db_000001.vessels.some(v=>v.status==='inactive'));
  await page.locator('#tenant-vessel-status-filter').selectOption('inactive');
+ await page.locator('#tenant-vessel-list').getByText('Неактивно',{exact:true}).waitFor();
  assert.equal(await page.locator('#tenant-vessel-list tbody tr').count(),1);
 
  await page.setViewportSize({width:375,height:812});
