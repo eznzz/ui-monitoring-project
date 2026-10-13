@@ -6,34 +6,56 @@
 <meta name="description" content="Monitoring Project: администрирование компаний, типов объектов и лицензируемых модулей">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../shared/ui.css?v=7">
-</head>
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head>
 <body>
-<div class="mp-shell">
-<div class="mp-overlay" data-mp-overlay></div>
-<aside class="mp-sidebar" id="platform-sidebar" data-mp-sidebar>
- <a class="mp-brand" href="../auth/login.html"><span class="mp-logo">M</span><span>Monitoring Project<small>Администрирование платформы</small></span></a>
- <div class="mp-stack">
-  <span class="mp-eyebrow" style="padding:0 12px">Platform / platform_db</span>
-  <nav class="mp-sidebar-nav" aria-label="Навигация платформы">
-   <a class="mp-nav-link" href="#dashboard" data-platform-section="dashboard" aria-current="page">⌂ &nbsp; Главная</a>
-   <a class="mp-nav-link" href="#companies" data-platform-section="companies">▦ &nbsp; Компании</a>
-   <a class="mp-nav-link" href="#modules" data-platform-section="modules">◫ &nbsp; Подписка и модули</a>
-   <a class="mp-nav-link" href="#keys" data-platform-section="keys">▣ &nbsp; Лицензионные ключи</a>
-   <a class="mp-nav-link" href="#principles" data-platform-section="principles">ⓘ &nbsp; Правила подключения</a>
-  </nav>
- </div>
- <div class="mp-sidebar-bottom">
-  <span class="mp-demo-chip">UI prototype · mock</span>
-  <a class="mp-btn mp-btn--secondary" href="../auth/login.html">← Выйти из демо</a>
- </div>
-</aside>
-<div class="mp-shell-main">
-<header class="mp-topbar">
- <div class="mp-row"><button type="button" class="mp-menu" data-mp-menu aria-label="Открыть меню" aria-expanded="false" aria-controls="platform-sidebar">☰</button><span class="mp-topbar-title" id="platform-topbar-title">Platform / Dashboard</span></div>
- <div class="mp-topbar-actions"><span class="mp-badge mp-badge--info">Суперадминистратор · демо</span><button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle>◐ Тёмная тема</button></div>
-</header>
-<main class="mp-main-content">
+<div class="app mp-template-app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-mark"><i class="fa-solid fa-ship" aria-hidden="true"></i></div>
+      <span class="sidebar__logo-text">Monitoring Project</span>
+    </div>
+    <div class="mp-eyebrow" style="padding:0 14px 12px">Platform / platform_db</div>
+    <nav class="sidebar__nav mp-sidebar-nav" aria-label="Меню платформы">
+      <ul><li><a class="mp-nav-link active" href="#dashboard" data-platform-section="dashboard" aria-current="page"><i class="fa-solid fa-house icon" aria-hidden="true"></i><span>Главная</span></a></li>
+<li><a class="mp-nav-link" href="#companies" data-platform-section="companies"><i class="fa-solid fa-building icon" aria-hidden="true"></i><span>Компании</span></a></li>
+<li><a class="mp-nav-link" href="#modules" data-platform-section="modules"><i class="fa-solid fa-layer-group icon" aria-hidden="true"></i><span>Подписка и модули</span></a></li>
+<li><a class="mp-nav-link" href="#keys" data-platform-section="keys"><i class="fa-solid fa-key icon" aria-hidden="true"></i><span>Лицензионные ключи</span></a></li>
+<li><a class="mp-nav-link" href="#principles" data-platform-section="principles"><i class="fa-solid fa-circle-info icon" aria-hidden="true"></i><span>Правила подключения</span></a></li></ul>
+    </nav>
+    <div class="mp-template-sidebar-footer">
+      <p class="mp-note">Управление компаниями и подключением платных модулей.</p>
+      <div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Demo</span></div>
+    </div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="burger" id="burger" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Открыть меню"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+        <h1 class="topbar__title" id="platform-topbar-title">Platform / Главная</h1>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <button class="user-menu__trigger" id="userTrigger" type="button" aria-controls="userDropdown" aria-expanded="false">
+          <span class="avatar" aria-hidden="true">С</span><span class="name">Суперадминистратор</span><i class="fa-solid fa-chevron-down caret" aria-hidden="true"></i>
+        </button>
+        <div class="user-menu__dropdown" id="userDropdown">
+          <div class="user-menu__header">
+            <span class="avatar" aria-hidden="true">С</span>
+            <div class="info"><strong>Суперадминистратор</strong><small>Platform / platform_db · mock</small></div>
+          </div>
+          <ul class="user-menu__list">
+            <li><button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">
+              <span><i class="fa-solid fa-moon icon" id="themeIcon" aria-hidden="true"></i><span id="themeLabel">Тёмная тема</span></span>
+              <span class="theme-toggle__switch" aria-hidden="true"></span>
+            </button></li>
+            <li class="divider" aria-hidden="true"></li>
+            <li><a href="../auth/login.html" class="danger"><i class="fa-solid fa-right-from-bracket icon" aria-hidden="true"></i> Выйти из демо</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+    <main class="content mp-main-content">
  <section class="mp-dashboard" id="platform-dashboard" data-screen="dashboard" aria-labelledby="platform-dashboard-title">
   <header class="mp-dashboard-head">
    <div><span class="mp-eyebrow">Platform / platform_db</span><h1 id="platform-dashboard-title">Панель суперадминистратора</h1>
@@ -139,5 +161,6 @@
  </form>
 </dialog>
 <script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="platform.js?v=7"></script>
+<script src="../../script.js?v=0.6.2"></script>
 </body>
 </html>
