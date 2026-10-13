@@ -31,3 +31,20 @@ jobs:
           node tests/demo-foundation.test.cjs
           node tests/vessel-lifecycle.test.cjs
           node tests/user-assignments.test.cjs
+
+  browser-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run browser walkthrough and theme checks
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/mp-demo-http.log 2>&1 &
+          node tests/browser-demo.test.cjs
