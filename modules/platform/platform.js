@@ -188,7 +188,7 @@ $('platform-license-form').addEventListener('submit',e=>{
   };
   MP_LICENSE.setSubscription(data,c,id,input);
   if(enabled){
-   MP_LICENSE.assignModuleObjects(data,c,id,[...$('platform-subscription-objects').selectedOptions].map(o=>o.value));
+   MP_LICENSE.assignModuleObjects(data,c,id,[...$('platform-subscription-objects').selectedOptions].map(o=>o.value),true);
   }
   save();render();notice('platform-license-feedback','Подписка и назначенные активные объекты обновлены (демо).');
  }catch(err){notice('platform-license-feedback',err.message,true);}
