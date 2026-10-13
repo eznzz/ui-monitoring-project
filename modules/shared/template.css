@@ -171,7 +171,7 @@ dialog.mp-dialog .mp-form-actions button { min-height:40px; }
  min-height:0;
  height:auto;
  align-self:stretch;
- padding:7px 10px;
+ padding:10px 10px;
 }
 /* A single heading pattern for dashboards and all working sections. */
 .mp-template-app :is(.mp-dashboard-head,.mp-page-head) {
@@ -212,7 +212,7 @@ dialog.mp-dialog .mp-form-actions button { min-height:40px; }
 
 .mp-template-app .mp-dashboard-stat{
  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
- gap:7px;min-height:0;padding:7px 10px;
+ gap:7px;min-height:0;padding:10px 10px;
  border-radius:var(--vms-input-radius,6px);box-shadow:none;
 }
 .mp-template-app .mp-dashboard-stat .mp-eyebrow{
@@ -265,7 +265,7 @@ dialog.mp-confirm-dialog[open]{width:min(460px,calc(100vw - 28px))}
 }
 @media(max-width:600px){
  .mp-template-app .mp-card{padding:13px}
- .mp-template-app .mp-dashboard-stat{min-height:0;padding:7px 9px}
+ .mp-template-app .mp-dashboard-stat{min-height:0;padding:10px 10px}
  .mp-template-app .mp-dashboard-stat strong{font-size:18px}
  .mp-template-app .mp-dashboard-tile{min-height:113px;padding:13px}
  .mp-template-app .mp-dashboard-tile-icon{width:31px;height:31px;flex-basis:31px}
