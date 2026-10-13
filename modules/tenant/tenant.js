@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-let data=MP.state(),view='users',editingUser=null;
+let data=MP_DATA.load(),view='users',editingUser=null;
 const tenantId=new URLSearchParams(location.search).get('tenant')||data.companies[0]?.id||'';
 if(!MP.company(data,tenantId)){window.location.replace('../auth/login.html');return;}
 const dialog=$('user-dialog');
@@ -10,7 +10,7 @@ const records=()=>MP.tenant(data,tenantId);
 const objects=()=>MP.vessels(data,tenantId);
 const summary=MP.vesselSummary;
 const activeObjects=()=>objects().filter(o=>o.status==='active');
-function store(){if(!MP.save(data))throw Error('Не удалось сохранить демоданные в браузере.');}
+function store(){if(!MP_DATA.persist(data))throw Error('Не удалось сохранить демоданные в браузере.');}
 function allowVessels(){return company()?.objectTypeId==='vessels';}
 function feedback(id,message,error=false){MP.setFeedback(id,message,error);}
 function viewSelect(next,focus){
@@ -268,6 +268,6 @@ function render(){
  }
  renderUsers();renderVessels();renderLicenseRequests();renderTenantDashboard();viewSelect(view);
 }
-window.addEventListener('storage',e=>{if(e.key===MP.KEY){data=MP.state();render();}});
+window.addEventListener('storage',e=>{if(e.key===MP.KEY){data=MP_DATA.load();render();}});
 render();showTenantPage(routeFromHash(),false);
 })();
