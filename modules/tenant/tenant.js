@@ -27,13 +27,8 @@ function viewSelect(next,focus){
 function renderTenantDashboard(){
  const c=company(),tenant=records();
  const pending=MP_LICENSE.requestsByCompany(data,tenantId).filter(r=>r.status==='pending').length;
- const active=MP.MODULES.filter(m=>MP_LICENSE.effective(data,c,m.id)).length;
  $('tenant-dashboard-id').textContent=c.id;
  $('tenant-dashboard-company').textContent=c.name+' · сведения о компании и первичная настройка';
- $('tenant-dash-users').textContent=tenant.users.length;
- $('tenant-dash-vessels').textContent=tenant.vessels.length;
- $('tenant-dash-active').textContent=active;
- $('tenant-dash-pending').textContent=pending;
  $('tenant-tile-users').textContent=tenant.users.length+' пользователей';
  $('tenant-tile-vessels').textContent=tenant.vessels.length+' судов';
  $('tenant-tile-pending').textContent=pending+' ожидают решения';
