@@ -186,6 +186,21 @@ function renderObjectMeta(){
  const text='Object ID: '+source.id+' · Статус: '+source.status+
   ' · История изменений: '+(source.history||[]).length+' записей';
  el.textContent=text;
+ const log=$('editor-history');if(!log)return;
+ log.replaceChildren();
+ const history=(source.history||[]).slice().reverse();
+ if(!history.length)return;
+ const details=document.createElement('details'),title=document.createElement('summary');
+ title.textContent='История карточки и статусов ('+history.length+')';details.append(title);
+ const list=document.createElement('ul');
+ history.forEach(event=>{
+  const entry=document.createElement('li');
+  entry.textContent=(event.at||'—')+' · '+(event.action||'изменение')+
+   (event.from?' · '+event.from+' → '+event.to:'')+
+   (event.changedFields?.length?' · Поля: '+event.changedFields.join(', '):'');
+  list.append(entry);
+ });
+ details.append(list);log.append(details);
 }
 function saveForm(event){
  event.preventDefault();
