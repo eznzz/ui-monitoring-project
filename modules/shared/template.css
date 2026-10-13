@@ -1,0 +1,75 @@
+/* Monitoring Project — adapter onto the ORIGINAL Dashboard Template.
+ * Import order: tokens/tokens.css → root style.css → modules/shared/ui.css →
+ * this adapter. No fork of the template's sidebar, topbar, user menu or theme.
+ * Only module-specific sizing and contrast/overflow improvements live here. */
+.app.mp-template-app { min-width:0; }
+.mp-template-app .sidebar { z-index:1000; }
+.mp-template-app .sidebar__logo { padding-bottom:19px; align-items:flex-start; }
+.mp-template-app .sidebar__logo-text { text-transform:none;letter-spacing:-.025em;line-height:1.25;font-size:16px;overflow-wrap:anywhere;padding-top:7px; }
+.mp-template-app .sidebar__logo-mark { border-radius:var(--vms-input-radius,6px); }
+.mp-template-app .sidebar__nav a[aria-current="page"] { background:var(--sidebar-active-bg);color:var(--sidebar-active-text);font-weight:600; }
+.mp-template-app .sidebar__nav a[aria-current="page"] .icon {color:inherit}
+.mp-template-app .sidebar__nav a:focus-visible { outline:2px solid var(--vms-color-focus);outline-offset:2px; }
+.mp-template-sidebar-footer { margin-top:auto;display:grid;gap:12px;padding-top:18px; }
+.mp-template-sidebar-footer .mp-note { color:var(--sidebar-text);opacity:.8; }
+.mp-template-app .sidebar__footer { margin-top:0; }
+.mp-template-app .sidebar__footer a { color:var(--sidebar-text);font-size:12px; }
+.mp-template-app .sidebar__footer a:hover { text-decoration:underline; }
+.mp-template-app .topbar { min-width:0;gap:10px; }
+.mp-template-app .topbar__left { min-width:0; }
+.mp-template-app .topbar__title {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%; }
+.mp-template-app .user-menu__dropdown { max-width:calc(100vw - 28px); }
+.mp-template-app .user-menu__list .theme-toggle { justify-content:space-between; }
+.mp-template-app .user-menu__list .theme-toggle .theme-toggle__switch { margin-left:auto; }
+.mp-template-app .avatar { background:var(--vms-color-primary);color:var(--vms-color-on-primary); }
+.mp-template-app .content.mp-main-content { width:min(100%,1310px);padding:clamp(20px,3vw,35px);min-width:0; }
+.mp-template-app .mp-card { box-shadow:var(--shadow);border:1px solid var(--vms-color-border); }
+.mp-template-app .mp-dashboard-stat,.mp-template-app .mp-dashboard-tile { box-shadow:0 2px 7px rgba(0,0,0,.035); }
+.mp-template-app .mp-dashboard-tile { border-color:var(--vms-color-border); }
+.mp-template-app .mp-dashboard-tile:hover { border-color:var(--vms-color-primary); }
+.mp-template-app .mp-btn--primary { background:var(--blue);color:var(--vms-color-on-primary); }
+.mp-template-app .mp-btn--primary:hover:not(:disabled) { background:var(--blue-hover); }
+.mp-template-app .mp-field :is(input,textarea,select) { border-radius:var(--vms-input-radius,6px);border-color:var(--vms-color-border);background:var(--vms-color-input-bg); }
+.mp-template-app .mp-field :is(input,textarea,select):focus-visible { outline:2px solid var(--vms-color-focus); outline-offset:2px; }
+.mp-template-app .mp-page-head h1 { margin:8px 0 4px; }
+.mp-template-app .mp-workspace, .mp-template-app .mp-workspace-content {min-width:0}
+.mp-template-app .mp-dashboard {min-width:0}
+.mp-template-app .mp-dialog,.mp-login-page .mp-dialog { border-radius:var(--vms-input-radius,6px); }
+/* Standalone login reuses template's background, logo, content-card, text field
+   and primary button instead of the former custom split marketing layout. */
+.mp-login-page { background:var(--body-bg);font-family:var(--font-body); }
+.mp-template-login { display:flex;flex-direction:column;min-height:100dvh; }
+.mp-template-login-header { min-height:76px;padding:15px clamp(16px,4vw,45px);background:var(--topbar-bg);border-bottom:1px solid var(--sidebar-border);display:flex;align-items:center;justify-content:space-between;gap:14px; }
+.mp-template-login-header .sidebar__logo { display:flex;align-items:center;gap:12px;margin:0;padding:0;border:0; }
+.mp-template-login-header .sidebar__logo-text { font-weight:700;font-size:17px;text-transform:none;letter-spacing:-.025em; }
+.mp-template-login-header .sidebar__logo-mark { border-radius:var(--vms-input-radius,6px); }
+.mp-template-login-main { flex:1;display:grid;place-items:center;padding:35px 16px 44px; }
+.mp-template-login-content { width:min(100%,470px);display:grid;gap:18px; }
+.mp-template-login .content__card { width:100%;padding:clamp(20px,3.8vw,36px);border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius,6px); }
+.mp-template-login .content__card h1 {font-size:26px;line-height:1.23;font-weight:700;letter-spacing:-.035em;margin:0 0 9px; }
+.mp-template-login .content__card p { font-size:13px; }
+.mp-template-login .form-row { margin:0; }
+.mp-template-login .form-row label { margin-bottom:7px; }
+.mp-template-login .form-row input { min-height:var(--vms-input-height,40px);color:var(--vms-color-text);background:var(--vms-color-input-bg);border-color:var(--vms-color-border);font-size:14px;border-radius:var(--vms-input-radius,6px); }
+.mp-template-login .form-row input:focus { box-shadow:0 0 0 3px var(--vms-color-focus-ring); }
+.mp-template-login .mp-role-option { min-height:64px; }
+.mp-template-login .btn.mp-btn { background:var(--blue);color:var(--vms-color-on-primary);border-color:var(--blue-hover);border-radius:var(--vms-input-radius,6px);min-height:43px; }
+.mp-template-login .btn.mp-btn:hover { background:var(--blue-hover); }
+.mp-template-login-header .mp-btn {flex:0 0 auto}
+.mp-template-login .mp-demo-chip {background:var(--vms-color-surface); }
+.mp-template-login-bottom {display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;color:var(--vms-color-muted);font-size:12px;padding:0 2px}
+@media(max-width:900px) {
+ .mp-template-app .sidebar { padding:22px 16px; }
+ .mp-template-app .sidebar__logo { padding-right:14px; }
+ .mp-template-app .content.mp-main-content { padding:22px 16px; }
+}
+@media(max-width:480px) {
+ .mp-template-app .topbar { padding:0 13px; }
+ .mp-template-app .topbar__title {font-size:14px}
+ .mp-template-app .user-menu__trigger .caret {display:none}
+ .mp-template-app .content.mp-main-content { padding:16px 12px; }
+ .mp-template-app .mp-dashboard-tile { padding:16px; }
+ .mp-template-login-header { padding:12px 16px; }
+ .mp-template-login-header .sidebar__logo-text {font-size:15px}
+ .mp-template-login-main { padding:20px 12px 30px; }
+}
