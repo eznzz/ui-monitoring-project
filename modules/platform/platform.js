@@ -150,12 +150,6 @@ $('platform-license-requests').addEventListener('click',event=>{
 function renderPlatformDashboard(){
  const companies=data.companies.length;
  const paid=data.companies.reduce((n,c)=>n+MP.MODULES.filter(m=>c.modules?.[m.id]?.paid).length,0);
- const active=data.companies.reduce((n,c)=>n+MP.MODULES.filter(m=>MP_LICENSE.effective(data,c,m.id)).length,0);
- const pending=(data.licenseRequests||[]).filter(r=>r.status==='pending').length;
- $('platform-dash-companies').textContent=companies;
- $('platform-dash-paid').textContent=paid;
- $('platform-dash-active').textContent=active;
- $('platform-dash-pending').textContent=pending;
  $('platform-tile-companies').textContent=companies+' компаний';
  $('platform-tile-paid').textContent=paid+' оплачено';
  $('platform-tile-keys').textContent=(data.licenses||[]).length+' ключей';
