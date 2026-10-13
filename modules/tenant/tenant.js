@@ -115,8 +115,9 @@ function renderUsers(){
 function renderVessels(){
  const list=$('tenant-vessel-list');list.replaceChildren();
  const search=$('tenant-vessel-search').value.trim().toLowerCase();
+ const filter=$('tenant-vessel-status-filter').value;
  const vessels=records().vessels.filter(v=>{
-  const s=MP.vesselSummary(v);return s.name.toLowerCase().includes(search)||s.imo.includes(search);
+  const s=MP.vesselSummary(v);return (filter==='all'||v.status===filter)&&(s.name.toLowerCase().includes(search)||s.imo.includes(search));
  });
  $('tenant-vessels-count').textContent=records().vessels.length;
  if(!vessels.length){
@@ -141,12 +142,17 @@ function renderVessels(){
   a.href='vessel.html?tenant='+encodeURIComponent(tenantId)+'&object='+encodeURIComponent(v.id);
   const statusAction=document.createElement('button');statusAction.type='button';
   statusAction.className='mp-btn mp-btn--secondary mp-btn--small';
-  const next=v.status==='archived'?'inactive':v.status==='active'?'inactive':'archived';
-  statusAction.dataset.vesselStatusId=v.id;statusAction.dataset.nextStatus=next;
-  statusAction.textContent=v.status==='archived'?'Восстановить':'Архивировать';
-  if(v.status==='active')statusAction.textContent='Выключить';
+  statusAction.dataset.vesselStatusId=v.id;
+  statusAction.dataset.nextStatus=v.status==='archived'?'inactive':v.status==='active'?'inactive':'active';
+  statusAction.textContent=v.status==='archived'?'Восстановить':v.status==='active'?'Выключить':'Активировать (mock)';
   const actions=document.createElement('div');actions.className='mp-record-actions';
-  actions.append(a,statusAction);td.append(actions);tr.append(td);tbody.append(tr);
+  actions.append(a,statusAction);
+  if(v.status!=='archived'){
+   const archive=document.createElement('button');archive.type='button';archive.className='mp-btn mp-btn--secondary mp-btn--small';
+   archive.dataset.vesselStatusId=v.id;archive.dataset.nextStatus='archived';
+   archive.textContent='Архивировать';actions.append(archive);
+  }
+  td.append(actions);tr.append(td);tbody.append(tr);
  });
  table.append(tbody);list.append(table);
 }
@@ -282,15 +288,23 @@ $('tenant-vessel-list').addEventListener('click',async event=>{
  const button=event.target.closest('[data-vessel-status-id]');if(!button)return;
  const objectId=button.dataset.vesselStatusId, next=button.dataset.nextStatus;
  const vessel=records().vessels.find(v=>v.id===objectId);if(!vessel)return;
- const label=next==='archived'?'архивировать':next==='inactive'&&vessel.status==='archived'?'восстановить':'выключить';
- if(!window.confirm('Подтвердить: '+label+' судно «'+MP.vesselSummary(vessel).name+'»? Данные сохранятся.'))return;
+ const label=next==='archived'?'архивировать':next==='active'?'активировать (только mock)':vessel.status==='archived'?'восстановить':'выключить';
+ const approved=await MP_CONFIRM.action({
+  title:'Подтвердить: '+label+' судно «'+MP.vesselSummary(vessel).name+'»?',
+  description:next==='active'?'Локальная симуляция Fleet. Настоящие проверки разрешений и лимитов выполняет VDMS API.':
+   'Ship Particulars, назначения пользователей и история сохраняются.',
+  buttonLabel:next==='active'?'Активировать (mock)':'Подтвердить'
+ });
+ if(!approved)return;
  try{
   MP.setVesselStatus(data,tenantId,objectId,next);
-  store();renderVessels();renderTenantDashboard();
-  MP.setFeedback('tenant-vessel-feedback','Статус изменён в mock. Активация Fleet требует отдельного API-контракта.',false);
+  if(!store())return;
+  renderVessels();renderUsers();renderTenantDashboard();
+  MP.setFeedback('tenant-vessel-feedback','Статус обновлён только в mock. Серверную проверку Fleet реализует VDMS.',false);
  }catch(error){MP.setFeedback('tenant-vessel-feedback',error.message,true);}
 });
 $('tenant-vessel-search').addEventListener('input',renderVessels);
+$('tenant-vessel-status-filter').addEventListener('change',renderVessels);
 $('tenant-license-form').addEventListener('submit',event=>{
  event.preventDefault();
  const input=$('tenant-license-key');
