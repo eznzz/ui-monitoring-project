@@ -11,23 +11,34 @@
 <link rel="stylesheet" href="../../tokens/tokens.css">
 <link rel="stylesheet" href="../../style.css?v=0.6.2">
 <link rel="stylesheet" href="../shared/ui.css?v=8">
-<link rel="stylesheet" href="../shared/template.css?v=5">
+<link rel="stylesheet" href="../shared/template.css?v=7">
+<link rel="stylesheet" href="login.css?v=1">
 </head>
 <body class="mp-login-page">
-<div class="mp-template-login">
- <header class="mp-template-login-header">
-  <a href="../../index.html" class="mp-brand" aria-label="Monitoring Project — главная">
-   <span class="sidebar__logo-mark"><i class="fa-solid fa-ship" aria-hidden="true"></i></span>
-   <span class="sidebar__logo-text">Monitoring Project</span>
+<div class="mp-login mp-login--split">
+ <aside class="mp-login-visual" aria-label="О Monitoring Project">
+  <a class="mp-brand mp-login-brand" href="../../components/index.html">
+   <span class="sidebar__logo-mark" aria-hidden="true"><i class="fa-solid fa-ship"></i></span>
+   <span>Monitoring Project<small>Единая система управления</small></span>
   </a>
-  <button class="mp-btn mp-btn--secondary" type="button" data-theme-toggle aria-pressed="false"><i class="fa-solid fa-moon" aria-hidden="true"></i> Тёмная тема</button>
- </header>
- <main class="mp-template-login-main">
-  <div class="mp-template-login-content">
-   <section class="content__card" aria-labelledby="login-title">
-    <span class="mp-eyebrow">Monitoring Project / UI prototype</span>
-    <h1 id="login-title">Вход в систему</h1>
-    <p class="mp-help" style="margin-bottom:23px">Единый интерфейс для платформы и компаний на основе Monitoring Project Design System.</p>
+  <div class="mp-login-visual-copy">
+   <h1>Одна платформа.<br>Разные уровни доступа.</h1>
+   <p>Администрирование платформы и работа компании разграничены. Платные модули подключаются исключительно на уровне платформы.</p>
+  </div>
+  <footer>Monitoring Project Design System · UI prototype</footer>
+ </aside>
+ <main class="mp-login-main" aria-labelledby="login-title">
+  <div class="mp-login-box">
+   <div class="mp-login-toolbar">
+    <span class="mp-demo-chip">UI prototype / mock</span>
+    <button type="button" class="mp-btn mp-btn--secondary" data-theme-toggle aria-pressed="false">◐ Тёмная тема</button>
+   </div>
+   <section class="content__card mp-login-form-card">
+    <header class="mp-login-form-heading">
+     <span class="mp-eyebrow">Начало работы</span>
+     <h2 id="login-title">Вход в систему</h2>
+     <p class="mp-help">Выберите уровень доступа, чтобы открыть соответствующий демонстрационный интерфейс.</p>
+    </header>
     <form class="mp-stack" id="login-form" novalidate>
      <div class="form-row mp-field">
       <label for="login-email">Email</label>
@@ -35,27 +46,26 @@
      </div>
      <div class="form-row mp-field">
       <label for="login-password">Пароль</label>
-      <input type="password" id="login-password" name="password" placeholder="Не требуется для демо" autocomplete="off">
+      <input type="password" id="login-password" name="password" placeholder="В демо не требуется" autocomplete="off">
      </div>
-     <fieldset class="mp-stack" style="border:0;padding:0;margin:0;min-width:0">
-      <legend class="mp-label" style="margin-bottom:10px">Демонстрационный доступ</legend>
+     <fieldset class="mp-stack mp-login-roles">
+      <legend class="mp-label">Открыть интерфейс</legend>
       <label class="mp-role-option">
        <input type="radio" name="demo-role" value="platform" checked>
-       <span><strong>Суперадминистратор платформы</strong><small>Компании, типы объектов, лицензии и запросы</small></span>
+       <span><strong>Суперадминистратор</strong><small>Управление компаниями, оплатой и доступностью модулей</small></span>
       </label>
       <label class="mp-role-option">
        <input type="radio" name="demo-role" value="tenant">
-       <span><strong>Администратор компании</strong><small>Пользователи, суда и запросы на подключение</small></span>
+       <span><strong>Администратор компании</strong><small>Начальная настройка: пользователи и карточки судов</small></span>
       </label>
      </fieldset>
-     <button class="btn mp-btn mp-btn--primary mp-btn--full" type="submit"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Открыть демо</button>
-     <p class="mp-note">Это макет входа, без проверки учётных данных. Пароли не сохраняются и не передаются. Не вводите реальные данные.</p>
+     <div class="mp-login-actions">
+      <button class="btn mp-btn mp-btn--primary mp-btn--full" type="submit"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Продолжить в демо</button>
+      <p class="mp-note">Авторизация здесь не выполняется. Не вводите реальные пароли: данные формы не проверяются и не отправляются.</p>
+     </div>
     </form>
    </section>
-   <footer class="mp-template-login-bottom">
-    <span>© Monitoring Project · UI Demo</span>
-    <a href="../../components/index.html">Каталог компонентов ↗</a>
-   </footer>
+   <p class="mp-login-reference">Эталон оформления: <a href="../../components/index.html">Monitoring Project Design System</a></p>
   </div>
  </main>
 </div>
