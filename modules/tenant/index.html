@@ -112,6 +112,8 @@
     <a class="mp-btn mp-btn--primary" id="add-vessel-button" href="vessel.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> Добавить судно</a>
    </div>
    <div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div>
+   <div class="mp-field"><label for="tenant-vessel-status-filter">Состояние</label><select id="tenant-vessel-status-filter"><option value="registry">Основной реестр (Active / Inactive)</option><option value="archived">Архив судов</option><option value="all">Все суда</option></select></div>
+   <p class="mp-help">Новое судно создаётся Inactive. Активация здесь демонстрационная; реальные Fleet-лимиты и права проверяет VDMS API.</p>
    <div id="tenant-vessel-list" aria-live="polite"></div><p id="tenant-vessel-feedback" class="mp-feedback" aria-live="polite"></p>
   </div>
   <div id="tenant-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-licenses" hidden>
@@ -144,14 +146,24 @@
     <option value="vessel">vessel — судовой пользователь</option>
    </select>
   </div>
-  <div class="mp-field" id="user-vessel-field" hidden>
-   <label for="tenant-user-vessel">Судно *</label><select id="tenant-user-vessel"><option value="">Выберите судно</option></select>
-   <p class="mp-help" id="user-vessel-help">Для роли vessel обязательно выбрать судно из уже заполненных карточек. Если список пуст, сначала создайте судно.</p>
+  <div class="mp-field" id="user-vessel-field">
+   <label>Назначенные суда</label>
+   <div id="user-vessel-options" class="mp-stack" role="group" aria-label="Назначение активных судов"></div>
+   <p class="mp-help" id="user-vessel-help">Office — ноль или несколько судов; Vessel — минимум одно активное судно при создании. Права модулей отдельно.</p>
   </div>
   <p id="user-form-error" class="mp-error" role="alert"></p>
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=7"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="tenant.js?v=11"></script>
+<dialog class="mp-dialog" id="assignments-dialog" aria-labelledby="assignments-title">
+ <form id="assignments-form">
+  <div class="mp-dialog-heading"><div><span class="mp-eyebrow">Company / Users</span><h2 id="assignments-title">Назначения судов</h2><p id="assignments-subtitle" class="mp-help">Выберите суда, доступные пользователю в рамках назначения (mock).</p></div><button type="button" class="mp-modal-close" id="assignments-close" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+  <div id="assignment-vessel-options" role="group" aria-label="Суда пользователя" class="mp-stack"></div>
+  <p class="mp-help">Сохранённые назначения Inactive / Archived не удаляются при смене статуса. Новые назначения — только на Active. Отзыв всех назначений оставляет аккаунт без судового доступа.</p>
+  <p id="assignment-form-error" role="alert" class="mp-error"></p>
+  <div class="mp-form-actions"><button type="button" id="assignments-cancel" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Сохранить назначения</button></div>
+ </form>
+</dialog>
+<script src="../shared/app.js?v=9"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=2"></script><script src="tenant.js?v=12"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>
