@@ -177,7 +177,7 @@ function renderLicenseRequests(){
  });
 }
 function render(){
- const c=company();if(!c){window.location.replace('../auth/login.html');return;}
+ const c=company();if(!c||c.status==='archived'){window.location.replace('../auth/login.html');return;}
  $('tenant-sidebar-id').textContent=c.id;
  $('tenant-head-code').textContent=c.id;
  $('tenant-company-title').textContent=c.name;
