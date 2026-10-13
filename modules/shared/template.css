@@ -153,14 +153,14 @@ dialog.mp-dialog .mp-form-actions button { min-height:40px; }
 .mp-template-app .mp-dashboard-summary{gap:8px;grid-template-columns:repeat(4,minmax(0,1fr))}
 .mp-template-app .mp-dashboard-stat{
  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
- gap:10px;min-height:65px;padding:11px 13px;
+ gap:7px;min-height:0;padding:7px 10px;
  border-radius:var(--vms-input-radius,6px);box-shadow:none;
 }
 .mp-template-app .mp-dashboard-stat .mp-eyebrow{
- color:var(--vms-color-muted);font-size:10px;letter-spacing:0;text-transform:none;font-weight:600;
+ color:var(--vms-color-muted);font-size:10px;line-height:1.2;letter-spacing:0;text-transform:none;font-weight:600;
 }
 .mp-template-app .mp-dashboard-stat strong{
- margin:0;font-size:clamp(19px,2vw,24px);font-weight:650;letter-spacing:-.035em;flex:0 0 auto;
+ margin:0;font-size:19px;line-height:1.1;font-weight:650;letter-spacing:-.025em;flex:0 0 auto;
 }
 .mp-template-app .mp-dashboard-stat small{display:none}
 .mp-template-app .mp-dashboard-grid{gap:10px}
@@ -206,8 +206,8 @@ dialog.mp-confirm-dialog[open]{width:min(460px,calc(100vw - 28px))}
 }
 @media(max-width:600px){
  .mp-template-app .mp-card{padding:13px}
- .mp-template-app .mp-dashboard-stat{min-height:56px;padding:9px 10px}
- .mp-template-app .mp-dashboard-stat strong{font-size:20px}
+ .mp-template-app .mp-dashboard-stat{min-height:0;padding:7px 9px}
+ .mp-template-app .mp-dashboard-stat strong{font-size:18px}
  .mp-template-app .mp-dashboard-tile{min-height:113px;padding:13px}
  .mp-template-app .mp-dashboard-tile-icon{width:31px;height:31px;flex-basis:31px}
  .mp-template-app .mp-workspace-header .mp-admin-header-actions{width:100%}
