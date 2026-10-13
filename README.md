@@ -60,6 +60,15 @@ Open `index.html` in a browser. Fonts and Font Awesome icons load from third-par
 - [Foundations](docs/foundations.md)
 - [Components](docs/components.md)
 
+## Текущее проектирование frontend-архитектуры
+
+Новая работа по архитектуре **ведётся отдельно от дизайн-системы и демонстрационных экранов**: [`architecture/`](architecture/README.md).
+
+- [Согласованные правила Platform/Tenant и границы frontend](architecture/DECISIONS.md).
+- [Единый Login, маршрутизация, роли и черновик API-взаимодействия](architecture/AUTH_AND_ROUTING.md).
+
+**UI-прототип в `modules/` временно зафиксирован.** Мы не перестраиваем существующую mock-логику и не интегрируемся с БД до согласования API-контрактов с другим отделом. Дизайн-система в корневых файлах и `docs/` остаётся независимой.
+
 ## Project status
 
 Early work in progress. This is a UI demo, not a production-ready component library or completed accessibility audit.
