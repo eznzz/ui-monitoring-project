@@ -6,7 +6,7 @@
 <meta name="description" content="Monitoring Project: администрирование компаний, типов объектов и лицензируемых модулей">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=1">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=2">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head>
 <body>
 <div class="app mp-template-app">
@@ -146,21 +146,23 @@
 </main>
 </div>
 </div>
-<dialog class="mp-dialog" id="company-dialog" aria-labelledby="company-dialog-title">
+<dialog class="mp-dialog" id="company-dialog" aria-labelledby="company-dialog-title" aria-describedby="company-dialog-description">
  <form id="company-form" novalidate>
-  <header><span class="mp-eyebrow">Шаг 1 · Platform</span><h2 id="company-dialog-title">Новая компания</h2><p class="mp-help">Укажите данные компании и тип объектов, доступный для первичного учёта.</p></header>
+  <header class="mp-dialog-heading"><div><span class="mp-eyebrow">Шаг 1 · Platform</span><h2 id="company-dialog-title">Новая компания</h2><p id="company-dialog-description" class="mp-help">Укажите данные компании и основной тип объектов для учёта.</p></div><button type="button" class="mp-modal-close" data-dialog-close="company-dialog" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>
   <div class="mp-field"><label for="new-company-name">Название компании *</label><input id="new-company-name" maxlength="100" required placeholder="Например, Ocean Logistics"></div>
   <div class="mp-field"><label for="new-company-code">Код компании *</label><input id="new-company-code" maxlength="30" required placeholder="COMP-002"></div>
-  <fieldset style="border:0;padding:0;margin:0;min-width:0" class="mp-stack">
-   <legend class="mp-label">Тип объектов *</legend>
-   <div id="company-object-types" class="mp-choice-grid"></div>
-   <p class="mp-help">Список формируется из справочника типов объектов platform_db (сейчас только Vessels). Не является платным модулем.</p>
-  </fieldset>
+  <div class="mp-field">
+   <label for="company-object-types">Тип объектов *</label>
+   <select id="company-object-types" name="objectType" required aria-describedby="company-object-type-help">
+    <option value="">Выберите тип объектов</option>
+   </select>
+   <p class="mp-help" id="company-object-type-help">Справочник платформы (пока только Vessels). Тип объекта не является платным модулем.</p>
+  </div>
   <p id="company-form-error" role="alert" class="mp-error"></p>
   <div class="mp-form-actions"><button type="button" id="cancel-company" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="platform.js?v=7"></script>
+<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="platform.js?v=8"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body>
 </html>
