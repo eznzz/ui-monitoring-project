@@ -5,7 +5,7 @@
 <meta name="description" content="Monitoring Project: базовая настройка компании, пользователи и карточки судов">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=2">
+<link rel="stylesheet" href="../../tokens/tokens.css"><link rel="stylesheet" href="../../style.css?v=0.6.2"><link rel="stylesheet" href="../shared/ui.css?v=8"><link rel="stylesheet" href="../shared/template.css?v=3">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head><body>
 <div class="app mp-template-app">
   <aside class="sidebar" id="sidebar">
@@ -118,7 +118,7 @@
     <a class="mp-btn mp-btn--primary" id="add-vessel-button" href="vessel.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> Добавить судно</a>
    </div>
    <div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div>
-   <div id="tenant-vessel-list" aria-live="polite"></div>
+   <div id="tenant-vessel-list" aria-live="polite"></div><p id="tenant-vessel-feedback" class="mp-feedback" aria-live="polite"></p>
   </div>
   <div id="tenant-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-licenses" hidden>
    <div class="mp-page-tools"><div><h3 class="mp-section-title">Запрос подключения модуля</h3><p class="mp-help">Введите ключ, выданный платформой, чтобы отправить запрос на активацию.</p></div><span class="mp-badge">Включает только Platform</span></div>
@@ -158,6 +158,6 @@
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=5"></script><script src="../shared/licensing.js?v=3"></script><script src="tenant.js?v=8"></script>
+<script src="../shared/app.js?v=6"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="tenant.js?v=9"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>
