@@ -29,6 +29,7 @@ function routeFromHash(){
 function showTenantPage(page,updateLocation=true){
  if(!['dashboard','users','vessels','licenses'].includes(page))page='dashboard';
  if(page==='vessels'&&!allowVessels())page='users';
+ if(company()?.status==='archived')page='dashboard';
  $('tenant-dashboard').hidden=page!=='dashboard';
  $('tenant-work-area').hidden=page==='dashboard';
  if(page!=='dashboard')viewSelect(page);
@@ -260,9 +261,10 @@ function render(){
  document.querySelector('[data-nav-vessels]').hidden=!allowVessels();
  $('add-vessel-button').href='vessel.html?tenant='+encodeURIComponent(tenantId);
  if(c.status==='archived'){
-  $('tenant-dashboard').replaceChildren(Object.assign(document.createElement('p'),
-   {textContent:'Компания находится в архиве. Восстановление выполняется из Platform Admin.'}));
-  $('tenant-work-area').hidden=true;return;
+  renderTenantDashboard();
+  $('tenant-dashboard-company').textContent='Компания находится в архиве. Восстановление выполняет Super Admin из Platform Admin.';
+  $('tenant-work-area').hidden=true;
+  showTenantPage('dashboard',false);return;
  }
  renderUsers();renderVessels();renderLicenseRequests();renderTenantDashboard();viewSelect(view);
 }
