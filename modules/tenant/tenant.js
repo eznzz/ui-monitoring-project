@@ -123,7 +123,7 @@ function renderVessels(){
    const td=document.createElement('td');td.dataset.label=label;td.textContent=value;tr.append(td);
   });
   const td=document.createElement('td');td.dataset.label='Действие';
-  const a=document.createElement('a');a.className='mp-btn mp-btn--secondary';a.textContent='Открыть карточку →';
+  const a=document.createElement('a');a.className='mp-btn mp-btn--secondary';a.textContent='Открыть карточку ';const arrow=document.createElement('i');arrow.className='fa-solid fa-arrow-right';arrow.setAttribute('aria-hidden','true');a.append(arrow);
   a.href='vessel.html?tenant='+encodeURIComponent(tenantId)+'&imo='+encodeURIComponent(s.imo);
   td.append(a);tr.append(td);tbody.append(tr);
  });
