@@ -24,12 +24,12 @@ function availableObjectTypes(){return ETALON_OBJECT_TYPES.filter(t=>t.available
 function findObjectType(id){return availableObjectTypes().find(t=>t.id===id)||null;}
 const ROLES=[{id:'office',name:'Office'},{id:'vessel',name:'Vessel'}];
 function defaults(){
- return {version:5,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',objectTypes:['vessels'],objectTypeId:'vessels',templateId:'mock-etalon-vessels-v1',ownerEmail:'',status:'active',provisioningStatus:'ready',modules:{}}],
+ return {version:7,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',objectTypes:['vessels'],objectTypeId:'vessels',templateId:'mock-etalon-vessels-v1',ownerEmail:'',status:'active',provisioningStatus:'ready',modules:{}}],
    tenants:{tenant_db_000001:{users:[],vessels:[]}},licenses:[],licenseRequests:[]};
 }
 function normalize(raw){
  if(!raw||!Array.isArray(raw.companies)||!raw.tenants)return defaults();
- raw.version=6;
+ raw.version=7;
  const existing=raw.companies.map(c=>Number(c.id?.match(/tenant_db_(\d+)$/)?.[1]||0));
  raw.nextTenantNumber=Math.max(Number.isInteger(raw.nextTenantNumber)?raw.nextTenantNumber:1,Math.max(0,...existing)+1);
  if(!Array.isArray(raw.licenses))raw.licenses=[];
@@ -50,23 +50,36 @@ function normalize(raw){
    const t=raw.tenants[id];
    t.users=Array.isArray(t.users)?t.users:[];
    t.vessels=Array.isArray(t.vessels)?t.vessels:[];
-   t.users.forEach((u,i)=>{
-    if(!ROLES.some(r=>r.id===u.role))u.role='office';
-    if(!u.id)u.id='legacy-'+id+'-'+i;
-    delete u.password;delete u.passwordConfirm;delete u.passwordHash;
-   });
+   const objectIds=new Set();
    t.vessels=t.vessels.map((v,index)=>{
      const normalized=v.fields&&typeof v.fields==='object'?v:{
       ...v,fields:{shipName:v.name||'',imo:v.imo||'',shipType:v.type||'',flag:v.flag||'',callSign:v.callSign||''}};
      normalized.holds=Array.isArray(normalized.holds)?normalized.holds:[];
-     normalized.id=normalized.id||('legacy-object-'+id+'-'+index);
-     // Old demo IDs may be IMO: preserve identity during migration, never recompute on edits.
+     normalized.holdTotals=normalized.holdTotals||{};
+     const oldId=typeof normalized.id==='string'?normalized.id:'';
+     let oid=oldId&&oldId!==String(normalized.fields.imo||'')?oldId:'legacy-object-'+id+'-'+index;
+     if(objectIds.has(oid))oid='legacy-object-'+id+'-'+index;
+     while(objectIds.has(oid))oid+='-unique';
+     objectIds.add(oid);normalized.id=oid;
      if(!['active','inactive','archived'].includes(normalized.status))normalized.status='inactive';
      normalized.objectTypeId='vessels';
      if(!Array.isArray(normalized.history))normalized.history=[];
      return normalized;
    });
+   t.users.forEach((u,index)=>{
+     if(!ROLES.some(r=>r.id===u.role))u.role='office';
+     if(!u.id)u.id='legacy-user-'+id+'-'+index;
+     const prior=Array.isArray(u.objectIds)?u.objectIds.filter(x=>typeof x==='string'):[];
+     if(u.vesselImo){
+       const linked=t.vessels.find(v=>v.fields.imo===u.vesselImo);
+       if(linked)prior.push(linked.id);
+     }
+     u.objectIds=[...new Set(prior)].filter(x=>objectIds.has(x));
+     delete u.vesselImo;
+     delete u.password;delete u.passwordConfirm;delete u.passwordHash;
+   });
  });
+
  return raw;
 }
 function state(){
@@ -104,18 +117,57 @@ function tenant(s,id){
  if(!s.tenants[id])s.tenants[id]={users:[],vessels:[]};
  return s.tenants[id];
 }
-function newObjectId(){return 'object-'+(globalThis.crypto?.randomUUID?.()||('mock-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2))); }
+function newObjectId(){
+ const random=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+ return 'object-'+random;
+}
+function fleetUsage(s,tenantId,moduleId){
+ const c=company(s,tenantId),t=s.tenants?.[tenantId];
+ if(!c||!t)throw Error('Компания не найдена.');
+ const mod=c.modules?.[moduleId]||{},ids=Array.isArray(mod.objectIds)?mod.objectIds:[];
+ return ids.filter(id=>t.vessels.some(v=>v.id===id&&v.status==='active')).length;
+}
 function setVesselStatus(s,tenantId,objectId,nextStatus){
- const t=s.tenants?.[tenantId],v=t?.vessels?.find(item=>item.id===objectId);
+ const c=company(s,tenantId),t=s.tenants?.[tenantId],v=t?.vessels?.find(item=>item.id===objectId);
+ if(!c||c.status==='archived')throw Error('Компания архивирована или не найдена.');
  if(!v)throw Error('Объект не найден в этой компании.');
  const transitions={inactive:['active','archived'],active:['inactive','archived'],archived:['inactive']};
  if(!transitions[v.status]?.includes(nextStatus))throw Error('Недопустимый переход статуса.');
- if(nextStatus==='active')throw Error('Активация требует серверной проверки Fleet и назначений модулей; в демо недоступна.');
+ if(nextStatus==='active'){
+   // UI-only Fleet simulation; production requires atomic backend authorization.
+   for(const [moduleId,mod] of Object.entries(c.modules||{})){
+     if(!Array.isArray(mod.objectIds)||!mod.objectIds.includes(v.id))continue;
+     const cap=Number(mod.vesselCap);
+     if(Number.isFinite(cap)&&cap>=0&&fleetUsage(s,tenantId,moduleId)>=cap)
+       throw Error('Mock Fleet: достигнут лимит модуля '+moduleId+'.');
+   }
+ }
  v.history=Array.isArray(v.history)?v.history:[];
- v.history.push({at:new Date().toISOString(),event:'status',from:v.status,to:nextStatus,actor:'demo-tenant-admin'});
+ v.history.push({at:new Date().toISOString(),event:'status',from:v.status,to:nextStatus,actor:'demo-tenant-admin',mock:true});
  v.status=nextStatus;
  return v;
 }
+function validateUserObjectIds(s,tenantId,role,ids){
+ const t=s.tenants?.[tenantId],c=company(s,tenantId);
+ if(!c||c.status==='archived'||!t)throw Error('Компания недоступна.');
+ if(!ROLES.some(r=>r.id===role))throw Error('Неизвестная роль.');
+ if(!Array.isArray(ids)||ids.some(id=>typeof id!=='string'))throw Error('Неверный набор объектов.');
+ const uniq=[...new Set(ids)];
+ if(uniq.some(id=>!t.vessels.some(v=>v.id===id&&v.status==='active')))
+  throw Error('Для нового назначения можно выбрать только активные суда.');
+ if(role==='vessel'&&!uniq.length)throw Error('Для роли Vessel нужно выбрать хотя бы одно активное судно.');
+ return uniq;
+}
+function assignUserObjects(s,tenantId,userId,activeIds){
+ const t=s.tenants?.[tenantId],user=t?.users?.find(u=>u.id===userId);
+ if(!user)throw Error('Пользователь не найден.');
+ const valid=validateUserObjectIds(s,tenantId,user.role,activeIds);
+ // Retain inactive/archived historical assignments, only active assignments are editable.
+ const keep=(user.objectIds||[]).filter(id=>t.vessels.some(v=>v.id===id&&v.status!=='active'));
+ user.objectIds=[...new Set([...keep,...valid])];
+ return user;
+}
+
 function vesselSummary(v){
  const d=v?.fields||v||{};
  return {name:d.shipName||d.name||'',imo:d.imo||'',type:d.shipType||d.type||'',flag:d.flag||''};
@@ -132,17 +184,6 @@ function removeUser(s,tenantId,userId){
  if(t.users.length===before)throw Error('Пользователь не найден.');
  return true;
 }
-function removeVessel(s,tenantId,vesselIMO){
- const c=company(s,tenantId),t=s.tenants?.[tenantId];
- if(!c||!t||!Array.isArray(t.vessels))throw Error('Компания или список судов не найден.');
- if(t.users?.some(u=>u.role==='vessel'&&u.vesselImo===vesselIMO))
-  throw Error('Судно привязано к аккаунту vessel. Сначала удалите привязанные аккаунты в разделе «Пользователи».');
- const before=t.vessels.length;
- t.vessels=t.vessels.filter(v=>vesselSummary(v).imo!==vesselIMO);
- if(t.vessels.length===before)throw Error('Судно не найдено.');
- return true;
-}
-// Company archive/restore preserves tenant data; physical deletion is not a UI action.
 function setFeedback(id,message,error){
  const node=document.getElementById(id);if(!node)return;
  node.textContent=message;node.setAttribute('role',error?'alert':'status');
@@ -174,6 +215,6 @@ function initShared(){
    window.addEventListener('resize',()=>{if(innerWidth>950)close();});
  }
 }
-window.MP={KEY,MODULES,OBJECT_TYPES,ETALON_OBJECT_TYPES,availableObjectTypes,findObjectType,ROLES,defaults,state,save,company,createMockCompany,setCompanyArchived,tenant,vesselSummary,newObjectId,setVesselStatus,escape,countEnabled,removeUser,removeVessel,setFeedback};
+window.MP={KEY,MODULES,OBJECT_TYPES,ETALON_OBJECT_TYPES,availableObjectTypes,findObjectType,ROLES,defaults,state,save,company,createMockCompany,setCompanyArchived,tenant,vesselSummary,newObjectId,fleetUsage,setVesselStatus,validateUserObjectIds,assignUserObjects,escape,countEnabled,removeUser,setFeedback};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initShared);else initShared();
 })();
