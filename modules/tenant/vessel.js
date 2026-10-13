@@ -8,6 +8,7 @@ const requested=params.get('tenant');
 const tenantId=requested||state.companies[0]?.id||'';
 const originalIMO=params.get('imo')||'';
 const company=MP.company(state,tenantId);
+if(company?.status==='archived'){window.location.replace('../auth/login.html');return;}
 const authorizedObjectType=company?.objectTypes?.includes('vessels');
 const vesselList=MP.tenant(state,tenantId).vessels;
 let source=vesselList.find(v=>MP.vesselSummary(v).imo===originalIMO);

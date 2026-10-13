@@ -4,7 +4,8 @@ const $=id=>document.getElementById(id);
 let data=MP.state(),view='users';
 const requested=new URLSearchParams(location.search).get('tenant');
 const tenantId=requested||data.companies[0]?.id||'';
-if(!MP.company(data,tenantId)){
+if(!MP.company(data,tenantId)||MP.company(data,tenantId).status==='archived'){
+ // UI-only guard: real tenant isolation and archive enforcement belong to backend.
  window.location.replace('../auth/login.html');
  return;
 }

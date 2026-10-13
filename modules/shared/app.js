@@ -14,17 +14,22 @@ const MODULES=[
  {id:'reports',name:'Reports',detail:'Отчётность'},
  {id:'sync',name:'Sync',detail:'Обмен данными'}
 ];
-/* Simulated platform_db reference table. Additional object types must come from this
-   platform reference in a future backend; tenant cannot create or activate them. */
-const OBJECT_TYPES=[{id:'vessels',name:'Суда (Vessels)',description:'Карточки судов и Ship Particulars'}];
+/* Mock etalon_db Object Type catalog: NOT a physical PostgreSQL template or API contract. */
+const ETALON_OBJECT_TYPES=Object.freeze([
+ Object.freeze({id:'vessels',name:'Суда (Vessels)',description:'Карточки судов и Ship Particulars',
+  templateId:'mock-etalon-vessels-v1',available:true})
+]);
+const OBJECT_TYPES=ETALON_OBJECT_TYPES; // compatibility alias
+function availableObjectTypes(){return ETALON_OBJECT_TYPES.filter(t=>t.available);}
+function findObjectType(id){return availableObjectTypes().find(t=>t.id===id)||null;}
 const ROLES=[{id:'office',name:'Office'},{id:'vessel',name:'Vessel'}];
 function defaults(){
- return {version:4,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',objectTypes:['vessels'],modules:{}}],
+ return {version:5,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',objectTypes:['vessels'],objectTypeId:'vessels',templateId:'mock-etalon-vessels-v1',ownerEmail:'',status:'active',provisioningStatus:'ready',modules:{}}],
    tenants:{tenant_db_000001:{users:[],vessels:[]}},licenses:[],licenseRequests:[]};
 }
 function normalize(raw){
  if(!raw||!Array.isArray(raw.companies)||!raw.tenants)return defaults();
- raw.version=4;
+ raw.version=5;
  const existing=raw.companies.map(c=>Number(c.id?.match(/tenant_db_(\d+)$/)?.[1]||0));
  raw.nextTenantNumber=Math.max(Number.isInteger(raw.nextTenantNumber)?raw.nextTenantNumber:1,Math.max(0,...existing)+1);
  if(!Array.isArray(raw.licenses))raw.licenses=[];
@@ -33,6 +38,11 @@ function normalize(raw){
    delete c.code; // obsolete UI-only free-form label; Tenant ID is canonical
    if(!Array.isArray(c.objectTypes))c.objectTypes=['vessels']; // migration of older mock companies
    c.objectTypes=c.objectTypes.filter(id=>OBJECT_TYPES.some(type=>type.id===id));
+   c.objectTypeId=c.objectTypeId||c.objectTypes[0]||null;
+   c.templateId=c.templateId||findObjectType(c.objectTypeId)?.templateId||'legacy-unknown';
+   if(typeof c.ownerEmail!=='string')c.ownerEmail='';
+   if(!['active','archived'].includes(c.status))c.status='active';
+   if(!c.provisioningStatus)c.provisioningStatus='ready'; // legacy mock record
    c.modules=c.modules||{};
    if(!raw.tenants[c.id])raw.tenants[c.id]={users:[],vessels:[]};
  });
@@ -64,6 +74,30 @@ function state(){
 }
 function save(s){try{localStorage.setItem(KEY,JSON.stringify(s));return true;}catch(_){return false;}}
 function company(s,id){return s.companies.find(c=>c.id===id)||null;}
+function createMockCompany(s,{name,ownerEmail,objectTypeId}){
+ const n=String(name||'').trim(),email=String(ownerEmail||'').trim().toLowerCase();
+ const type=findObjectType(objectTypeId);
+ if(!n)throw Error('Укажите название компании.');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error('Укажите корректный e-mail владельца.');
+ if(!type)throw Error('Выберите доступный тип объектов из эталона.');
+ if(s.companies.some(c=>c.ownerEmail?.toLowerCase()===email)||
+   Object.values(s.tenants).some(t=>t.users?.some(u=>u.email?.toLowerCase()===email)))
+  throw Error('Этот e-mail уже используется в демо.');
+ const next=s.nextTenantNumber||2,id='tenant_db_'+String(next).padStart(6,'0');
+ if(s.companies.some(c=>c.id===id))throw Error('Конфликт ID mock Tenant.');
+ const c={id,name:n,ownerEmail:email,objectTypes:[type.id],objectTypeId:type.id,templateId:type.templateId,
+  status:'active',provisioningStatus:'ready',modules:{}};
+ s.nextTenantNumber=next+1;
+ s.tenants[id]={users:[],vessels:[]}; // mock only, no PostgreSQL provisioning
+ s.companies.push(c);
+ return c;
+}
+function setCompanyArchived(s,id,archived){
+ const c=company(s,id);if(!c)throw Error('Компания не найдена.');
+ c.status=archived?'archived':'active';
+ c.archivedAt=archived?new Date().toISOString():null;
+ return c;
+}
 function tenant(s,id){
  if(!s.tenants[id])s.tenants[id]={users:[],vessels:[]};
  return s.tenants[id];
@@ -94,15 +128,7 @@ function removeVessel(s,tenantId,vesselIMO){
  if(t.vessels.length===before)throw Error('Судно не найдено.');
  return true;
 }
-function removeCompany(s,tenantId){
- const ix=s.companies.findIndex(c=>c.id===tenantId);
- if(ix<0)throw Error('Компания не найдена.');
- const removed=s.companies.splice(ix,1)[0];
- delete s.tenants[tenantId];
- s.licenses=(s.licenses||[]).filter(l=>l.tenantId!==tenantId);
- s.licenseRequests=(s.licenseRequests||[]).filter(r=>r.tenantId!==tenantId);
- return removed;
-}
+// Company archive/restore preserves tenant data; physical deletion is not a UI action.
 function setFeedback(id,message,error){
  const node=document.getElementById(id);if(!node)return;
  node.textContent=message;node.setAttribute('role',error?'alert':'status');
@@ -134,6 +160,6 @@ function initShared(){
    window.addEventListener('resize',()=>{if(innerWidth>950)close();});
  }
 }
-window.MP={KEY,MODULES,OBJECT_TYPES,ROLES,defaults,state,save,company,tenant,vesselSummary,escape,countEnabled,removeUser,removeVessel,removeCompany,setFeedback};
+window.MP={KEY,MODULES,OBJECT_TYPES,ETALON_OBJECT_TYPES,availableObjectTypes,findObjectType,ROLES,defaults,state,save,company,createMockCompany,setCompanyArchived,tenant,vesselSummary,escape,countEnabled,removeUser,removeVessel,setFeedback};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initShared);else initShared();
 })();
