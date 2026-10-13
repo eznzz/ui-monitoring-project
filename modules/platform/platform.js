@@ -10,14 +10,14 @@ function typeLabels(c){
 }
 function renderCompanyList(){
  const q=search.value.trim().toLowerCase();
- const matches=data.companies.filter(c=>[c.name,c.code,c.id].some(v=>v.toLowerCase().includes(q)));
+ const matches=data.companies.filter(c=>[c.name,c.id].some(v=>v.toLowerCase().includes(q)));
  $('company-list-count').textContent=matches.length;
  list.replaceChildren();
  if(!matches.length){const p=document.createElement('p');p.className='mp-empty';p.textContent='Компании не найдены';list.append(p);return;}
  matches.forEach(c=>{
   const b=document.createElement('button');b.type='button';b.className='mp-record mp-record--button';
   b.setAttribute('aria-pressed',String(c.id===selected));
-  b.innerHTML='<span><strong>'+MP.escape(c.name)+'</strong><small>'+MP.escape(c.id)+'</small></span><span class="mp-badge">'+MP.escape(c.code)+'</span>';
+  b.innerHTML='<span><strong>'+MP.escape(c.name)+'</strong><small>'+MP.escape(c.id)+'</small></span><i class="fa-solid fa-chevron-right mp-muted" aria-hidden="true"></i>';
   b.addEventListener('click',()=>{selected=c.id;render();});
   list.append(b);
  });
@@ -218,14 +218,16 @@ document.querySelectorAll('[data-platform-tab]').forEach(button=>{
 function render(){
  if(!selectedCompany())selected=data.companies[0]?.id||'';
  renderCompanyList();
- const c=selectedCompany();if(!c)return;
+ const c=selectedCompany();
+ $('company-detail-workspace').hidden=!c;
+ renderPlatformDashboard();
+ if(!c)return;
  $('selected-company-heading').textContent=c.name;
- $('selected-company-id').textContent=c.id+' · '+c.code;
+ $('selected-company-id').textContent=c.id;
  $('company-tenant-id').textContent=c.id;
- $('company-code').textContent=c.code;
- $('company-types').textContent=typeLabels(c).join(', ')||'Не выбран';
+  $('company-types').textContent=typeLabels(c).join(', ')||'Не выбран';
  $('open-tenant').href='../tenant/index.html?tenant='+encodeURIComponent(c.id);
- renderModules(c);renderLicensePanel(c);renderPlatformDashboard();chooseTab(activeTab);
+ renderModules(c);renderLicensePanel(c);chooseTab(activeTab);
 }
 modules.addEventListener('change',e=>{
  const input=e.target.closest('input[data-module][data-action]');
@@ -249,6 +251,26 @@ function renderTypes(){
  MP.OBJECT_TYPES.forEach(type=>select.add(new Option(type.name,type.id)));
  select.value='';
 }
+$('delete-company-button').addEventListener('click',async()=>{
+ const c=selectedCompany();if(!c)return;
+ const tenant=data.tenants[c.id]||{users:[],vessels:[]};
+ const licenses=(data.licenses||[]).filter(l=>l.tenantId===c.id).length;
+ const requests=(data.licenseRequests||[]).filter(r=>r.tenantId===c.id).length;
+ const approved=await MP_CONFIRM.remove({
+  title:'Удалить компанию «'+c.name+'»?',
+  description:'Будут удалены '+(tenant.users?.length||0)+' пользователей, '+(tenant.vessels?.length||0)+' судов, '+licenses+' ключей и '+requests+' запросов. Восстановление этих демоданных невозможно.',
+  buttonLabel:'Удалить компанию'
+ });
+ if(!approved)return;
+ const deletedName=c.name;
+ try{
+  MP.removeCompany(data,c.id);
+  selected=data.companies[0]?.id||'';
+  search.value='';
+  store();render();openPlatformPage('companies');
+  MP.setFeedback('platform-feedback','Компания «'+deletedName+'» удалена вместе со связанными демоданными.',false);
+ }catch(error){MP.setFeedback('platform-feedback',error.message,true);}
+});
 $('add-company-button').addEventListener('click',()=>{
  $('company-form').reset();$('company-form-error').textContent='';renderTypes();
  dialog.showModal();$('new-company-name').focus();
@@ -258,17 +280,15 @@ document.querySelector('[data-dialog-close="company-dialog"]')?.addEventListener
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
 $('company-form').addEventListener('submit',e=>{
  e.preventDefault();
- const name=$('new-company-name').value.trim(),code=$('new-company-code').value.trim();
+ const name=$('new-company-name').value.trim();
  const objectType=$('company-object-types').value;
  const objectTypes=MP.OBJECT_TYPES.some(type=>type.id===objectType)?[objectType]:[];
- if(!name||!code){$('company-form-error').textContent='Укажите название и код компании.';return;}
+ if(!name){$('company-form-error').textContent='Укажите название компании.';return;}
  if(!objectTypes.length){$('company-form-error').textContent='Выберите тип объектов из списка.';return;}
- if(data.companies.some(c=>c.code.toLowerCase()===code.toLowerCase())){
-  $('company-form-error').textContent='Код компании уже занят.';return;
- }
- const nums=data.companies.map(c=>Number(c.id.match(/tenant_db_(\d+)$/)?.[1]||0));
- const id='tenant_db_'+String(Math.max(0,...nums)+1).padStart(6,'0');
- data.companies.push({id,name,code,objectTypes,modules:{}});
+ const next=data.nextTenantNumber||2;
+ const id='tenant_db_'+String(next).padStart(6,'0');
+ data.nextTenantNumber=next+1;
+ data.companies.push({id,name,objectTypes,modules:{}});
  data.tenants[id]={users:[],vessels:[]};
  selected=id;search.value='';activeTab='profile';
  store();dialog.close();render();openPlatformPage('companies');
