@@ -3,7 +3,11 @@
 const $=id=>document.getElementById(id);
 let data=MP.state(),view='users';
 const requested=new URLSearchParams(location.search).get('tenant');
-const tenantId=MP.company(data,requested)?requested:'tenant_db_000001';
+const tenantId=requested||data.companies[0]?.id||'';
+if(!MP.company(data,tenantId)){
+ window.location.replace('../auth/login.html');
+ return;
+}
 const dialog=$('user-dialog');
 function company(){return MP.company(data,tenantId);}
 function records(){return MP.tenant(data,tenantId);}
@@ -160,7 +164,7 @@ function renderLicenseRequests(){
  });
 }
 function render(){
- const c=company();if(!c)return;
+ const c=company();if(!c){window.location.replace('../auth/login.html');return;}
  $('tenant-sidebar-id').textContent=c.id;
  $('tenant-head-code').textContent=c.id;
  $('tenant-company-title').textContent=c.name;
