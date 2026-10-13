@@ -173,7 +173,9 @@ function openPlatformPage(page,updateLocation=true){
  const pane={companies:'profile',modules:'licenses',keys:'keys'}[page];
  if(pane)chooseTab(pane);
  document.querySelectorAll('.mp-sidebar-nav [data-platform-section]').forEach(a=>{
-  if(a.dataset.platformSection===page)a.setAttribute('aria-current','page');
+  const active=a.dataset.platformSection===page;
+  a.classList.toggle('active',active);
+  if(active)a.setAttribute('aria-current','page');
   else a.removeAttribute('aria-current');
  });
  $('platform-topbar-title').textContent='Platform / '+({
