@@ -66,7 +66,7 @@
    </div>
    <div class="mp-dashboard-grid">
     <a href="#users" data-tenant-section="users" class="mp-dashboard-tile">
-     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span><div><h2>Пользователи</h2><p>Создание аккаунтов office и vessel, привязка судовых сотрудников к существующим судам.</p></div></div>
+     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span><div><h2>Пользователи</h2><p>Создание Office/Vessel, назначение нескольких активных судов и сохранение прежних связей при деактивации.</p></div></div>
      <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-users">0 пользователей</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
     </a>
     <a href="#vessels" data-tenant-section="vessels" id="tenant-dashboard-vessel-tile" class="mp-dashboard-tile">
@@ -112,6 +112,10 @@
     <a class="mp-btn mp-btn--primary" id="add-vessel-button" href="vessel.html"><i class="fa-solid fa-plus" aria-hidden="true"></i> Добавить судно</a>
    </div>
    <div class="mp-field"><label for="tenant-vessel-search">Поиск</label><input type="search" id="tenant-vessel-search" placeholder="Название судна или IMO"></div>
+   <div class="mp-field"><label for="tenant-vessel-filter">Раздел реестра</label>
+    <select id="tenant-vessel-filter"><option value="registry">Реестр: Active + Inactive</option><option value="archive">Архив судов</option></select>
+    <p class="mp-help">Архив не удаляет Ship Particulars и историю. Для возврата в работу сначала восстановите судно в Inactive, затем активируйте.</p>
+   </div>
    <div id="tenant-vessel-list" aria-live="polite"></div><p id="tenant-vessel-feedback" class="mp-feedback" aria-live="polite"></p>
   </div>
   <div id="tenant-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-licenses" hidden>
@@ -145,13 +149,13 @@
    </select>
   </div>
   <div class="mp-field" id="user-vessel-field" hidden>
-   <label for="tenant-user-vessel">Судно *</label><select id="tenant-user-vessel"><option value="">Выберите судно</option></select>
-   <p class="mp-help" id="user-vessel-help">Для роли vessel обязательно выбрать судно из уже заполненных карточек. Если список пуст, сначала создайте судно.</p>
+   <label for="tenant-user-vessel">Назначенные суда (Vessel — не менее одного при создании)</label><select id="tenant-user-vessel" multiple size="6" aria-describedby="user-vessel-help"></select>
+   <p class="mp-help" id="user-vessel-help">Можно выбрать несколько активных судов: Ctrl/Command или Shift + щелчок. Office может иметь ноль или несколько судов; ранее назначенные неактивные связи сохраняются.</p>
   </div>
   <p id="user-form-error" class="mp-error" role="alert"></p>
-  <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
+  <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" id="user-submit-button" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=7"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="tenant.js?v=11"></script>
+<script src="../shared/app.js?v=9"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=2"></script><script src="tenant.js?v=12"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>
