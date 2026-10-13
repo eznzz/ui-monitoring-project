@@ -184,6 +184,7 @@ $('add-user-button').addEventListener('click',()=>{
  populateVesselChoices();toggleUserVessel();dialog.showModal();$('tenant-user-name').focus();
 });
 $('cancel-user').addEventListener('click',()=>dialog.close());
+document.querySelector('[data-dialog-close="user-dialog"]')?.addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
 $('tenant-user-form').addEventListener('submit',e=>{
  e.preventDefault();const form=e.currentTarget;
