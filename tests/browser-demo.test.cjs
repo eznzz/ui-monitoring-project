@@ -68,10 +68,12 @@ const root='http://127.0.0.1:8765';
  await page.goto(root+'/modules/tenant/index.html?tenant=tenant_db_000001#vessels');
  await page.locator('[data-next-status=archived]').click();
  await page.locator('.mp-confirm-dialog button[value=delete]').click();
+ await page.locator('#tenant-vessel-list').getByText('В архиве',{exact:true}).waitFor();
  await page.locator('#tenant-vessel-status-filter').selectOption('archived');
  assert.equal(await page.locator('#tenant-vessel-list tbody tr').count(),1);
  await page.locator('[data-next-status=inactive]').click();
  await page.locator('.mp-confirm-dialog button[value=delete]').click();
+ await page.locator('#tenant-vessel-list').getByText('Неактивно',{exact:true}).waitFor();
  await page.locator('#tenant-vessel-status-filter').selectOption('inactive');
  assert.equal(await page.locator('#tenant-vessel-list tbody tr').count(),1);
 
