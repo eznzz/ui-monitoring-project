@@ -120,22 +120,28 @@ function renderVessels(){
   list.append(p);return;
  }
  const table=document.createElement('table');table.className='mp-basic-table';
- table.innerHTML='<thead><tr><th scope="col">Судно</th><th scope="col">IMO</th><th scope="col">Тип</th><th scope="col">Действие</th></tr></thead>';
+ table.innerHTML='<thead><tr><th scope="col">Судно</th><th scope="col">IMO</th><th scope="col">Тип</th><th scope="col">Статус</th><th scope="col">Действие</th></tr></thead>';
  const tbody=document.createElement('tbody');
  vessels.forEach(v=>{
   const s=MP.vesselSummary(v),tr=document.createElement('tr');
   [['Судно',s.name],['IMO',s.imo],['Тип',s.type||'—']].forEach(([label,value])=>{
    const td=document.createElement('td');td.dataset.label=label;td.textContent=value;tr.append(td);
   });
+  const statusTd=document.createElement('td');statusTd.dataset.label='Статус';
+  const statusBadge=document.createElement('span');statusBadge.className='mp-badge';
+  statusBadge.textContent=({inactive:'Неактивно',active:'Активно',archived:'В архиве'})[v.status]||'Неактивно';
+  statusTd.append(statusBadge);tr.append(statusTd);
   const td=document.createElement('td');td.dataset.label='Действие';
   const a=document.createElement('a');a.className='mp-btn mp-btn--secondary';a.textContent='Открыть карточку ';const arrow=document.createElement('i');arrow.className='fa-solid fa-arrow-right';arrow.setAttribute('aria-hidden','true');a.append(arrow);
-  a.href='vessel.html?tenant='+encodeURIComponent(tenantId)+'&imo='+encodeURIComponent(s.imo);
-  const remove=document.createElement('button');remove.type='button';remove.className='mp-btn mp-btn--danger mp-btn--small';
-  remove.dataset.removeVessel=s.imo;remove.setAttribute('aria-label','Удалить судно '+s.name);
-  const icon=document.createElement('i');icon.className='fa-solid fa-trash-can';icon.setAttribute('aria-hidden','true');
-  remove.append(icon,document.createTextNode(' Удалить'));
+  a.href='vessel.html?tenant='+encodeURIComponent(tenantId)+'&object='+encodeURIComponent(v.id);
+  const statusAction=document.createElement('button');statusAction.type='button';
+  statusAction.className='mp-btn mp-btn--secondary mp-btn--small';
+  const next=v.status==='archived'?'inactive':v.status==='active'?'inactive':'archived';
+  statusAction.dataset.vesselStatusId=v.id;statusAction.dataset.nextStatus=next;
+  statusAction.textContent=v.status==='archived'?'Восстановить':'Архивировать';
+  if(v.status==='active')statusAction.textContent='Выключить';
   const actions=document.createElement('div');actions.className='mp-record-actions';
-  actions.append(a,remove);td.append(actions);tr.append(td);tbody.append(tr);
+  actions.append(a,statusAction);td.append(actions);tr.append(td);tbody.append(tr);
  });
  table.append(tbody);list.append(table);
 }
@@ -235,25 +241,15 @@ $('tenant-user-list').addEventListener('click',async event=>{
  }catch(error){MP.setFeedback('tenant-user-feedback',error.message,true);}
 });
 $('tenant-vessel-list').addEventListener('click',async event=>{
- const button=event.target.closest('[data-remove-vessel]');if(!button)return;
- const vessel=records().vessels.find(v=>MP.vesselSummary(v).imo===button.dataset.removeVessel);
- if(!vessel)return;
- const {name,imo}=MP.vesselSummary(vessel);
- const accounts=records().users.filter(u=>u.role==='vessel'&&u.vesselImo===imo);
- if(accounts.length){
-  MP.setFeedback('tenant-vessel-feedback','Нельзя удалить «'+name+'»: привязано аккаунтов vessel — '+accounts.length+'. Сначала удалите эти аккаунты в разделе «Пользователи».',true);
-  return;
- }
- const confirmed=await MP_CONFIRM.remove({
-  title:'Удалить судно «'+name+'»?',
-  description:'Будет удалена карточка IMO '+imo+' со всеми Ship Particulars и грузовыми помещениями. Восстановить демоданные нельзя.',
-  buttonLabel:'Удалить судно'
- });
- if(!confirmed)return;
+ const button=event.target.closest('[data-vessel-status-id]');if(!button)return;
+ const objectId=button.dataset.vesselStatusId, next=button.dataset.nextStatus;
+ const vessel=records().vessels.find(v=>v.id===objectId);if(!vessel)return;
+ const label=next==='archived'?'архивировать':next==='inactive'&&vessel.status==='archived'?'восстановить':'выключить';
+ if(!window.confirm('Подтвердить: '+label+' судно «'+MP.vesselSummary(vessel).name+'»? Данные сохранятся.'))return;
  try{
-  MP.removeVessel(data,tenantId,imo);store();
-  renderVessels();renderTenantDashboard();
-  MP.setFeedback('tenant-vessel-feedback','Судно «'+name+'» удалено из демоданных.',false);
+  MP.setVesselStatus(data,tenantId,objectId,next);
+  store();renderVessels();renderTenantDashboard();
+  MP.setFeedback('tenant-vessel-feedback','Статус изменён в mock. Активация Fleet требует отдельного API-контракта.',false);
  }catch(error){MP.setFeedback('tenant-vessel-feedback',error.message,true);}
 });
 $('tenant-vessel-search').addEventListener('input',renderVessels);
