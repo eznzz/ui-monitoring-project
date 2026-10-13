@@ -24,7 +24,7 @@ function renderTenantDashboard(){
  const c=company(),tenant=records();
  const pending=MP_LICENSE.requestsByCompany(data,tenantId).filter(r=>r.status==='pending').length;
  const active=MP.MODULES.filter(m=>MP_LICENSE.effective(data,c,m.id)).length;
- $('tenant-dashboard-id').textContent=c.id+' · '+c.code;
+ $('tenant-dashboard-id').textContent=c.id;
  $('tenant-dashboard-company').textContent=c.name+' · сведения о компании и первичная настройка';
  $('tenant-dash-users').textContent=tenant.users.length;
  $('tenant-dash-vessels').textContent=tenant.vessels.length;
@@ -86,7 +86,7 @@ function renderUsers(){
   list.append(empty);return;
  }
  const table=document.createElement('table');table.className='mp-basic-table';
- table.innerHTML='<thead><tr><th scope="col">Пользователь</th><th scope="col">Email</th><th scope="col">Роль</th><th scope="col">Судно</th></tr></thead>';
+ table.innerHTML='<thead><tr><th scope="col">Пользователь</th><th scope="col">Email</th><th scope="col">Роль</th><th scope="col">Судно</th><th scope="col">Действия</th></tr></thead>';
  const body=document.createElement('tbody');
  users.forEach(u=>{
   const tr=document.createElement('tr'),assign=records().vessels.find(v=>MP.vesselSummary(v).imo===u.vesselImo);
@@ -98,6 +98,11 @@ function renderUsers(){
    }else td.textContent=vals[i];
    tr.append(td);
   });
+  const action=document.createElement('td');action.dataset.label='Действия';
+  const remove=document.createElement('button');remove.type='button';remove.className='mp-btn mp-btn--danger mp-btn--small';
+  remove.dataset.removeUser=u.id;remove.setAttribute('aria-label','Удалить пользователя '+u.name);
+  const icon=document.createElement('i');icon.className='fa-solid fa-trash-can';icon.setAttribute('aria-hidden','true');
+  remove.append(icon,document.createTextNode(' Удалить'));action.append(remove);tr.append(action);
   body.append(tr);
  });
  table.append(body);list.append(table);
@@ -125,7 +130,12 @@ function renderVessels(){
   const td=document.createElement('td');td.dataset.label='Действие';
   const a=document.createElement('a');a.className='mp-btn mp-btn--secondary';a.textContent='Открыть карточку ';const arrow=document.createElement('i');arrow.className='fa-solid fa-arrow-right';arrow.setAttribute('aria-hidden','true');a.append(arrow);
   a.href='vessel.html?tenant='+encodeURIComponent(tenantId)+'&imo='+encodeURIComponent(s.imo);
-  td.append(a);tr.append(td);tbody.append(tr);
+  const remove=document.createElement('button');remove.type='button';remove.className='mp-btn mp-btn--danger mp-btn--small';
+  remove.dataset.removeVessel=s.imo;remove.setAttribute('aria-label','Удалить судно '+s.name);
+  const icon=document.createElement('i');icon.className='fa-solid fa-trash-can';icon.setAttribute('aria-hidden','true');
+  remove.append(icon,document.createTextNode(' Удалить'));
+  const actions=document.createElement('div');actions.className='mp-record-actions';
+  actions.append(a,remove);td.append(actions);tr.append(td);tbody.append(tr);
  });
  table.append(tbody);list.append(table);
 }
@@ -153,7 +163,7 @@ function render(){
  const c=company();if(!c)return;
  $('tenant-sidebar-id').textContent=c.id;
  $('tenant-head-code').textContent=c.id;
- $('tenant-company-title').textContent=c.name+' · '+c.code;
+ $('tenant-company-title').textContent=c.name;
  $('tenant-top-name').textContent='Monitoring Project / '+c.name;
  $('tenant-object-types').textContent=(c.objectTypes||[]).map(id=>MP.OBJECT_TYPES.find(t=>t.id===id)?.name||id).join(', ')||'Тип не назначен';
  $('tenant-tab-vessels').hidden=!allowVessels();
@@ -208,6 +218,43 @@ $('tenant-user-form').addEventListener('submit',e=>{
  // Credentials are intentionally discarded in the public mock application.
  form.reset();store();dialog.close();renderUsers();renderTenantDashboard();
  MP.setFeedback('tenant-user-feedback','Пользователь создан с ролью '+role+'. Это демоданные.',false);
+});
+$('tenant-user-list').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-remove-user]');if(!button)return;
+ const user=records().users.find(u=>u.id===button.dataset.removeUser);if(!user)return;
+ const confirmed=await MP_CONFIRM.remove({
+  title:'Удалить пользователя «'+user.name+'»?',
+  description:'Аккаунт '+user.email+' и привязка к судну будут удалены из этой компании. Действие нельзя отменить.',
+  buttonLabel:'Удалить пользователя'
+ });
+ if(!confirmed)return;
+ try{
+  MP.removeUser(data,tenantId,user.id);store();
+  renderUsers();renderTenantDashboard();
+  MP.setFeedback('tenant-user-feedback','Пользователь удалён из демоданных.',false);
+ }catch(error){MP.setFeedback('tenant-user-feedback',error.message,true);}
+});
+$('tenant-vessel-list').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-remove-vessel]');if(!button)return;
+ const vessel=records().vessels.find(v=>MP.vesselSummary(v).imo===button.dataset.removeVessel);
+ if(!vessel)return;
+ const {name,imo}=MP.vesselSummary(vessel);
+ const accounts=records().users.filter(u=>u.role==='vessel'&&u.vesselImo===imo);
+ if(accounts.length){
+  MP.setFeedback('tenant-vessel-feedback','Нельзя удалить «'+name+'»: привязано аккаунтов vessel — '+accounts.length+'. Сначала удалите эти аккаунты в разделе «Пользователи».',true);
+  return;
+ }
+ const confirmed=await MP_CONFIRM.remove({
+  title:'Удалить судно «'+name+'»?',
+  description:'Будет удалена карточка IMO '+imo+' со всеми Ship Particulars и грузовыми помещениями. Восстановить демоданные нельзя.',
+  buttonLabel:'Удалить судно'
+ });
+ if(!confirmed)return;
+ try{
+  MP.removeVessel(data,tenantId,imo);store();
+  renderVessels();renderTenantDashboard();
+  MP.setFeedback('tenant-vessel-feedback','Судно «'+name+'» удалено из демоданных.',false);
+ }catch(error){MP.setFeedback('tenant-vessel-feedback',error.message,true);}
 });
 $('tenant-vessel-search').addEventListener('input',renderVessels);
 $('tenant-license-form').addEventListener('submit',event=>{
