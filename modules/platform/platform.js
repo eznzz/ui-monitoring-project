@@ -29,7 +29,7 @@ function renderModules(c){
   const row=document.createElement('div');row.className='mp-module';
   const paidId='paid-'+m.id,enabledId='enabled-'+m.id;
   row.innerHTML='<div><strong>'+MP.escape(m.name)+'</strong><small>'+MP.escape(m.detail)+'</small></div>'+
-  '<label class="mp-module-check" for="'+paidId+'"><input type="checkbox" id="'+paidId+'" data-action="paid" data-module="'+m.id+'"'+(entry.paid?' checked':'')+(c.status==='archived'?' disabled':'')+'>Оплачено</label>'+
+  '<label class="mp-module-check" for="'+paidId+'"><input type="checkbox" id="'+paidId+'" data-action="paid" data-module="'+m.id+'"'+(entry.paid?' checked':'') +'>Оплачено</label>'+
   '<label class="mp-module-check" for="'+enabledId+'" title="Активация после запроса компании и подтверждения на платформе"><input type="checkbox" id="'+enabledId+'" disabled'+(MP_LICENSE.effective(data,c,m.id)?' checked':'')+'>Включён</label>';
   modules.append(row);
  });
@@ -234,7 +234,6 @@ modules.addEventListener('change',e=>{
  if(!input)return;
  const c=selectedCompany(),id=input.dataset.module,action=input.dataset.action;
  if(!c||!MP.MODULES.some(m=>m.id===id))return;
- if(c.status==='archived'){render();MP.setFeedback('modules-feedback','Архивная компания не изменяется в демо.',true);return;}
  const entry=c.modules[id]||{paid:false,enabled:false};
  if(action!=='paid')return;
  entry.paid=input.checked;
