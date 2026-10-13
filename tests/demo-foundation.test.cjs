@@ -43,7 +43,7 @@ const legacy={version:4,nextTenantNumber:5,companies:[{id:'tenant_db_000004',nam
  objectTypes:['vessels'],modules:{}}],tenants:{tenant_db_000004:{users:[],vessels:[]}}};
 values.set(MP.KEY,JSON.stringify(legacy));
 const migrated=MP.state();
-assert.equal(migrated.version,5);
+assert.equal(migrated.version,6);
 assert.equal(migrated.companies[0].templateId,'mock-etalon-vessels-v1');
 assert.equal(migrated.companies[0].status,'active');
 assert.equal(migrated.companies[0].ownerEmail,'');
