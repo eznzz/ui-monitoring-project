@@ -35,8 +35,8 @@
 .mp-template-app .mp-workspace, .mp-template-app .mp-workspace-content {min-width:0}
 .mp-template-app .mp-dashboard {min-width:0}
 .mp-template-app .mp-dialog,.mp-login-page .mp-dialog { border-radius:var(--vms-input-radius,6px); }
-/* Standalone login reuses template's background, logo, content-card, text field
-   and primary button instead of the former custom split marketing layout. */
+/* Common login elements retain the original Dashboard form and card tokens.
+   The restored two-column login layout is scoped to modules/auth/login.css. */
 .mp-login-page { background:var(--body-bg);font-family:var(--font-body); }
 .mp-template-login { display:flex;flex-direction:column;min-height:100dvh; }
 .mp-template-login-header { min-height:76px;padding:15px clamp(16px,4vw,45px);background:var(--topbar-bg);border-bottom:1px solid var(--sidebar-border);display:flex;align-items:center;justify-content:space-between;gap:14px; }
