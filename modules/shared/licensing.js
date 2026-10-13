@@ -28,7 +28,7 @@ function setSystemLicense(s,c,startsOn,endsBefore){
 function setSubscription(s,c,moduleId,{startsOn,endsBefore,vesselCap,enabled,blocked}){
  if(!c||!MP.MODULES.some(m=>m.id===moduleId))throw Error('Модуль не найден.');
  const cap=vesselCap===null?null:Number(vesselCap);
- if(cap!==null&&(!Number.isInteger(cap)||cap<0))throw Error('Лимит Fleet должен быть неотрицательным целым числом.');
+ if(cap!==null&&![3,5,10,30,50].includes(cap))throw Error('Используйте Fleet 3/5/10/30/50 или Unlimited.');
  if(enabled&&!validRange(startsOn,endsBefore))throw Error('Укажите действительный период подписки.');
  const prev=c.modules[moduleId]||{};
  const ids=Array.isArray(prev.assignedObjectIds)?prev.assignedObjectIds:[];
@@ -39,15 +39,17 @@ function setSubscription(s,c,moduleId,{startsOn,endsBefore,vesselCap,enabled,blo
  MP.addAudit(s,c.id,'subscription.update',moduleId,'Подписка изменена вручную (демо)');
  return c.modules[moduleId];
 }
-function assignModuleObjects(s,c,moduleId,ids){
+function assignModuleObjects(s,c,moduleId,ids,asPlatformAdmin=false){
  if(!c?.modules?.[moduleId]?.enabled)throw Error('Сначала оформите подписку на модуль.');
+ if(!asPlatformAdmin&&!effective(s,c,moduleId))throw Error('Подписка или системная лицензия не действует.');
  const objects=MP.tenant(s,c.id).objects;
  const requested=[...new Set(ids)];
  if(requested.some(id=>!objects.some(o=>o.id===id&&o.status==='active'&&o.objectTypeId===c.objectTypeId)))
   throw Error('Выбирать можно только активные объекты своей компании.');
  const entry=c.modules[moduleId];
  if(entry.vesselCap!==null&&requested.length>entry.vesselCap)throw Error('Превышен Fleet-лимит модуля.');
- entry.assignedObjectIds=requested;entry.updatedAt=stamp();
+ const retained=(entry.assignedObjectIds||[]).filter(id=>objects.some(o=>o.id===id&&o.status!=='active'));
+ entry.assignedObjectIds=[...new Set([...requested,...retained])];entry.updatedAt=stamp();
  MP.addAudit(s,c.id,'subscription.objects',moduleId,'Назначено объектов: '+requested.length);
  return entry;
 }
