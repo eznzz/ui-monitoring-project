@@ -1,10 +1,10 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
-let data=MP.state(),selected=data.companies[0]?.id||'',activeTab='profile';
+let data=MP_DATA.load(),selected=data.companies[0]?.id||'',activeTab='profile';
 const list=$('company-list'),modules=$('platform-module-list'),search=$('company-search'),dialog=$('company-dialog');
 const current=()=>MP.company(data,selected);
-const save=()=>{if(!MP.save(data))throw Error('Не удалось сохранить демонстрационные данные.');};
+const save=()=>{if(!MP_DATA.persist(data))throw Error('Не удалось сохранить демонстрационные данные.');};
 const typeName=c=>MP.objectType(c)?.name||'Тип не определён';
 const moduleName=id=>MP.MODULES.find(m=>m.id===id)?.name||id;
 const format=MP_LICENSE.formatDate;
@@ -225,6 +225,6 @@ $('company-form').addEventListener('submit',e=>{
   notice('platform-feedback','Компания создана: '+typeName(c)+'. Tenant-реестр объектов подготовлен (демо).');
  }catch(err){$('company-form-error').textContent=err.message;}
 });
-window.addEventListener('storage',e=>{if(e.key===MP.KEY){data=MP.state();render();}});
+window.addEventListener('storage',e=>{if(e.key===MP.KEY){data=MP_DATA.load();render();}});
 renderTypes();render();openPlatformPage(routeFromHash(),false);
 })();
