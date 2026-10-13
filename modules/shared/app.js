@@ -161,8 +161,8 @@ function assignUserVessels(s,tenantId,userId,vesselIds){
  const unique=[...new Set(vesselIds)];
  if(unique.some(id=>!t.vessels.some(v=>v.id===id&&v.status==='active')))
   throw Error('Новое назначение допускается только на активные суда.');
- if(u.role==='vessel'&&!unique.length)throw Error('Vessel требует минимум одно активное судно.');
  const preserved=(u.vesselIds||[]).filter(id=>t.vessels.some(v=>v.id===id&&v.status!=='active'));
+ if(u.role==='vessel'&&!unique.length&&!preserved.length)throw Error('Vessel требует как минимум одно назначение.');
  u.vesselIds=[...new Set([...unique,...preserved])];
  return u;
 }
