@@ -19,7 +19,7 @@ const MODULES=[
 const OBJECT_TYPES=[{id:'vessels',name:'Суда (Vessels)',description:'Карточки судов и Ship Particulars'}];
 const ROLES=[{id:'office',name:'Office'},{id:'vessel',name:'Vessel'}];
 function defaults(){
- return {version:4,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',code:'COMP-001',objectTypes:['vessels'],modules:{}}],
+ return {version:4,nextTenantNumber:2,companies:[{id:'tenant_db_000001',name:'Демо-компания',objectTypes:['vessels'],modules:{}}],
    tenants:{tenant_db_000001:{users:[],vessels:[]}},licenses:[],licenseRequests:[]};
 }
 function normalize(raw){
@@ -30,6 +30,7 @@ function normalize(raw){
  if(!Array.isArray(raw.licenses))raw.licenses=[];
  if(!Array.isArray(raw.licenseRequests))raw.licenseRequests=[];
  raw.companies.forEach(c=>{
+   delete c.code; // obsolete UI-only free-form label; Tenant ID is canonical
    if(!Array.isArray(c.objectTypes))c.objectTypes=['vessels']; // migration of older mock companies
    c.objectTypes=c.objectTypes.filter(id=>OBJECT_TYPES.some(type=>type.id===id));
    c.modules=c.modules||{};
