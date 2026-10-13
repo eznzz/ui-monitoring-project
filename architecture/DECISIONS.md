@@ -15,6 +15,7 @@
 
 - Центральная структура: `platform_db → platform → companies, tenants, licenses, modules, subscriptions, tenant_connections, platform_users`.
 - **Одна компания — одна отдельная `tenant_db`.**
+- **Только Super Admin создаёт новую компанию через Platform UI и указывает e-mail её первого владельца.** При создании backend должен зарегистрировать компанию и первоначального владельца в `platform_db.platform.platform_users`, связать их с отдельной физической tenant-БД и обеспечить глобальную уникальность e-mail. Company Owner, Tenant Admin, Office и Vessel **не могут создавать компании**. Конкретная форма, способ первичного установления пароля, provisioning и API-контракт остаются на согласовании с backend; браузер сам БД не создаёт.
 - Пример структуры tenant: `tenant_db_000001 → core, auth, documents, crewing, supply, vms, performance, reports, sync`.
 - Ship Particulars и связи пользователей с судами хранятся **внутри tenant_db**.
 - Frontend взаимодействует с **API конкретных модулей**: запрос → ответ через API.
