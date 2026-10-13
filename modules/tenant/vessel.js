@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id);
 const schema=window.MP_SHIP_SCHEMA;
 const params=new URLSearchParams(location.search);
-let state=MP.state();
+let state=MP_DATA.load();
 const requested=params.get('tenant');
 const tenantId=requested||state.companies[0]?.id||'';
 const requestedId=params.get('id')||'';
@@ -204,7 +204,7 @@ function renderObjectMeta(){
 }
 function saveForm(event){
  event.preventDefault();
- const latest=MP.company(MP.state(),tenantId);
+ const latest=MP.company(MP_DATA.load(),tenantId);
  if(!latest||latest.status==='archived'){
   MP.setFeedback('editor-feedback','Компания недоступна или архивирована. Сохранение недоступно.',true);return;
  }
@@ -230,7 +230,7 @@ function saveForm(event){
  else{MP.tenant(state,tenantId).objects.push(record);source=record;}
  MP.addAudit(state,tenantId,created?'object.create':'object.update',record.id,
   'Ship Particulars: '+changes.join(', '));
- if(!MP.save(state)){MP.setFeedback('editor-feedback','Браузер не сохранил данные. Проверьте доступность localStorage.',true);return;}
+ if(!MP_DATA.persist(state)){MP.setFeedback('editor-feedback','Браузер не сохранил данные. Проверьте доступность localStorage.',true);return;}
  MP.setFeedback('editor-feedback',
   created?'Карточка создана в статусе inactive. Для работы в модулях её нужно включить вручную.':
   'Карточка обновлена; Object ID и назначения не изменились.',false);
