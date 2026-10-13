@@ -132,8 +132,8 @@ function createVessel(s,tenantId,{fields,holds=[],holdTotals={}}){
  t.vessels.push(record);return record;
 }
 function updateVessel(s,tenantId,objectId,{fields,holds=[],holdTotals={}}){
- const t=tenant(s,tenantId),v=t.vessels.find(x=>x.id===objectId);
- if(!v)throw Error('Судно не найдено.');
+ const c=company(s,tenantId),t=tenant(s,tenantId),v=t.vessels.find(x=>x.id===objectId);
+ if(!c||c.status==='archived'||!v)throw Error('Судно или компания недоступны.');
  if(v.status==='archived')throw Error('Архивная карточка доступна только для просмотра.');
  const shipName=String(fields?.shipName||'').trim(),imo=String(fields?.imo||'').trim();
  if(!shipName||!imo)throw Error("Обязательны Ship's Name и IMO.");
@@ -156,14 +156,17 @@ function setVesselStatus(s,tenantId,objectId,nextStatus){
  return v;
 }
 function assignUserVessels(s,tenantId,userId,vesselIds){
- const t=tenant(s,tenantId),u=t.users.find(x=>x.id===userId);
- if(!u)throw Error('Пользователь не найден.');
+ const c=company(s,tenantId),t=tenant(s,tenantId),u=t.users.find(x=>x.id===userId);
+ if(!c||c.status==='archived'||!u)throw Error('Пользователь или компания недоступны.');
  const unique=[...new Set(vesselIds)];
  if(unique.some(id=>!t.vessels.some(v=>v.id===id&&v.status==='active')))
   throw Error('Новое назначение допускается только на активные суда.');
  const preserved=(u.vesselIds||[]).filter(id=>t.vessels.some(v=>v.id===id&&v.status!=='active'));
  if(u.role==='vessel'&&!unique.length&&!preserved.length)throw Error('Vessel требует как минимум одно назначение.');
  u.vesselIds=[...new Set([...unique,...preserved])];
+ if(!Array.isArray(u.history))u.history=[];
+ u.history.push({action:'vessel_assignments_updated',at:new Date().toISOString(),
+  actor:'mock-admin',vesselIds:[...u.vesselIds]});
  return u;
 }
 function vesselSummary(v){
