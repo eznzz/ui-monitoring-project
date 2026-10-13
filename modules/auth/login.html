@@ -36,32 +36,25 @@
    <section class="content__card mp-login-form-card">
     <header class="mp-login-form-heading">
      <span class="mp-eyebrow">Начало работы</span>
-     <h2 id="login-title">Вход в систему</h2>
-     <p class="mp-help">Выберите уровень доступа, чтобы открыть соответствующий демонстрационный интерфейс.</p>
+     <h2 id="login-title">Демонстрационный вход</h2>
+     <p class="mp-help">Выберите тестовый кабинет. Роль и права реального пользователя будут определяться сервером.</p>
     </header>
     <form class="mp-stack" id="login-form" novalidate>
-     <div class="form-row mp-field">
-      <label for="login-email">Email</label>
-      <input type="email" id="login-email" name="email" placeholder="name@company.example" autocomplete="off">
-     </div>
-     <div class="form-row mp-field">
-      <label for="login-password">Пароль</label>
-      <input type="password" id="login-password" name="password" placeholder="В демо не требуется" autocomplete="off">
-     </div>
+      <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Демонстрационная навигация</strong><p>Выберите тестовый кабинет. Реальный единый Login будет работать через AuthN API и серверный контекст пользователя. Личные данные не требуются.</p></div></div>
      <fieldset class="mp-stack mp-login-roles">
       <legend class="mp-label">Открыть интерфейс</legend>
       <label class="mp-role-option">
        <input type="radio" name="demo-role" value="platform" checked>
-       <span><strong>Суперадминистратор</strong><small>Управление компаниями, оплатой и доступностью модулей</small></span>
+       <span><strong>Суперадминистратор</strong><small>Управление компаниями, системными лицензиями и подписками</small></span>
       </label>
       <label class="mp-role-option">
        <input type="radio" name="demo-role" value="tenant">
-       <span><strong>Администратор компании</strong><small>Начальная настройка: пользователи и карточки судов</small></span>
+       <span><strong>Администратор компании</strong><small>Пользователи, объекты, статусы и назначения</small></span>
       </label>
      </fieldset>
      <div class="mp-login-actions">
       <button class="btn mp-btn mp-btn--primary mp-btn--full" type="submit"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Продолжить в демо</button>
-      <p class="mp-note">Авторизация здесь не выполняется. Не вводите реальные пароли: данные формы не проверяются и не отправляются.</p>
+      <p class="mp-note">Авторизация здесь не выполняется. Ни пароли, ни реальные данные пользователей в демо не запрашиваются.</p>
      </div>
     </form>
    </section>
@@ -69,7 +62,7 @@
   </div>
  </main>
 </div>
-<script src="../shared/app.js?v=7"></script>
+<script src="../shared/app.js?v=12"></script>
 <script src="login.js"></script>
 </body>
 </html>

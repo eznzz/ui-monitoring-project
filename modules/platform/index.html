@@ -20,7 +20,7 @@
       <ul><li><a class="mp-nav-link active" href="#dashboard" data-platform-section="dashboard" aria-current="page"><i class="fa-solid fa-house icon" aria-hidden="true"></i><span>Главная</span></a></li>
 <li><a class="mp-nav-link" href="#companies" data-platform-section="companies"><i class="fa-solid fa-building icon" aria-hidden="true"></i><span>Компании</span></a></li>
 <li><a class="mp-nav-link" href="#modules" data-platform-section="modules"><i class="fa-solid fa-layer-group icon" aria-hidden="true"></i><span>Подписка и модули</span></a></li>
-<li><a class="mp-nav-link" href="#keys" data-platform-section="keys"><i class="fa-solid fa-key icon" aria-hidden="true"></i><span>Лицензионные ключи</span></a></li>
+<li><a class="mp-nav-link" href="#keys" data-platform-section="keys"><i class="fa-solid fa-key icon" aria-hidden="true"></i><span>Системная лицензия</span></a></li>
 <li><a class="mp-nav-link" href="#principles" data-platform-section="principles"><i class="fa-solid fa-circle-info icon" aria-hidden="true"></i><span>Правила подключения</span></a></li></ul>
     </nav>
     <div class="mp-template-sidebar-footer">
@@ -66,8 +66,8 @@
    <div class="mp-row mp-between" style="margin-bottom:13px"><h2 class="mp-section-title">Разделы платформы</h2><span class="mp-help">Выберите раздел для продолжения</span></div>
    <div class="mp-dashboard-grid">
     <a class="mp-dashboard-tile" href="#companies" data-platform-section="companies"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-building"></i></span><div><h2>Компании</h2><p>Список клиентов, типы объектов и основные сведения.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-companies">0 компаний</span><span class="mp-tile-go">Перейти <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
-    <a class="mp-dashboard-tile" href="#modules" data-platform-section="modules"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span><div><h2>Подписка и модули</h2><p>Отметка оплаты и доступность каждого из девяти модулей.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-paid">0 оплачено</span><span class="mp-tile-go">Перейти <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
-    <a class="mp-dashboard-tile" href="#keys" data-platform-section="keys"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span><div><h2>Лицензионные ключи</h2><p>Выпуск ключей, сроки действия и решения по запросам.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-keys">0 ключей</span><span class="mp-tile-go">Перейти <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+    <a class="mp-dashboard-tile" href="#modules" data-platform-section="modules"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span><div><h2>Подписка и модули</h2><p>Ручное управление доступностью каждого из девяти модулей.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-paid">0 оплачено</span><span class="mp-tile-go">Перейти <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+    <a class="mp-dashboard-tile" href="#keys" data-platform-section="keys"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-key"></i></span><div><h2>Лицензия и условия</h2><p>Системная лицензия, подписки, сроки и Fleet-лимиты.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="platform-tile-keys">0 ключей</span><span class="mp-tile-go">Перейти <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
     <a class="mp-dashboard-tile" href="#principles" data-platform-section="principles"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span><div><h2>Правила подключения</h2><p>Разделение полномочий platform_db и tenant_db.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Политика доступа</span><span class="mp-tile-go">Подробнее <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
    </div>
   </div>
@@ -90,18 +90,20 @@
    <section class="mp-card mp-stack" aria-labelledby="selected-company-heading">
     <div class="mp-workspace-header">
      <div><span class="mp-eyebrow">Выбранная компания</span><h2 id="selected-company-heading">Демо-компания</h2><p id="selected-company-id">tenant_db_000001</p></div>
-     <div class="mp-row mp-admin-header-actions"><a id="open-tenant" href="../tenant/index.html?tenant=tenant_db_000001" class="mp-btn mp-btn--secondary">Открыть Tenant <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a><button id="delete-company-button" type="button" class="mp-btn mp-btn--danger"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Удалить компанию</button></div>
+     <div class="mp-row mp-admin-header-actions"><a id="open-tenant" href="../tenant/index.html?tenant=tenant_db_000001" class="mp-btn mp-btn--secondary">Открыть Tenant <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a><button id="delete-company-button" type="button" class="mp-btn mp-btn--danger"><i class="fa-solid fa-box-archive" aria-hidden="true"></i> Архивировать компанию</button></div>
     </div>
     <div role="tablist" aria-label="Настройки компании" class="mp-tabs--buttons">
      <button id="platform-tab-profile" type="button" role="tab" aria-selected="true" aria-controls="platform-pane-profile" data-platform-tab="profile">Основные данные</button>
      <button id="platform-tab-licenses" type="button" role="tab" aria-selected="false" aria-controls="platform-pane-licenses" data-platform-tab="licenses" tabindex="-1">Подписка и модули</button>
-     <button id="platform-tab-keys" type="button" role="tab" aria-selected="false" aria-controls="platform-pane-keys" data-platform-tab="keys" tabindex="-1">Лицензионные ключи</button>
+     <button id="platform-tab-keys" type="button" role="tab" aria-selected="false" aria-controls="platform-pane-keys" data-platform-tab="keys" tabindex="-1">Лицензия и условия</button>
     </div>
     <div id="platform-pane-profile" class="mp-pane" role="tabpanel" aria-labelledby="platform-tab-profile">
       <dl class="mp-description-grid">
        <div><dt>Tenant ID</dt><dd id="company-tenant-id">tenant_db_000001</dd></div>
        
-       <div><dt>Типы объектов</dt><dd id="company-types">Суда (Vessels)</dd></div>
+       <div><dt>Тип объектов</dt><dd id="company-types">Суда (Vessels)</dd></div>
+        <div><dt>Первый владелец (e-mail)</dt><dd id="company-owner-email">—</dd></div>
+        <div><dt>Статус компании</dt><dd id="company-status">Активна</dd></div>
        <div><dt>Активных лицензий</dt><dd id="company-active-modules">0 из 9</dd></div>
       </dl>
       <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Первичный доступ</strong><p>Без платных модулей компания может создавать пользователей и заполнять карточки выбранных типов объектов. Все модули включаются только платформой.</p></div></div>
@@ -109,25 +111,51 @@
     </div>
     <div id="platform-pane-licenses" class="mp-pane" role="tabpanel" aria-labelledby="platform-tab-licenses" hidden>
      <div class="mp-row mp-between">
-      <div><h3 class="mp-section-title">Лицензии выбранной компании</h3><p class="mp-help">Каждый модуль оплачивается отдельно. После оплаты платформа выпускает ключ; компания отправляет запрос, который подтверждает суперадминистратор. Только затем модуль включается.</p></div>
+      <div><h3 class="mp-section-title">Модульные подписки компании</h3><p class="mp-help">Super Admin вручную задаёт периоды, Fleet-лимиты и активные объекты. Обращение компании необязательно и не включает подписку.</p></div>
       <span class="mp-pill" id="modules-counter">0 / 9</span>
      </div>
      <div class="mp-module-list" id="platform-module-list" aria-label="Подключение модулей"></div>
      <p id="modules-feedback" class="mp-feedback" aria-live="polite"></p>
     </div>
-    <div id="platform-pane-keys" class="mp-pane" role="tabpanel" aria-labelledby="platform-tab-keys" hidden>
-     <div class="mp-workspace-header" id="license-workspace"><div><h3 class="mp-section-title">Ключи компании</h3><p>Выдача ключа после оплаты · дата выпуска и срок действия</p></div></div>
+    <div id="platform-pane-keys" class="mp-pane mp-stack" role="tabpanel" aria-labelledby="platform-tab-keys" hidden>
+     <div class="mp-workspace-header" id="license-workspace">
+      <div><h3 class="mp-section-title">Системная лицензия</h3><p class="mp-help" id="platform-system-status">Лицензия не выдана</p></div>
+     </div>
+     <form id="platform-system-form" class="mp-stack">
+      <div class="mp-form-grid">
+       <div class="mp-field"><label for="platform-system-start">Начало действия *</label><span class="mp-date-frame"><input id="platform-system-start" type="date" required></span></div>
+       <div class="mp-field"><label for="platform-system-expiry">Действует по (включительно) *</label><span class="mp-date-frame"><input id="platform-system-expiry" type="date" required></span></div>
+      </div>
+      <div class="mp-form-actions"><button class="mp-btn mp-btn--primary" type="submit">Выдать / продлить лицензию</button></div>
+     </form>
+     <div class="mp-divider"></div>
+     <h3 class="mp-section-title">Ручное управление подпиской</h3>
      <form id="platform-license-form" class="mp-stack">
       <div class="mp-form-grid">
        <div class="mp-field"><label for="platform-license-module">Модуль *</label><select id="platform-license-module" required></select></div>
-       <div class="mp-field"><label for="platform-license-expiry">Действует до *</label><span class="mp-date-frame"><input id="platform-license-expiry" type="date" required></span></div>
+       <div class="mp-field"><label for="platform-license-cap">Fleet-лимит *</label><select id="platform-license-cap">
+        <option value="3">Fleet 3</option><option value="5">Fleet 5</option>
+        <option value="10">Fleet 10</option><option value="30">Fleet 30</option>
+        <option value="50">Fleet 50</option><option value="unlimited">Fleet Unlimited</option>
+       </select></div>
+       <div class="mp-field"><label for="platform-license-start">Начало подписки *</label><span class="mp-date-frame"><input id="platform-license-start" type="date" required></span></div>
+       <div class="mp-field"><label for="platform-license-expiry">Действует по (включительно) *</label><span class="mp-date-frame"><input id="platform-license-expiry" type="date" required></span></div>
       </div>
-      <div class="mp-page-tools"><p class="mp-help">Выдача доступна после отметки оплаты на вкладке «Подписка и модули».</p><button class="mp-btn mp-btn--primary" type="submit">Выпустить ключ</button></div>
+      <div class="mp-field">
+       <label for="platform-subscription-objects">Активные объекты этого модуля</label>
+       <select id="platform-subscription-objects" multiple size="5" aria-describedby="platform-objects-help"></select>
+       <p id="platform-objects-help" class="mp-help">Несколько объектов: Ctrl/Cmd + выбор. Только active, в пределах Fleet. Выключенные объекты сохраняют прежние связи.</p>
+      </div>
+      <div class="mp-row">
+       <label class="mp-module-check"><input id="platform-license-enabled" type="checkbox"> Подписка оформлена</label>
+       <label class="mp-module-check"><input id="platform-license-blocked" type="checkbox"> Административная блокировка</label>
+      </div>
+      <div class="mp-page-tools"><p class="mp-help">Демо: ручное действие Super Admin. Оплата и обращение не дают доступа автоматически.</p><button class="mp-btn mp-btn--primary" type="submit">Сохранить подписку</button></div>
       <p class="mp-feedback" id="platform-license-feedback" aria-live="polite"></p>
      </form>
-     <h3 class="mp-section-title">Выданные ключи</h3><div id="platform-license-keys" class="mp-stack"></div>
+     <h3 class="mp-section-title">Оформленные подписки</h3><div id="platform-license-keys" class="mp-stack"></div>
      <div class="mp-divider"></div>
-     <div class="mp-row mp-between"><h3 class="mp-section-title">Запросы на подключение</h3><span class="mp-badge" id="platform-requests-count">0</span></div>
+     <div class="mp-row mp-between"><h3 class="mp-section-title">Необязательные обращения компании</h3><span class="mp-badge" id="platform-requests-count">0</span></div>
      <div id="platform-license-requests" class="mp-stack"></div>
      <p id="platform-request-feedback" class="mp-feedback" aria-live="polite"></p>
     </div>
@@ -137,7 +165,7 @@
  </div>
  <section class="mp-card mp-stack" id="principles" data-screen="principles" hidden aria-labelledby="platform-rules-heading">
  <h2 id="platform-rules-heading" class="mp-section-title">Правила подключения модулей</h2>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Граница ответственности</strong><p><b>platform_db</b> создаёт компании, назначает типы объектов, отмечает оплату и подтверждает заявки на активацию лицензий. <b>tenant_db_*</b> ведёт пользователей и базовые карточки назначенных типов объектов и может лишь направить запрос по ключу. Все данные демонстрационные.</p></div></div></section>
+ <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Граница ответственности</strong><p><b>Platform</b> хранит каталог Object Types и назначает тип при создании компании. <b>Tenant</b> хранит экземпляры объектов выбранного типа, пользователей и историю. Системная лицензия и подписки выдаются вручную Super Admin; обращения необязательны. Все данные демонстрационные.</p></div></div></section>
 </main>
 </div>
 </div>
@@ -145,19 +173,21 @@
  <form id="company-form" novalidate>
   <header class="mp-dialog-heading"><div><span class="mp-eyebrow">Шаг 1 · Platform</span><h2 id="company-dialog-title">Новая компания</h2><p id="company-dialog-description" class="mp-help">Укажите данные компании и основной тип объектов для учёта.</p></div><button type="button" class="mp-modal-close" data-dialog-close="company-dialog" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></header>
   <div class="mp-field"><label for="new-company-name">Название компании *</label><input id="new-company-name" maxlength="100" required placeholder="Например, Ocean Logistics"></div>
+  <div class="mp-field"><label for="new-company-owner-email">E-mail первого Company Owner *</label><input id="new-company-owner-email" type="email" maxlength="150" required placeholder="owner@company.example"></div>
   <div class="mp-field">
    <label for="company-object-types">Тип объектов *</label>
    <select id="company-object-types" name="objectType" required aria-describedby="company-object-type-help">
     <option value="">Выберите тип объектов</option>
    </select>
-   <p class="mp-help" id="company-object-type-help">Справочник платформы (пока только Vessels). Тип объекта не является платным модулем.</p>
+   <p class="mp-help" id="company-object-type-help">Тип выбирается из справочника Platform (пока только Vessels). Tenant получает отдельный реестр объектов выбранного типа.</p>
   </div>
   <p class="mp-help">Внутренний Tenant ID система назначит автоматически при создании.</p>
   <p id="company-form-error" role="alert" class="mp-error"></p>
   <div class="mp-form-actions"><button type="button" id="cancel-company" class="mp-btn mp-btn--secondary">Отмена</button><button type="submit" class="mp-btn mp-btn--primary">Создать компанию</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=7"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="platform.js?v=11"></script>
+<script src="../shared/app.js?v=12"></script>
+<script src="../services/mock-adapter.js?v=1"></script><script src="../shared/licensing.js?v=12"></script><script src="../shared/confirm.js?v=1"></script><script src="platform.js?v=12"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body>
 </html>
