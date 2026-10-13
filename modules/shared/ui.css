@@ -292,10 +292,6 @@ a:hover{text-decoration:none}
 .mp-dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .mp-dashboard-head h1{margin:7px 0 6px;font-size:clamp(27px,3vw,34px);line-height:1.16;letter-spacing:-.043em}
 .mp-dashboard-head p{margin:0;font-size:13px;color:var(--vms-color-muted)}
-.mp-dashboard-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
-.mp-dashboard-stat{min-width:0;display:flex;flex-direction:column;gap:9px;padding:20px;border-radius:var(--vms-input-radius,6px);border:1px solid var(--vms-color-border);background:var(--vms-color-surface)}
-.mp-dashboard-stat strong{font-size:clamp(23px,2.8vw,31px);font-weight:700;letter-spacing:-.055em;line-height:1.15;overflow-wrap:anywhere}
-.mp-dashboard-stat small{font-size:11px;color:var(--vms-color-muted);line-height:1.5}
 .mp-dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .mp-dashboard-tile{display:flex;flex-direction:column;justify-content:space-between;min-width:0;gap:16px;padding:22px;min-height:190px;border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius,6px);background:var(--vms-color-surface);text-decoration:none;color:var(--vms-color-text);transition:background .18s,border-color .18s}
 .mp-dashboard-tile:hover,.mp-dashboard-tile:focus-visible{background:var(--vms-color-surface-subtle);border-color:var(--vms-color-primary);color:var(--vms-color-text)}
@@ -319,11 +315,9 @@ a:hover{text-decoration:none}
 .mp-holds-grid .mp-hold-card>.mp-row{min-width:0;display:flex;flex-wrap:wrap;align-items:center}
 .mp-holds-grid .mp-hold-card>.mp-row strong{flex:1 1 120px}
 .mp-holds-grid .mp-hold-card>.mp-row .mp-small-action{margin-left:auto;flex:0 0 auto;max-width:100%}
-@media(max-width:1140px){.mp-dashboard-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.mp-holds-grid.mp-mobile-holds{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1140px){.mp-holds-grid.mp-mobile-holds{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:760px){.mp-dashboard-grid{grid-template-columns:minmax(0,1fr)}.mp-dashboard-tile{min-height:150px}.mp-holds-grid .mp-hold-card-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){
- .mp-dashboard-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
- .mp-dashboard-stat{padding:14px}
  .mp-dashboard-tile{padding:16px}
  .mp-holds-grid .mp-hold-card-fields{grid-template-columns:minmax(0,1fr)}
  .mp-holds-grid .mp-hold-card{padding:14px}
