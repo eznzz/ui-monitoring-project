@@ -143,6 +143,7 @@ test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({
  await expect(page.locator('#mail-check')).toBeDisabled();
  await page.locator('#mail-lab').selectOption('on');
  await page.locator('#mail-action').selectOption('send');
+ await page.locator('#mail-recipient').selectOption('owner');
  await page.locator('#mail-check').click();
  await expect(page.locator('#mail-result')).toContainText('status: failed');
  await page.locator('#concept-nav a[data-page="login"]').click();
@@ -399,6 +400,8 @@ test('LAB-only route toggles and active Reviewer permissions are independent',as
  await signIn(page,'owner','success','lab');
  await page.locator('#open-platform').click();
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeVisible();
+ await expect(page.locator('#session-panel')).toContainText('platform.mail.diagnose');
+ await expect(page.locator('#session-panel')).toContainText('platform.mail.test_send');
  await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeVisible();
  await page.locator('#concept-nav a[data-page="p4"]').click();
  await expect(page.locator('#screen-p4')).toBeVisible();
