@@ -18,7 +18,7 @@
     <a href="#login" data-page="login">01 · Вход / MFA</a></li><li>
     <a href="#companies" data-page="companies">02 · Компании</a></li><li>
     <a href="#activation" data-page="activation">03 · Активация</a></li><li>
-    <a href="#contract" data-page="contract">Контракт и ограничения</a></li></ul>
+    <a href="#reviewer" data-page="reviewer">04 · Reviewer</a></li><li><a href="#logs" data-page="logs">05 · Журнал</a></li><li><a href="#contract" data-page="contract">Контракт и ограничения</a></li></ul>
   </nav>
   <p class="concept-sidebar-note">Отдельный концепт. Существующие Platform/Tenant экраны не заменены.</p>
 </aside>
@@ -61,6 +61,23 @@
   <p class="mp-help">В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</p>
 </section>
 
+<section class="concept-page mp-card" data-screen="reviewer" id="screen-reviewer" hidden aria-labelledby="reviewer-heading">
+ <h2 class="mp-section-title" id="reviewer-heading">Reviewer · приглашения и подтверждение</h2>
+ <p class="mp-help">Контракт: GET /reviewers/status, GET/POST /reviewers/invitations, GET /reviewers/invitations/{requestID}/status и /owner-confirm. Все операции ниже — mock, без секретов и отправки e-mail.</p>
+ <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-operator">Состояние Reviewer Operator (fixture)</label><select id="reviewer-operator"><option value="enabled">configured / enabled</option><option value="disabled">not configured / 503</option></select></div><div class="mp-field"><label for="reviewer-email">E-mail получателя (только example.test)</label><input id="reviewer-email" type="email" placeholder="reviewer@example.test"></div></div>
+ <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-login">Логин Reviewer</label><input id="reviewer-login" placeholder="reviewer-demo"></div><div class="mp-field"><label for="reviewer-status-filter">Просмотр</label><select id="reviewer-status-filter"><option value="all">Все приглашения</option><option value="requested">requested</option><option value="queued">queued</option><option value="sent">sent</option><option value="claimed">claimed</option></select></div></div>
+ <div class="concept-actions"><button class="mp-btn mp-btn--primary" id="invite-reviewer" type="button">Создать mock-приглашение</button><button class="mp-btn mp-btn--secondary" id="reviewer-history" type="button">Показать историю решений</button></div>
+ <p class="mp-help">Реальный POST требует пароль Owner и свежий TOTP, которых публичный прототип не запрашивает. Запрос приглашения сам по себе не отправляет письмо.</p>
+ <div id="reviewer-invitations" class="concept-stack" aria-live="polite"></div>
+ <div id="reviewer-history-panel" class="concept-detail" hidden aria-live="polite"></div>
+</section>
+<section class="concept-page mp-card" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
+ <h2 class="mp-section-title" id="logs-heading">Журнал платформы</h2>
+ <p class="mp-help">GET /platform-logs?limit&amp;offset · только Platform Owner с действующим MFA, tenant.create и tenant.activate. Данные демонстрационные.</p>
+ <div class="mp-form-grid"><div class="mp-field"><label for="log-category">Фильтр категории (локальная fixture)</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div><div class="mp-field"><label for="log-limit">limit</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div></div>
+ <div class="concept-table-wrap"><table class="concept-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
+ <div class="concept-pagination"><span id="log-offset">offset: 0</span><button class="mp-btn mp-btn--secondary" id="log-prev" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="log-next" type="button">Вперёд</button></div>
+</section>
 <section class="concept-page mp-card" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
  <h2 class="mp-section-title" id="contract-heading">Границы и источники</h2>
  <p>Визуальная модель создана для согласования API-ориентированного пользовательского опыта. Это не новая реализация аутентификации, не backend и не работающий контроль доступа.</p>
