@@ -17,5 +17,6 @@ test('capture design-system layouts for visual review', async ({page})=>{
  await page.waitForTimeout(450);
  await page.screenshot({path:'test-results/visual-platform-dark.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});
+ await page.waitForTimeout(500);
  await page.screenshot({path:'test-results/visual-platform-mobile.png',fullPage:true});
 });
