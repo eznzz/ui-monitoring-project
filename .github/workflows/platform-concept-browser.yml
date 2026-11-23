@@ -30,6 +30,16 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/monitoring-concept-http.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8765/modules/platform/contract-demo/index.html >/dev/null && exit 0; sleep 1; done
           exit 1
+      - name: Validate versioned Pages bundle before publication
+        run: |
+          tmpdir="$(mktemp -d)"
+          mkdir -p "$tmpdir/preview" "$tmpdir/modules/platform/contract-demo"
+          cp preview/index.html "$tmpdir/preview/index.html"
+          cp modules/platform/contract-demo/index.html "$tmpdir/modules/platform/contract-demo/index.html"
+          python3 scripts/version_pages_assets.py "$tmpdir" "$GITHUB_SHA"
+          grep -Fq "concept.js?v=$GITHUB_SHA" "$tmpdir/modules/platform/contract-demo/index.html"
+          grep -Fq "mp-deployment-commit" "$tmpdir/preview/index.html"
+          grep -Fq "сборка ${GITHUB_SHA:0:7}" "$tmpdir/preview/index.html"
       - name: Browser scenarios
         run: npx playwright test modules/platform/contract-demo/tests/browser.spec.cjs preview/preview.spec.cjs preview/visual.spec.cjs --reporter=line
       - name: Check third-party live preview proxy (informational)
