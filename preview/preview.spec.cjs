@@ -29,3 +29,32 @@ test('design-system markup is canonical on Platform and Login',async ({page})=>{
  await expect(page.locator('#companies-body tr:first-child td[data-label="Компания"]')).toHaveCount(1);
  expect(await page.locator('link[href*="concept.css"]').count()).toBe(0);
 });
+
+
+test('API rules have canonical inset on desktop and mobile',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.goto('http://127.0.0.1:8765/modules/platform/contract-demo/index.html#login');
+ await page.locator('#demo-actor').selectOption('owner');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="contract"]').click();
+ const card=page.locator('#screen-contract');
+ await expect(card).toBeVisible();
+ await expect(card.locator('.mp-info-strip')).toHaveCount(6);
+ async function assertInset(){
+  const result=await card.evaluate(el=>{
+   const bounds=el.getBoundingClientRect();
+   const child=el.querySelector('.mp-info-strip');
+   const rect=child.getBoundingClientRect();
+   const p=child.querySelector('p').getBoundingClientRect();
+   return {left:rect.left-bounds.left, inner:p.left-rect.left,right:bounds.right-rect.right};
+  });
+  expect(result.left).toBeGreaterThan(10);
+  expect(result.inner).toBeGreaterThan(15);
+  expect(result.right).toBeGreaterThan(10);
+ }
+ await assertInset();
+ await page.setViewportSize({width:390,height:844});
+ await assertInset();
+ expect(errors).toEqual([]);
+});
