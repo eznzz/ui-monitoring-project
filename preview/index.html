@@ -1,50 +1,67 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Monitoring Project — интерактивный предпросмотр интерфейса">
 <title>Monitoring Project — UI Preview</title>
-<meta name="description" content="Интерактивное демо и согласование интерфейса Monitoring Project">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="../tokens/tokens.css">
 <link rel="stylesheet" href="../style.css">
-<style>
-.preview{max-width:1120px;margin:0 auto;padding:clamp(18px,4vw,50px);display:grid;gap:26px;}
-.preview-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.preview-brand{font-weight:750;font-size:18px;letter-spacing:-.03em}
-.preview-flag{border:1px solid var(--vms-color-border);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--vms-color-muted)}
-.preview-lead{display:grid;gap:12px}
-.preview-lead h1{font-size:clamp(27px,3vw,40px);line-height:1.15;letter-spacing:-.045em}
-.preview-lead p{color:var(--vms-color-muted);max-width:730px;line-height:1.65}
-.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
-.preview-card{border:1px solid var(--vms-color-border);border-radius:10px;padding:22px;background:var(--vms-color-surface);display:grid;gap:13px;min-height:220px}
-.preview-card h2{font-size:18px;margin:0}
-.preview-card p{font-size:13px;line-height:1.6;color:var(--vms-color-muted)}
-.preview-card a{margin-top:auto;display:inline-flex;align-items:center;gap:8px;text-decoration:underline;text-underline-offset:3px;color:var(--vms-color-primary);font-weight:650}
-.preview-label{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--vms-color-muted)}
-.preview-note{border-top:1px solid var(--vms-color-border);padding-top:18px;font-size:13px;line-height:1.65;color:var(--vms-color-muted)}
-.preview-btn{border:1px solid var(--vms-color-border);background:var(--vms-color-surface);color:var(--vms-color-text);padding:8px 12px;border-radius:6px;cursor:pointer}
-</style>
+<link rel="stylesheet" href="../modules/shared/ui.css">
+<link rel="stylesheet" href="../modules/shared/template.css">
 </head>
 <body>
-<main class="preview" id="preview-main">
- <header class="preview-header"><div class="preview-brand">Monitoring Project <span style="font-weight:400;color:var(--vms-color-muted)">/ Preview</span></div><button class="preview-btn" type="button" id="theme">◐ Сменить тему</button></header>
- <div class="preview-lead"><span class="preview-label">CONCEPT / CENTRAL NODE VDMS</span><h1>Интерактивное демо интерфейса</h1><p>Проверяем пользовательские сценарии до утверждения дизайна и переноса на React + TypeScript. В Preview используются только тестовые данные, без подключения к VDMS и без реальной авторизации.</p></div>
- <section class="preview-grid" aria-label="Интерактивные разделы">
-  <article class="preview-card"><span class="preview-label">ЭТАП 01 · CENTRAL PLATFORM</span><h2>Platform Login и компании</h2><p>Вход с тестовыми ролями и ошибками, список компаний, создание draft, редактирование с revision, сценарии заявок на активацию.</p><a href="../modules/platform/contract-demo/index.html#login" data-preview="platform">Открыть интерактивный концепт →</a></article>
-  <article class="preview-card"><span class="preview-label">ЭТАП 02 · REVIEWER / AUDIT</span><h2>Reviewer и журнал</h2><p>Очередь активации, приглашения Reviewer, состояния заявок и административный журнал. Все решения симулируются в браузере.</p><a href="../modules/platform/contract-demo/index.html#reviewer" data-preview="reviewer">Открыть экран Reviewer →</a></article>
-  <article class="preview-card"><span class="preview-label">ДИЗАЙН-СИСТЕМА</span><h2>Каталог компонентов</h2><p>Кнопки, формы, таблицы, состояния, графики, светлая и тёмная темы из основного Monitoring Project.</p><a href="../components/index.html">Открыть каталог компонентов →</a></article>
- </section>
- <div class="preview-note"><strong>Предпросмотр, не production.</strong> Эта ветка не должна заменять опубликованный `main`. Каждая доработка проверяется в Pull Request; доступность отдельного публичного домена предпросмотра зависит от настройки хостинга. <a href="https://github.com/eznzz/ui-monitoring-project/pull/7">PR #7</a> · <a href="https://github.com/eznzz/ui-monitoring-project/pull/8">PR #8</a>.</div>
-</main>
-<script>
-(function(){'use strict';
-const btn=document.getElementById('theme');
-function setTheme(d){document.body.classList.toggle('dark',d);btn.textContent=d?'☀ Светлая тема':'◐ Тёмная тема';}
-let v=null;try{v=localStorage.getItem('vms-theme');}catch(_){}
-setTheme(v==='dark'||(v!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches));
-btn.addEventListener('click',()=>{let d=!document.body.classList.contains('dark');setTheme(d);try{localStorage.setItem('vms-theme',d?'dark':'light');}catch(_){}});
-})();
-</script>
+<div class="app mp-template-app">
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar__logo"><div class="sidebar__logo-mark"><i class="fa-solid fa-ship" aria-hidden="true"></i></div><span class="sidebar__logo-text">Monitoring Project</span></div>
+  <div class="mp-eyebrow" style="padding:0 14px 12px">Design System / Preview</div>
+  <nav class="sidebar__nav mp-sidebar-nav" aria-label="Меню предпросмотра">
+   <ul>
+    <li><a class="mp-nav-link active" href="./index.html" aria-current="page"><i class="fa-solid fa-house icon" aria-hidden="true"></i><span>Главная</span></a></li>
+    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#login"><i class="fa-solid fa-right-to-bracket icon" aria-hidden="true"></i><span>Platform Login</span></a></li>
+    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#companies"><i class="fa-solid fa-building icon" aria-hidden="true"></i><span>Компании</span></a></li>
+    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#reviewer"><i class="fa-solid fa-user-shield icon" aria-hidden="true"></i><span>Reviewer</span></a></li>
+    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#logs"><i class="fa-solid fa-clipboard-list icon" aria-hidden="true"></i><span>Журнал</span></a></li>
+    <li><a class="mp-nav-link" href="../components/index.html"><i class="fa-solid fa-layer-group icon" aria-hidden="true"></i><span>Компоненты</span></a></li>
+   </ul>
+  </nav>
+  <div class="mp-template-sidebar-footer"><p class="mp-note">Макет: HTML/CSS/JS · без подключений к VDMS.</p><div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Preview</span></div></div>
+ </aside>
+ <div class="overlay" id="overlay"></div>
+ <div class="main">
+  <header class="topbar">
+   <div class="topbar__left"><button class="burger" id="burger" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Открыть меню"><i class="fa-solid fa-bars" aria-hidden="true"></i></button><h1 class="topbar__title">Monitoring Project / Preview</h1></div>
+   <div class="user-menu" id="userMenu">
+    <button class="user-menu__trigger" id="userTrigger" type="button" aria-controls="userDropdown" aria-expanded="false"><span class="avatar" aria-hidden="true">M</span><span class="name">UI Prototype</span><i class="fa-solid fa-chevron-down caret" aria-hidden="true"></i></button>
+    <div class="user-menu__dropdown" id="userDropdown">
+     <div class="user-menu__header"><span class="avatar" aria-hidden="true">M</span><div class="info"><strong>UI Prototype</strong><small>Только демонстрационные данные</small></div></div>
+     <ul class="user-menu__list">
+      <li><button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"><span><i class="fa-solid fa-moon icon" id="themeIcon" aria-hidden="true"></i><span id="themeLabel">Тёмная тема</span></span><span class="theme-toggle__switch" aria-hidden="true"></span></button></li>
+      <li class="divider" aria-hidden="true"></li>
+      <li><a href="../components/index.html"><i class="fa-solid fa-layer-group icon" aria-hidden="true"></i> Каталог компонентов</a></li>
+     </ul>
+    </div>
+   </div>
+  </header>
+  <main class="content mp-main-content">
+   <section class="mp-dashboard" aria-labelledby="preview-heading">
+    <header class="mp-dashboard-head"><div><span class="mp-eyebrow">Central Node VDMS · UI prototype</span><h1 id="preview-heading">Интерактивное демо интерфейса</h1><p>Просмотр и согласование макетов на основе Monitoring Project Design System. Действия выполняются только с mock-данными.</p></div><span class="mp-demo-chip">UI prototype / mock</span></header>
+    <div class="mp-row mp-between"><h2 class="mp-section-title">Разделы прототипа</h2><span class="mp-help">Откройте нужный экран</span></div>
+    <div class="mp-dashboard-grid">
+     <a class="mp-dashboard-tile" data-preview="platform" href="../modules/platform/contract-demo/index.html#login"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-right-to-bracket"></i></span><div><h2>Platform Login</h2><p>Вход, права доступа и сценарии ошибок MFA без реальных секретов.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Login / mock</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+     <a class="mp-dashboard-tile" href="../modules/platform/contract-demo/index.html#companies"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-building"></i></span><div><h2>Компании</h2><p>Реестр, создание черновиков, редакции и заявки на активацию.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Central Platform</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+     <a class="mp-dashboard-tile" data-preview="reviewer" href="../modules/platform/contract-demo/index.html#reviewer"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-user-shield"></i></span><div><h2>Reviewer</h2><p>Очередь активации, приглашения и подтверждения на фикстурах.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Review / mock</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+     <a class="mp-dashboard-tile" href="../modules/platform/contract-demo/index.html#logs"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-clipboard-list"></i></span><div><h2>Журнал</h2><p>Аудит платформы, пагинация и ограничения доступа.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Platform Logs</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+     <a class="mp-dashboard-tile" href="../components/index.html"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span><div><h2>Каталог компонентов</h2><p>Исходная дизайн-система: кнопки, поля, таблицы, вкладки, модальные окна и графики.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Design System</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+    </div>
+    <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Только интерактивный макет</strong><p>Нет реальной авторизации, отправки почты, API-запросов и изменений в VDMS. Отображаемые данные исключительно тестовые.</p></div></div>
+   </section>
+  </main>
+ </div>
+</div>
+<script src="../script.js"></script>
 </body>
 </html>
