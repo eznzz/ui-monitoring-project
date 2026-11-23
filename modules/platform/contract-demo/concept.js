@@ -157,13 +157,47 @@ function renderReviews(){
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
    b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
-   b.addEventListener("click",()=>{if(r.requesterActorId===session.actorId){feedback("Self-approval запрещён.",true);return;}r.state=decision;reviewDecisions.unshift({requestId:r.requestId,decision,tenantId:r.tenantId,reviewerActorId:session.actorId,decidedAt:new Date().toISOString()});feedback("Mock Reviewer "+decision+" → 200. Повторный пароль и TOTP НЕ вводятся, реальной активации нет.");renderReviews();});
+   b.addEventListener("click",()=>openReviewDecision(r,decision));
    actions.append(b);
   }
   div.append(actions);root.append(div);
  }
  
 }
+
+let reviewTargetId=null,reviewTargetDecision=null;
+function openReviewDecision(r,decision){
+ if(!session||!permitted("tenant.provision.approve")||r.requesterActorId===session.actorId){feedback("403: самостоятельное одобрение недопустимо.",true);return;}
+ reviewTargetId=r.requestId;reviewTargetDecision=decision;
+ $("review-decision-form").reset();$("review-decision-error").textContent="";
+ $("review-reason-field").hidden=decision!=="rejected";
+ $("review-decision-heading").textContent=(decision==="approved"?"Подтвердить":"Отклонить")+" заявку";
+ $("review-decision-note").textContent=r.tenantName+" · "+r.tenantCode+" · revision "+r.expectedRevision;
+ $("review-decision-dialog").showModal();
+}
+function closeReviewDecision(){$("review-decision-dialog").close();reviewTargetId=null;reviewTargetDecision=null;}
+$("review-close").addEventListener("click",closeReviewDecision);
+$("review-cancel").addEventListener("click",closeReviewDecision);
+$("review-decision-form").addEventListener("submit",e=>{
+ e.preventDefault();$("review-decision-error").textContent="";
+ const r=reviews.find(x=>x.requestId===reviewTargetId);
+ if(!r||r.state!=="requested"||!permitted("tenant.provision.approve")||r.requesterActorId===session?.actorId){
+  $("review-decision-error").textContent="403/409: решение больше недоступно.";return;
+ }
+ if(!$("review-decision-consent").checked){$("review-decision-error").textContent="Подтвердите демонстрационный характер решения.";return;}
+ let reason=null;
+ if(reviewTargetDecision==="rejected"){
+  reason=$("review-reason").value;
+  if(!reason||reason.trim()!==reason||reason.length>8000||[...reason].length>2000){
+   $("review-decision-error").textContent="Укажите причину отказа до 2000 символов без пробелов по краям.";return;
+  }
+ }
+ const decision=reviewTargetDecision;
+ r.state=decision;reviewDecisions.unshift({requestId:r.requestId,decision,tenantId:r.tenantId,reason,reviewerActorId:session.actorId,decidedAt:new Date().toISOString()});
+ closeReviewDecision();
+ feedback("Mock POST /activation-reviews/{requestID}/"+(decision==="approved"?"approve":"reject")+" → "+decision+". Пароль и TOTP не проверялись; Tenant DB не создавалась.");
+ renderReviews();
+});
 $("mock-login").addEventListener("click",login);$("mock-logout").addEventListener("click",logout);
 $("company-status").addEventListener("change",()=>{pageNo=0;renderCompanies();});
 $("company-search").addEventListener("input",renderCompanies);
