@@ -8,77 +8,120 @@
 <link rel="stylesheet" href="../../../style.css">
 <link rel="stylesheet" href="../../shared/ui.css">
 <link rel="stylesheet" href="../../shared/template.css">
-<link rel="stylesheet" href="concept.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../../auth/login.css">
 </head>
 <body>
-<div class="app mp-template-app">
-<aside class="sidebar" id="concept-sidebar" aria-label="Навигация прототипа">
-  <div class="sidebar__logo"><span class="sidebar__logo-mark" aria-hidden="true">M</span><span class="sidebar__logo-text">Monitoring Project<small>Central Node · UI Concept</small></span></div>
-  <nav class="sidebar__nav mp-sidebar-nav" id="concept-nav" aria-label="Разделы"><ul><li>
-    <a href="#login" data-page="login">01 · Вход / MFA</a></li><li>
-    <a href="#companies" data-page="companies">02 · Компании</a></li><li>
-    <a href="#activation" data-page="activation">03 · Активация</a></li><li>
-    <a href="#reviewer" data-page="reviewer">04 · Reviewer</a></li><li><a href="#logs" data-page="logs">05 · Журнал</a></li><li><a href="#contract" data-page="contract">Контракт и ограничения</a></li></ul>
-  </nav>
-  <p class="concept-sidebar-note">Отдельный концепт. Существующие Platform/Tenant экраны не заменены.</p>
-</aside>
-<div class="main">
-<header class="topbar">
-  <div class="topbar__left"><button class="concept-menu" type="button" id="menu-toggle" aria-expanded="false" aria-controls="concept-sidebar">☰</button><span class="topbar__title">Central Node · Platform API Concept</span></div>
-  <div class="concept-top-actions"><span class="concept-chip">MOCK · НЕ РЕАЛЬНЫЙ API</span><button class="mp-btn mp-btn--secondary" id="theme-toggle" type="button">◐ Тема</button></div>
-</header>
-<main class="content mp-main-content" id="main">
-<header class="mp-page-head"><div><span class="mp-eyebrow">VDMS Platform API · контрактный прототип</span><h1 id="page-heading">Вход / MFA</h1><p>Визуальный макет с имитацией ответов. Ни один запрос не отправляется на сервер VDMS.</p></div></header>
-<div class="concept-status" role="status" id="feedback" aria-live="polite">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</div>
 
-<section class="concept-page mp-card" data-screen="login" id="screen-login" aria-labelledby="login-heading">
-  <h2 class="mp-section-title" id="login-heading">Platform Login</h2>
-  <p class="mp-help">Штатный контракт: POST /login → POST /access → GET /me. Требуются loginName, пароль и TOTP. В этом публичном демо ввод секретов отсутствует.</p>
-  <div class="concept-flow" aria-label="Последовательность сессии"><span>POST /login · 204</span><span>POST /access · 200</span><span>GET /me · 200</span></div>
-  <div class="mp-form-grid">
-    <div class="mp-field"><label for="demo-actor">Тестовый субъект (только фикстура)</label><select id="demo-actor"><option value="owner">Platform Owner · полный набор сценарных прав</option><option value="reader">Platform Reader · tenant.read</option><option value="reviewer">Reviewer · tenant.provision.approve</option></select></div>
-    <div class="mp-field"><label for="demo-login-status">Ответ сценария</label><select id="demo-login-status"><option value="success">204 → 200 → 200 · Успешный вход</option><option value="401">401 · Неверные учетные данные</option><option value="503">503 · Сервис недоступен</option></select></div>
-  </div>
-  <div class="concept-actions"><button class="mp-btn mp-btn--primary" type="button" id="mock-login">Сымитировать вход</button><button class="mp-btn mp-btn--secondary" type="button" id="mock-logout">Сымитировать выход</button></div>
-  <div class="concept-detail" id="session-panel" aria-live="polite">Сессия отсутствует. Никакие учетные данные не запрашиваются.</div>
+<section class="mp-login mp-login--split" data-screen="login" id="screen-login" aria-labelledby="login-heading" hidden>
+ <aside class="mp-login-visual" aria-label="О Monitoring Project">
+  <a class="mp-brand mp-login-brand" href="../../../components/index.html"><span class="sidebar__logo-mark" aria-hidden="true"><i class="fa-solid fa-ship"></i></span><span>Monitoring Project<small>Единая система управления</small></span></a>
+  <div class="mp-login-visual-copy"><h1>Одна платформа.<br>Разные уровни доступа.</h1><p>Platform и Tenant — независимые области безопасности. Макет отображает только сценарии Central Platform API.</p></div>
+  <footer>Monitoring Project Design System · UI prototype</footer>
+ </aside>
+ <main class="mp-login-main"><div class="mp-login-box">
+  <div class="mp-login-toolbar"><span class="mp-demo-chip">UI prototype / mock</span><button type="button" class="mp-btn mp-btn--secondary" id="login-theme">◐ Тёмная тема</button></div>
+  <section class="content__card mp-login-form-card">
+   <header class="mp-login-form-heading"><span class="mp-eyebrow">Начало работы</span><h2 id="login-heading">Platform Login</h2><p class="mp-help">POST /login → POST /access → GET /me. В публичном макете нет ввода пароля, TOTP и настоящих запросов.</p></header>
+   <div class="mp-stack">
+    <div class="form-row mp-field"><label for="demo-actor">Тестовый субъект (фикстура)</label><select id="demo-actor"><option value="owner">Platform Owner · mock</option><option value="reader">Platform Reader · mock</option><option value="reviewer">Reviewer · mock</option></select></div>
+    <div class="form-row mp-field"><label for="demo-login-status">Ответ сервера (сценарий)</label><select id="demo-login-status"><option value="success">204 → 200 → 200 · Успех</option><option value="401">401 · Отказ в доступе</option><option value="503">503 · Сервис недоступен</option></select></div>
+    <div class="mp-login-actions"><button class="btn mp-btn mp-btn--primary mp-btn--full" id="mock-login" type="button"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Сымитировать вход</button><button class="mp-btn mp-btn--secondary" id="mock-logout" type="button">Сымитировать выход</button>
+    <p class="mp-note">Секреты не вводятся и не сохраняются. Проверка прав выполняется только внутри mock-сценариев.</p></div>
+    <div class="mp-subtle mp-stack" id="session-panel" aria-live="polite">Сессия отсутствует. Никакие учётные данные не запрашиваются.</div>
+    <button class="mp-btn mp-btn--secondary mp-btn--full" id="open-platform" type="button">Открыть Platform Admin →</button>
+   </div>
+  </section>
+  <p class="mp-login-reference">Эталон: <a href="../../../components/index.html">Monitoring Project Design System</a></p>
+ </div></main>
 </section>
+<div class="app mp-template-app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-mark"><i class="fa-solid fa-ship" aria-hidden="true"></i></div>
+      <span class="sidebar__logo-text">Monitoring Project</span>
+    </div>
+    <div class="mp-eyebrow" style="padding:0 14px 12px">Platform / VDMS API · mock</div>
+    <nav class="sidebar__nav mp-sidebar-nav" id="concept-nav" aria-label="Меню платформы"><ul><li><a class="mp-nav-link" href="#login" data-page="login"><i class="fa-solid fa-right-to-bracket icon" aria-hidden="true"></i><span>Вход / MFA</span></a></li>
+<li><a class="mp-nav-link" href="#companies" data-page="companies"><i class="fa-solid fa-building icon" aria-hidden="true"></i><span>Компании</span></a></li>
+<li><a class="mp-nav-link" href="#activation" data-page="activation"><i class="fa-solid fa-list-check icon" aria-hidden="true"></i><span>Активация</span></a></li>
+<li><a class="mp-nav-link" href="#reviewer" data-page="reviewer"><i class="fa-solid fa-user-shield icon" aria-hidden="true"></i><span>Reviewer</span></a></li>
+<li><a class="mp-nav-link" href="#logs" data-page="logs"><i class="fa-solid fa-clipboard-list icon" aria-hidden="true"></i><span>Журнал</span></a></li>
+<li><a class="mp-nav-link" href="#contract" data-page="contract"><i class="fa-solid fa-circle-info icon" aria-hidden="true"></i><span>Правила API</span></a></li></ul></nav>
+    <div class="mp-template-sidebar-footer">
+      <p class="mp-note">Контрактный интерактивный макет. Только тестовые данные.</p>
+      <div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Demo</span></div>
+    </div>
+  </aside>
+<div class="overlay" id="overlay"></div><div class="main">
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="burger" id="burger" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Открыть меню"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+        <h1 class="topbar__title" id="platform-topbar-title">Platform / VDMS API · mock</h1>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <button class="user-menu__trigger" id="userTrigger" type="button" aria-controls="userDropdown" aria-expanded="false">
+          <span class="avatar" aria-hidden="true">С</span><span class="name">Platform · mock</span><i class="fa-solid fa-chevron-down caret" aria-hidden="true"></i>
+        </button>
+        <div class="user-menu__dropdown" id="userDropdown">
+          <div class="user-menu__header">
+            <span class="avatar" aria-hidden="true">С</span>
+            <div class="info"><strong>Platform · mock</strong><small>Central Node · mock</small></div>
+          </div>
+          <ul class="user-menu__list">
+            <li><button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">
+              <span><i class="fa-solid fa-moon icon" id="themeIcon" aria-hidden="true"></i><span id="themeLabel">Тёмная тема</span></span>
+              <span class="theme-toggle__switch" aria-hidden="true"></span>
+            </button></li>
+            <li class="divider" aria-hidden="true"></li>
+            <li><a href="#login" data-page="login" class="danger"><i class="fa-solid fa-right-from-bracket icon" aria-hidden="true"></i> Выйти из демо</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+<main class="content mp-main-content" id="main">
+<header class="mp-page-head"><div><span class="mp-eyebrow">Platform Administration · Central Node</span><h1 id="page-heading">Вход / MFA</h1><p>Визуальный макет с имитацией ответов. Ни один запрос не отправляется на сервер VDMS.</p></div></header>
+<p class="mp-feedback" role="status" id="feedback" aria-live="polite">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</p>
 
-<section class="concept-page mp-card" data-screen="companies" id="screen-companies" hidden aria-labelledby="companies-heading">
-  <div class="concept-header"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · фильтр status, cursor pagination</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
+<section class="mp-card mp-stack" data-screen="companies" id="screen-companies" hidden aria-labelledby="companies-heading">
+  <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · фильтр status, cursor pagination</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
   <div class="mp-form-grid">
    <div class="mp-field"><label for="company-status">Статус</label><select id="company-status"><option value="all">Все</option><option value="draft">draft</option><option value="provisioning">provisioning</option><option value="active">active</option><option value="suspended">suspended</option><option value="disabled">disabled</option></select></div>
    <div class="mp-field"><label for="company-search">Поиск на текущей странице (демо)</label><input id="company-search" type="search" placeholder="Название или код"></div>
   </div>
-  <div class="concept-table-wrap"><table class="concept-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
-  <div class="concept-pagination"><span id="page-indicator">Страница 1</span><button class="mp-btn mp-btn--secondary" id="prev-page" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="next-page" type="button">Вперёд</button></div>
-  <section class="concept-detail" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
+  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
+  <div class="mp-page-tools"><span id="page-indicator">Страница 1</span><button class="mp-btn mp-btn--secondary" id="prev-page" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="next-page" type="button">Вперёд</button></div>
+  <section class="mp-subtle mp-stack" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
 </section>
 
-<section class="concept-page mp-card" data-screen="activation" id="screen-activation" hidden aria-labelledby="activation-heading">
+<section class="mp-card mp-stack" data-screen="activation" id="screen-activation" hidden aria-labelledby="activation-heading">
   <h2 class="mp-section-title" id="activation-heading">Заявки на активацию</h2>
   <p class="mp-help">GET /activation-reviews · отдельное право tenant.provision.approve. Одобрение требует другого Reviewer, свежих пароля и TOTP на реальном сервере.</p>
-  <div id="activation-queue" class="concept-stack"></div>
+  <div id="activation-queue" class="mp-stack"></div>
   <p class="mp-help">В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</p>
 </section>
 
-<section class="concept-page mp-card" data-screen="reviewer" id="screen-reviewer" hidden aria-labelledby="reviewer-heading">
+<section class="mp-card mp-stack" data-screen="reviewer" id="screen-reviewer" hidden aria-labelledby="reviewer-heading">
  <h2 class="mp-section-title" id="reviewer-heading">Reviewer · приглашения и подтверждение</h2>
  <p class="mp-help">Контракт: GET /reviewers/status, GET/POST /reviewers/invitations, GET /reviewers/invitations/{requestID}/status и /owner-confirm. Все операции ниже — mock, без секретов и отправки e-mail.</p>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-operator">Состояние Reviewer Operator (fixture)</label><select id="reviewer-operator"><option value="enabled">configured / enabled</option><option value="disabled">not configured / 503</option></select></div><div class="mp-field"><label for="reviewer-email">E-mail получателя (только example.test)</label><input id="reviewer-email" type="email" placeholder="reviewer@example.test"></div></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-login">Логин Reviewer</label><input id="reviewer-login" placeholder="reviewer-demo"></div><div class="mp-field"><label for="reviewer-status-filter">Просмотр</label><select id="reviewer-status-filter"><option value="all">Все приглашения</option><option value="requested">requested</option><option value="queued">queued</option><option value="sent">sent</option><option value="claimed">claimed</option></select></div></div>
- <div class="concept-actions"><button class="mp-btn mp-btn--primary" id="invite-reviewer" type="button">Создать mock-приглашение</button><button class="mp-btn mp-btn--secondary" id="reviewer-history" type="button">Показать историю решений</button></div>
+ <div class="mp-row"><button class="mp-btn mp-btn--primary" id="invite-reviewer" type="button">Создать mock-приглашение</button><button class="mp-btn mp-btn--secondary" id="reviewer-history" type="button">Показать историю решений</button></div>
  <p class="mp-help">Реальный POST требует пароль Owner и свежий TOTP, которых публичный прототип не запрашивает. Запрос приглашения сам по себе не отправляет письмо.</p>
- <div id="reviewer-invitations" class="concept-stack" aria-live="polite"></div>
- <div id="reviewer-history-panel" class="concept-detail" hidden aria-live="polite"></div>
+ <div id="reviewer-invitations" class="mp-stack" aria-live="polite"></div>
+ <div id="reviewer-history-panel" class="mp-subtle mp-stack" hidden aria-live="polite"></div>
 </section>
-<section class="concept-page mp-card" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
+<section class="mp-card mp-stack" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
  <h2 class="mp-section-title" id="logs-heading">Журнал платформы</h2>
  <p class="mp-help">GET /platform-logs?limit&amp;offset · только Platform Owner с действующим MFA, tenant.create и tenant.activate. Данные демонстрационные.</p>
  <div class="mp-form-grid"><div class="mp-field"><label for="log-category">Фильтр категории (локальная fixture)</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div><div class="mp-field"><label for="log-limit">limit</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div></div>
- <div class="concept-table-wrap"><table class="concept-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
- <div class="concept-pagination"><span id="log-offset">offset: 0</span><button class="mp-btn mp-btn--secondary" id="log-prev" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="log-next" type="button">Вперёд</button></div>
+ <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
+ <div class="mp-page-tools"><span id="log-offset">offset: 0</span><button class="mp-btn mp-btn--secondary" id="log-prev" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="log-next" type="button">Вперёд</button></div>
 </section>
-<section class="concept-page mp-card" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
+<section class="mp-card mp-stack" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
  <h2 class="mp-section-title" id="contract-heading">Границы и источники</h2>
  <p>Визуальная модель создана для согласования API-ориентированного пользовательского опыта. Это не новая реализация аутентификации, не backend и не работающий контроль доступа.</p>
  <ul><li>Platform API: <code>/internal/platform-admin/*</code>; Tenant API: отдельное пространство <code>/api/v1/*</code>.</li><li>Только сервер определяет permissions. В этом макете роли — выбираемые тестовые фикстуры.</li><li>Создание компании: <code>requestId</code> UUID v4 + <code>code</code> + <code>name</code>. Здесь нет ввода владельца или objectType — их нет в данном POST.</li><li>Редактирование только draft с <code>expectedRevision</code>; 409 требует повторного чтения.</li><li>Заявка на активацию не означает, что компания provisioned или active. Reviewer — отдельный сценарий с серверным MFA.</li><li>Никаких реальных паролей, TOTP, токенов и секретов в localStorage или fixtures.</li></ul>
@@ -92,4 +135,5 @@
  <div class="mp-form-actions"><button class="mp-btn mp-btn--secondary" id="cancel-record" type="button">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Сохранить фикстуру</button></div>
 </form></dialog>
 <script src="concept.js"></script>
+<script src="../../../script.js"></script>
 </body></html>

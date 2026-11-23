@@ -42,3 +42,24 @@
 - Пароли, TOTP, email-токены не собираются. В форме Reviewer допускаются только адреса `@example.test`.
 
 Внимание: этот прототип проверяет **UI сценарии**, а не реальные SQL permissions, защиту API или состояние операторов Central Node.
+
+
+## Визуальная база (строгое соответствие, обновление 2026-11-23)
+
+Эталон зафиксирован по ветке [docs/vdms-ui-api-mapping-20261123](https://github.com/eznzz/ui-monitoring-project/tree/docs/vdms-ui-api-mapping-20261123):
+- [components](https://github.com/eznzz/ui-monitoring-project/tree/docs/vdms-ui-api-mapping-20261123/components): типографика, цвета, поля, кнопки, таблицы, состояния, модальные окна.
+- [modules](https://github.com/eznzz/ui-monitoring-project/tree/docs/vdms-ui-api-mapping-20261123/modules): Login, Platform Admin, общий Dashboard Template.
+- `tokens/tokens.css`, `style.css`, `modules/shared/ui.css`, `modules/shared/template.css`, `script.js`: общие реализации.
+
+**В интерфейсе не допускается отдельная дизайн-система.** `concept.css` удалён. Главный вход использует `mp-login mp-login--split` и `modules/auth/login.css`. Рабочие экраны используют исходные `sidebar`, `topbar`, `user-menu`, `mp-card`, `mp-basic-table`, `mp-btn`, `mp-field`, `mp-dialog`. Responsive и тема обслуживаются штатными правилами, а не вторым контроллером.
+
+### Разделение ответственности
+
+Соблюдение эталонной **визуальной системы** не означает, что прежний mock-компонент `modules/platform/index.html` имеет действующий серверный контракт для лицензий, object types или владельца. Логика и разрешения новых экранов берутся из VDMS API. Различия фиксируются отдельно; не следует возвращать неподтверждённые операции ради визуального совпадения.
+
+### Проверки перед утверждением
+
+1. Chromium smoke tests: форма Login, стандартная оболочка Platform, компании, Reviewer, журнал, меню мобильной версии, входные ограничения и ошибки.
+2. Тёмная и светлая темы; размеры desktop/mobile; отсутствие неиспользуемых собственных системных стилей.
+3. Ручная визуальная проверка и сравнение с `components/` и `modules/` обязательны сверх успешных функциональных тестов.
+
