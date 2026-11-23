@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Central Node Platform API — согласование интерфейса, только mock">
+<title>Platform API Concept — Monitoring Project</title>
+<link rel="stylesheet" href="../../../tokens/tokens.css">
+<link rel="stylesheet" href="../../../style.css">
+<link rel="stylesheet" href="../../shared/ui.css">
+<link rel="stylesheet" href="../../shared/template.css">
+<link rel="stylesheet" href="concept.css">
+</head>
+<body>
+<div class="app mp-template-app">
+<aside class="sidebar" id="concept-sidebar" aria-label="Навигация прототипа">
+  <div class="sidebar__logo"><span class="sidebar__logo-mark" aria-hidden="true">M</span><span class="sidebar__logo-text">Monitoring Project<small>Central Node · UI Concept</small></span></div>
+  <nav class="sidebar__nav" id="concept-nav" aria-label="Разделы">
+    <a href="#login" data-page="login">01 · Вход / MFA</a>
+    <a href="#companies" data-page="companies">02 · Компании</a>
+    <a href="#activation" data-page="activation">03 · Активация</a>
+    <a href="#contract" data-page="contract">Контракт и ограничения</a>
+  </nav>
+  <p class="concept-sidebar-note">Отдельный концепт. Существующие Platform/Tenant экраны не заменены.</p>
+</aside>
+<div class="main-wrapper">
+<header class="topbar">
+  <div class="topbar__left"><button class="concept-menu" type="button" id="menu-toggle" aria-expanded="false" aria-controls="concept-sidebar">☰</button><span class="topbar__title">Central Node · Platform API Concept</span></div>
+  <div class="concept-top-actions"><span class="concept-chip">MOCK · НЕ РЕАЛЬНЫЙ API</span><button class="mp-btn mp-btn--secondary" id="theme-toggle" type="button">◐ Тема</button></div>
+</header>
+<main class="content mp-main-content" id="main">
+<header class="mp-page-head"><div><span class="mp-eyebrow">VDMS Platform API · контрактный прототип</span><h1 id="page-heading">Вход / MFA</h1><p>Визуальный макет с имитацией ответов. Ни один запрос не отправляется на сервер VDMS.</p></div></header>
+<div class="concept-status" role="status" id="feedback" aria-live="polite">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</div>
+
+<section class="concept-page mp-card" data-screen="login" id="screen-login" aria-labelledby="login-heading">
+  <h2 class="mp-section-title" id="login-heading">Platform Login</h2>
+  <p class="mp-help">Штатный контракт: POST /login → POST /access → GET /me. Требуются loginName, пароль и TOTP. В этом публичном демо ввод секретов отсутствует.</p>
+  <div class="concept-flow" aria-label="Последовательность сессии"><span>POST /login · 204</span><span>POST /access · 200</span><span>GET /me · 200</span></div>
+  <div class="mp-form-grid">
+    <div class="mp-field"><label for="demo-actor">Тестовый субъект (только фикстура)</label><select id="demo-actor"><option value="owner">Platform Owner · полный набор сценарных прав</option><option value="reader">Platform Reader · tenant.read</option><option value="reviewer">Reviewer · tenant.provision.approve</option></select></div>
+    <div class="mp-field"><label for="demo-login-status">Ответ сценария</label><select id="demo-login-status"><option value="success">204 → 200 → 200 · Успешный вход</option><option value="401">401 · Неверные учетные данные</option><option value="503">503 · Сервис недоступен</option></select></div>
+  </div>
+  <div class="concept-actions"><button class="mp-btn mp-btn--primary" type="button" id="mock-login">Сымитировать вход</button><button class="mp-btn mp-btn--secondary" type="button" id="mock-logout">Сымитировать выход</button></div>
+  <div class="concept-detail" id="session-panel" aria-live="polite">Сессия отсутствует. Никакие учетные данные не запрашиваются.</div>
+</section>
+
+<section class="concept-page mp-card" data-screen="companies" id="screen-companies" hidden aria-labelledby="companies-heading">
+  <div class="concept-header"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · фильтр status, cursor pagination</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
+  <div class="mp-form-grid">
+   <div class="mp-field"><label for="company-status">Статус</label><select id="company-status"><option value="all">Все</option><option value="draft">draft</option><option value="provisioning">provisioning</option><option value="active">active</option><option value="suspended">suspended</option><option value="disabled">disabled</option></select></div>
+   <div class="mp-field"><label for="company-search">Поиск на текущей странице (демо)</label><input id="company-search" type="search" placeholder="Название или код"></div>
+  </div>
+  <div class="concept-table-wrap"><table class="concept-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
+  <div class="concept-pagination"><span id="page-indicator">Страница 1</span><button class="mp-btn mp-btn--secondary" id="prev-page" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="next-page" type="button">Вперёд</button></div>
+  <section class="concept-detail" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
+</section>
+
+<section class="concept-page mp-card" data-screen="activation" id="screen-activation" hidden aria-labelledby="activation-heading">
+  <h2 class="mp-section-title" id="activation-heading">Заявки на активацию</h2>
+  <p class="mp-help">GET /activation-reviews · отдельное право tenant.provision.approve. Одобрение требует другого Reviewer, свежих пароля и TOTP на реальном сервере.</p>
+  <div id="activation-queue" class="concept-stack"></div>
+  <p class="mp-help">В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</p>
+</section>
+
+<section class="concept-page mp-card" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
+ <h2 class="mp-section-title" id="contract-heading">Границы и источники</h2>
+ <p>Визуальная модель создана для согласования API-ориентированного пользовательского опыта. Это не новая реализация аутентификации, не backend и не работающий контроль доступа.</p>
+ <ul><li>Platform API: <code>/internal/platform-admin/*</code>; Tenant API: отдельное пространство <code>/api/v1/*</code>.</li><li>Только сервер определяет permissions. В этом макете роли — выбираемые тестовые фикстуры.</li><li>Создание компании: <code>requestId</code> UUID v4 + <code>code</code> + <code>name</code>. Здесь нет ввода владельца или objectType — их нет в данном POST.</li><li>Редактирование только draft с <code>expectedRevision</code>; 409 требует повторного чтения.</li><li>Заявка на активацию не означает, что компания provisioned или active. Reviewer — отдельный сценарий с серверным MFA.</li><li>Никаких реальных паролей, TOTP, токенов и секретов в localStorage или fixtures.</li></ul>
+ <p class="mp-help">Демо не вызывает API. Документация: <a href="https://github.com/developerpiter/vdms/blob/docs/central-platform-api/docs/api/central-platform.md">Central Platform API</a> · <a href="../../../docs/VDMS_UI_API_MAPPING.md">Матрица соответствия (если принята в main)</a>.</p>
+</section>
+</main></div></div>
+<dialog class="mp-dialog" id="record-dialog" aria-labelledby="record-dialog-title"><form id="record-form" novalidate>
+ <header class="mp-dialog-heading"><div><span class="mp-eyebrow" id="record-mode"></span><h2 id="record-dialog-title">Компания</h2><p class="mp-help" id="record-note"></p></div><button class="mp-modal-close" aria-label="Закрыть" type="button" id="close-record">✕</button></header>
+ <div class="mp-stack"><div class="mp-field" id="code-field"><label for="record-code">Код компании</label><input id="record-code" maxlength="40" required></div><div class="mp-field"><label for="record-name">Название компании</label><input id="record-name" maxlength="100" required></div><div class="mp-field" id="email-field"><label for="record-email">Контактный e-mail (profile)</label><input id="record-email" type="email"></div></div>
+ <p id="record-error" class="mp-error" role="alert"></p>
+ <div class="mp-form-actions"><button class="mp-btn mp-btn--secondary" id="cancel-record" type="button">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Сохранить фикстуру</button></div>
+</form></dialog>
+<script src="concept.js"></script>
+</body></html>
