@@ -31,6 +31,7 @@ test('only actual Owner and Reviewer fixtures exist; Owner can create and edit d
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await page.locator('#new-company').click();
  await page.locator('#record-code').fill('smoke');
@@ -50,6 +51,7 @@ test('409 and reviewer activation flow',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page);
  await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Имитировать 409 при сохранении'}).click();
  await page.locator('#record-name').fill('Conflicted');
@@ -353,7 +355,7 @@ test('VDMS role navigation and feature flags are enforced on real routes',async 
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner','success','standard');
  await page.locator('#open-platform').click();
- await expect(page.locator('#screen-companies')).toBeVisible();
+ await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="activation"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeHidden();
@@ -376,6 +378,7 @@ test('VDMS role navigation and feature flags are enforced on real routes',async 
 test('linked Owner draft requests are visible to Reviewer and history stays personal',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner','success','restricted');await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await page.locator('#concept-nav a[data-page="login"]').click();
@@ -393,6 +396,7 @@ test('linked Owner draft requests are visible to Reviewer and history stays pers
  await page.locator('#concept-nav a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await expect(page.locator('#company-detail')).toContainText('draft');
  await expect(page.locator('#concept-nav a[data-page="activation"]')).toBeHidden();
@@ -418,6 +422,7 @@ test('LAB-only route toggles and active Reviewer permissions are independent',as
 test('compact company pager shows range, boundaries and filtered totals',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  const pager=page.locator('#screen-companies nav[aria-label="Страницы списка компаний"]');
  await expect(pager).toBeVisible();
  await expect(page.locator('#page-range')).toHaveText('Показано 1–2 из 8');
@@ -451,4 +456,28 @@ test('compact company pager covers empty state without phantom pages',async ({pa
  await expect(page.locator('#page-indicator')).toHaveText('1 / 1');
  await expect(page.locator('#prev-page')).toBeDisabled();
  await expect(page.locator('#next-page')).toBeDisabled();
+});
+
+test('Owner home is overview, Reviewer home is activation, explicit Company deep links remain intact',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-overview')).toBeVisible();
+ await expect(page.locator('#overview-companies-body tr')).toHaveCount(8);
+ await expect(page.locator('#concept-nav a[data-page="overview"]')).toHaveAttribute('aria-current','page');
+ await page.locator('#concept-nav a[data-page="companies"]').click();
+ await expect(page.locator('#screen-companies')).toBeVisible();
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reviewer');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ expect(errors).toEqual([]);
+});
+test('direct Company route still opens Companies after Owner mock login',async ({page})=>{
+ await page.goto(url+'#companies');
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-companies')).toBeVisible();
+ await expect(page.locator('#page-indicator')).toHaveText('1 / 4');
 });
