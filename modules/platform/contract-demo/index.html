@@ -183,7 +183,14 @@
 <section class="mp-card mp-stack" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
  <h2 class="mp-section-title" id="contract-heading">Границы и источники</h2>
  <p>Визуальная модель создана для согласования API-ориентированного пользовательского опыта. Это не новая реализация аутентификации, не backend и не работающий контроль доступа.</p>
- <ul><li>Platform API: <code>/internal/platform-admin/*</code>; Tenant API: отдельное пространство <code>/api/v1/*</code>.</li><li>Только сервер определяет permissions. В этом макете роли — выбираемые тестовые фикстуры.</li><li>Создание компании: <code>requestId</code> UUID v4 + <code>code</code> + <code>name</code>. Здесь нет ввода владельца или objectType — их нет в данном POST.</li><li>Редактирование только draft с <code>expectedRevision</code>; 409 требует повторного чтения.</li><li>Заявка на активацию не означает, что компания provisioned или active. Reviewer — отдельный сценарий с серверным MFA.</li><li>Никаких реальных паролей, TOTP, токенов и секретов в localStorage или fixtures.</li></ul>
+ <div class="mp-stack" role="list" aria-label="Правила взаимодействия с API">
+  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-code" aria-hidden="true"></i><div><strong>Разделение API</strong><p>Platform API: <code>/internal/platform-admin/*</code>; Tenant API: отдельное пространство <code>/api/v1/*</code>.</p></div></div>
+  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Права доступа</strong><p>Только сервер определяет permissions. В этом макете роли — выбираемые тестовые фикстуры.</p></div></div>
+  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-building" aria-hidden="true"></i><div><strong>Создание компании</strong><p>Создание компании: <code>requestId</code> UUID v4 + <code>code</code> + <code>name</code>. Здесь нет ввода владельца или objectType — их нет в данном POST.</p></div></div>
+  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-file-pen" aria-hidden="true"></i><div><strong>Редактирование черновика</strong><p>Редактирование только draft с <code>expectedRevision</code>; 409 требует повторного чтения.</p></div></div>
+  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-list-check" aria-hidden="true"></i><div><strong>Активация и Reviewer</strong><p>Заявка на активацию не означает, что компания provisioned или active. Reviewer — отдельный сценарий с серверным MFA.</p></div></div>
+  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-lock" aria-hidden="true"></i><div><strong>Секреты и безопасность</strong><p>Никаких реальных паролей, TOTP, токенов и секретов в localStorage или fixtures.</p></div></div>
+ </div>
  <p class="mp-help">Демо не вызывает API. Документация: <a href="https://github.com/developerpiter/vdms/blob/docs/central-platform-api/docs/api/central-platform.md">Central Platform API</a> · <a href="../../../docs/VDMS_UI_API_MAPPING.md">Матрица соответствия (если принята в main)</a>.</p>
 </section>
 </main></div></div>
