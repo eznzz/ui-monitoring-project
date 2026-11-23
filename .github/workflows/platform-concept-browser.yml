@@ -1,5 +1,11 @@
 name: Central Platform concept browser smoke
 on:
+  push:
+    branches: [preview]
+    paths:
+      - 'preview/**'
+      - 'modules/platform/contract-demo/**'
+      - '.github/workflows/platform-concept-browser.yml'
   pull_request:
     paths:
       - 'modules/platform/contract-demo/**'
@@ -25,6 +31,11 @@ jobs:
           exit 1
       - name: Browser scenarios
         run: npx playwright test modules/platform/contract-demo/tests/browser.spec.cjs --reporter=line
+      - name: Check third-party live preview proxy (informational)
+        continue-on-error: true
+        run: |
+          curl --location --show-error --max-time 25 --output /tmp/preview-public.html --write-out 'HTTP: %{http_code} content_type: %{content_type} bytes: %{size_download}\\n' 'https://raw.githack.com/eznzz/ui-monitoring-project/preview/preview/index.html'
+          grep -q 'Monitoring Project — UI Preview' /tmp/preview-public.html
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
