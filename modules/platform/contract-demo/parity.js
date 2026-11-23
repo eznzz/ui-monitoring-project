@@ -128,7 +128,7 @@ function overviewTenant(){
  const fixture=fixtureFor(c);
  const kind=$("overview-tenant-kind").value;
  if(!fixture){
-  kpis.append(element("p",ctx.dataMode==="empty"?
+  kpis.append(element("p",ctx.companies.length===0?
    "Компаний пока нет — пользователи и модули не загружены.":
    "Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-help"));
   return;
