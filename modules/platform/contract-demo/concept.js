@@ -16,7 +16,7 @@ const seed=[
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c806",code:"harbor",name:"Harbor Engineering (demo)",status:"active",revision:4,profile:{legalName:"Harbor Engineering Ltd.",tradeName:"Harbor Tech",description:"Сервисная компания · демонстрация",registrationNumber:"HE-DEMO",taxNumber:"",countryCode:"DE",contactEmail:"contact@example.test",website:""}},
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c807",code:"delta",name:"Delta Offshore (demo)",status:"draft",revision:1,profile:{legalName:"Delta Offshore Demo GmbH",tradeName:"Delta",description:"Черновик компании · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"DE",contactEmail:"",website:""}},
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c808",code:"polar",name:"Polar Research (demo)",status:"active",revision:6,profile:{legalName:"Polar Research Inc.",tradeName:"Polar",description:"Научная организация · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"NO",contactEmail:"research@example.test",website:""}}];
-let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, pageNo=0, selectedId=null, editingId=null;
+let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, companyShown=5, selectedId=null, editingId=null;
 let reviews=[], reviewDecisions=[], forcedConflict=false, serverMode="standard";
 const $=id=>document.getElementById(id);
 const profile=()=>({legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""});
@@ -109,7 +109,7 @@ function changeDataMode(next,force=false){
  companies=next==="demo"?structuredClone(seed):[];
  reviews=[];reviewDecisions=[];invitations.length=0;
  reviewerChecked=false;selectedInvitationId="";reviewerDetailLoaded=false;
- showHistory=false;selectedId=null;editingId=null;forcedConflict=false;pageNo=0;logOffset=0;
+ showHistory=false;selectedId=null;editingId=null;forcedConflict=false;companyShown=Number($("company-batch").value);logShown=Number($("log-limit").value);
  $("company-status").value="all";$("company-search").value="";
  $("reviewer-status-filter").value="all";reviewMode="pending";
  document.querySelectorAll("[data-review-mode]").forEach(tab=>{
@@ -125,22 +125,23 @@ function renderCompanies(){
  const filter=$("company-status").value,query=$("company-search").value.trim().toLowerCase();
  if(!permitted("tenant.read")){
   const tr=document.createElement("tr"),td=textNode("td","403 · нет tenant.read. Войдите через тестовую фикстуру с правом чтения.");td.colSpan=5;tr.append(td);tbody.append(tr);
-  $("next-page").disabled=$("prev-page").disabled=true;$("page-indicator").textContent="—";$("page-range").textContent="Нет доступа";$("page-indicator").removeAttribute("title");$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
+  $("company-more").hidden=true;$("company-more").disabled=true;$("company-range").textContent="Нет доступа";$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
  }
- const filtered=companies.filter(c=>filter==="all"||c.status===filter);
- const pages=Math.max(1,Math.ceil(filtered.length/2));pageNo=Math.min(pageNo,pages-1);
- // This is a deterministic cursor-like UI fixture, not a real server search API.
- const view=filtered.slice(pageNo*2,(pageNo+1)*2).filter(c=>c.name.toLowerCase().includes(query)||c.code.toLowerCase().includes(query));
- if(!view.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет записей на этой странице.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;tr.append(td);tbody.append(tr);}
- for(const c of view){
+ const filtered=companies.filter(c=>(filter==="all"||c.status===filter)&&(c.name.toLowerCase().includes(query)||c.code.toLowerCase().includes(query)));
+ const shown=filtered.slice(0,companyShown);
+ if(!shown.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет компаний с такими параметрами поиска.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;tr.append(td);tbody.append(tr);}
+ for(const c of shown){
   const tr=document.createElement("tr");
   for(const [i,value] of [c.code,c.name,c.status,c.revision].entries()){const cell=textNode("td",value);cell.dataset.label=["Код","Компания","Статус","Revision"][i];tr.append(cell);}
   const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
  }
- $("prev-page").disabled=pageNo===0;$("next-page").disabled=pageNo>=pages-1;
- $("page-indicator").textContent=(pageNo+1)+" / "+pages;
- $("page-range").textContent=filtered.length?"Показано "+(pageNo*2+1)+"–"+Math.min((pageNo+1)*2,filtered.length)+" из "+filtered.length:"Компаний: 0";
- $("page-indicator").title="Демо cursor pagination · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
+ const hasMore=shown.length<filtered.length, batch=Number($("company-batch").value);
+ $("company-more").hidden=!hasMore;
+ $("company-more").disabled=!hasMore;
+ $("company-more").textContent="Показать ещё "+Math.min(batch,filtered.length-shown.length);
+ $("company-range").textContent=filtered.length?"Показано "+shown.length+" из "+filtered.length:"Компаний: 0";
+ // Display slices emulate successive cursor pages; actual VDMS would use nextCursor.
+ $("company-more").title=hasMore?"Демо cursor · следующая порция после "+shown.length+" записей":"Все загруженные записи показаны";
  renderDetail();
 }
 function renderDetail(){
@@ -192,7 +193,7 @@ function saveRecord(ev){
   companies.unshift(c);selectedId=c.tenantId;
   feedback("Mock POST /companies → 201 draft · requestId="+id+". Ответ не сохраняется на сервере.");
  }
- $("record-dialog").close();pageNo=0;$("company-status").value="all";$("company-search").value="";renderCompanies();
+ $("record-dialog").close();companyShown=Number($("company-batch").value);$("company-status").value="all";$("company-search").value="";renderCompanies();
 }
 function requestActivation(c){
  if(!permitted("tenant.activate")||c.status!=="draft"){feedback("403: невозможно подать заявку.",true);return;}
@@ -274,10 +275,10 @@ $("review-decision-form").addEventListener("submit",e=>{
  renderReviews();
 });
 $("mock-login").addEventListener("click",login);$("mock-logout").addEventListener("click",logout);
-$("company-status").addEventListener("change",()=>{pageNo=0;renderCompanies();});
-$("company-search").addEventListener("input",renderCompanies);
-$("prev-page").addEventListener("click",()=>{pageNo=Math.max(0,pageNo-1);renderCompanies();});
-$("next-page").addEventListener("click",()=>{pageNo++;renderCompanies();});
+$("company-status").addEventListener("change",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
+$("company-search").addEventListener("input",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
+$("company-batch").addEventListener("change",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
+$("company-more").addEventListener("click",()=>{companyShown+=Number($("company-batch").value);renderCompanies();});
 $("new-company").addEventListener("click",()=>openRecord(null));
 $("record-form").addEventListener("submit",saveRecord);
 $("close-record").addEventListener("click",()=>$("record-dialog").close());
@@ -287,7 +288,7 @@ window.addEventListener("hashchange",()=>navigate(location.hash.slice(1)));
 document.querySelectorAll("[data-page]").forEach(el=>el.addEventListener("click",ev=>{ev.preventDefault();navigate(el.dataset.page);}));
 
 const invitations=[];
-let showHistory=false,logOffset=0;
+let showHistory=false,logShown=5;
 const baseLogs=[
  {at:"2026-11-23T09:00:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"NORTH"},
  {at:"2026-11-23T08:55:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"},
@@ -398,16 +399,18 @@ function renderLogs(){
  const canView=session?.actorId==="mock-owner"&&permitted("tenant.create")&&permitted("tenant.activate");
  if(!canView){
   const td=textNode("td","403 · Platform Owner с MFA и правами tenant.create/tenant.activate необходим.");td.colSpan=5;const row=document.createElement("tr");row.append(td);tbody.append(row);
-  $("log-prev").disabled=$("log-next").disabled=true;$("log-offset").textContent="Нет доступа";return;
+  $("log-more").hidden=true;$("log-more").disabled=true;$("log-range").textContent="Нет доступа";return;
  }
- const cat=$("log-category").value,limit=Number($("log-limit").value);
+ const cat=$("log-category").value,batch=Number($("log-limit").value);
  const values=baseLogs.filter(x=>cat==="all"||x.category===cat);
- logOffset=Math.min(logOffset,Math.max(0,Math.ceil(values.length/limit)-1)*limit);
- const shown=values.slice(logOffset,logOffset+limit);
+ const shown=values.slice(0,logShown);
  for(const item of shown){const row=document.createElement("tr");for(const [i,key] of ["at","category","eventType","outcome","subject"].entries()){const cell=textNode("td",item[key]);cell.dataset.label=["Дата","Категория","Событие","Результат","Объект"][i];row.append(cell);}tbody.append(row);}
  if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Журнал пуст.");td.colSpan=5;tr.append(td);tbody.append(tr);}
- $("log-offset").textContent="offset: "+logOffset+" · nextOffset: "+(logOffset+limit<values.length?logOffset+limit:"null")+" (mock)";
- $("log-prev").disabled=logOffset===0;$("log-next").disabled=logOffset+limit>=values.length;
+ const hasMore=shown.length<values.length;
+ $("log-range").textContent=values.length?"Показано "+shown.length+" из "+values.length:"Записей: 0";
+ $("log-more").hidden=!hasMore;$("log-more").disabled=!hasMore;
+ $("log-more").textContent="Показать ещё "+Math.min(batch,values.length-shown.length);
+ $("log-more").title=hasMore?"Mock GET /platform-logs?limit="+batch+"&offset="+shown.length:"Все загруженные события показаны";
 }
 document.querySelectorAll("[data-review-mode]").forEach(btn=>btn.addEventListener("click",()=>{
  reviewMode=btn.dataset.reviewMode;
@@ -437,10 +440,9 @@ $("reviewer-existing-check").addEventListener("click",()=>{reviewerDetailLoaded=
 $("reviewer-status-filter").addEventListener("change",renderReviewer);
 $("invite-reviewer").addEventListener("click",createInvitation);
 $("reviewer-history").addEventListener("click",()=>{showHistory=!showHistory;renderReviewer();});
-$("log-category").addEventListener("change",()=>{logOffset=0;renderLogs();});
-$("log-limit").addEventListener("change",()=>{logOffset=0;renderLogs();});
-$("log-prev").addEventListener("click",()=>{logOffset=Math.max(0,logOffset-Number($("log-limit").value));renderLogs();});
-$("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").value);renderLogs();});
+$("log-category").addEventListener("change",()=>{logShown=Number($("log-limit").value);renderLogs();});
+$("log-limit").addEventListener("change",()=>{logShown=Number($("log-limit").value);renderLogs();});
+$("log-more").addEventListener("click",()=>{logShown+=Number($("log-limit").value);renderLogs();});
 
 $("overview-data-mode").addEventListener("change",()=>changeDataMode($("overview-data-mode").value));
 $("overview-load-demo").addEventListener("click",()=>changeDataMode("demo",true));
@@ -456,7 +458,7 @@ $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  if(!permitted("tenant.read")&&!permitted("tenant.create"))return;
  const index=companies.findIndex(c=>c.tenantId===tenantId);
  if(index<0)return;
- selectedId=tenantId;pageNo=Math.floor(index/2);
+ selectedId=tenantId;companyShown=Math.max(Number($("company-batch").value),index+1);
  $("company-status").value="all";$("company-search").value="";
  navigate("companies");renderCompanies();
 }
