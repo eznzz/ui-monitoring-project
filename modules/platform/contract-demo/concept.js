@@ -89,6 +89,9 @@ function login(){
  }
  serverMode=$("demo-server-mode").value;
  session={actorId:type==="owner"?"mock-owner":"mock-reviewer",login:"fixture-"+type,permissions:[...rights[type]]};
+ // Real VDMS grants Mail Operator permissions explicitly, never implicitly from Owner.
+ // Only the LAB fixture simulates additional SQL grants, without changing a server.
+ if(type==="owner"&&serverMode==="lab")session.permissions.push("platform.mail.diagnose","platform.mail.test_send");
  $("session-panel").replaceChildren(textNode("strong","Симуляция завершена: POST /login 204 → POST /access 200 → GET /me 200."),textNode("p","Тестовая фикстура actorId: "+session.actorId),textNode("p","GET /me.permissions: "+session.permissions.join(", ")));
  feedback("Демо-сессия создана только в памяти вкладки. Нет настоящего Platform JWT.");
  updateActions();
