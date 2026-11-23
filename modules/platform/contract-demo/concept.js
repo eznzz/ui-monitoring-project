@@ -15,7 +15,7 @@ const seed=[
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c805",code:"SOUTH",name:"South Transport (demo)",status:"disabled",revision:4,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}}
 ];
 let companies=structuredClone(seed), session=null, page="login", pageNo=0, selectedId=null, editingId=null;
-let reviews=[], history=[], forcedConflict=false;
+let reviews=[], reviewDecisions=[], forcedConflict=false;
 const $=id=>document.getElementById(id);
 const profile=()=>({legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""});
 const permitted=right=>Boolean(session?.permissions.includes(right));
@@ -147,12 +147,12 @@ function renderReviews(){
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
    b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
-   b.addEventListener("click",()=>{if(r.requesterActorId===session.actorId){feedback("Self-approval запрещён.",true);return;}r.state=decision;history.unshift({requestId:r.requestId,decision});feedback("Mock Reviewer "+decision+" → 200. Повторный пароль и TOTP НЕ вводятся, реальной активации нет.");renderReviews();});
+   b.addEventListener("click",()=>{if(r.requesterActorId===session.actorId){feedback("Self-approval запрещён.",true);return;}r.state=decision;reviewDecisions.unshift({requestId:r.requestId,decision});feedback("Mock Reviewer "+decision+" → 200. Повторный пароль и TOTP НЕ вводятся, реальной активации нет.");renderReviews();});
    actions.append(b);
   }
   div.append(actions);root.append(div);
  }
- if(history.length)root.append(textNode("p","История фикстуры: "+history.map(h=>h.requestId.slice(0,8)+" — "+h.decision).join("; ")));
+ if(reviewDecisions.length)root.append(textNode("p","История фикстуры: "+reviewDecisions.map(h=>h.requestId.slice(0,8)+" — "+h.decision).join("; ")));
 }
 $("mock-login").addEventListener("click",login);$("mock-logout").addEventListener("click",logout);
 $("company-status").addEventListener("change",()=>{pageNo=0;renderCompanies();});
@@ -200,7 +200,7 @@ function renderReviewer(){
  }
  if(showHistory){
   const historyPanel=$("reviewer-history-panel");historyPanel.hidden=false;historyPanel.replaceChildren(textNode("strong","GET /activation-reviews/history · mock"));
-  historyPanel.append(textNode("p",history.length?history.map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
+  historyPanel.append(textNode("p",reviewDecisions.length?reviewDecisions.map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
  }else $("reviewer-history-panel").hidden=true;
 }
 function createInvitation(){
