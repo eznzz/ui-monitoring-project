@@ -30,8 +30,8 @@ VDMS определяет платформенные операции, прав�
 ## Операционные роли
 
 - **Platform Owner** fixture: `tenant.read`, `tenant.create`, `tenant.draft.update`, `tenant.activate`, `platform.reviewer.bootstrap`. Список компаний и создание draft; Reviewer approval *не* предоставляется Owner только за статус Owner.
-- **Platform Reader** fixture: `tenant.read`. Просмотр компаний; нет Owner-операций.
-- **Reviewer** fixture: `tenant.provision.approve`. Очередь и решения; нет доступа к Owner workspace, mail, reviewer's invitation bootstrap и мониторингу.
+- **Platform Reader/Viewer не существует в качестве фиксированной роли** в миграциях и интерфейсе VDMS. `tenant.read` — отдельное permission; фикстура Reader удалена, чтобы не вводить в заблуждение.
+- **Reviewer** fixture: `tenant.provision.approve`. Только очередь и собственная история; Owner workspace, email и мониторинг отсутствуют в его навигации. Одобрение/отказ показываются только при соответствующем server feature flag.
 - В VDMS навигация вычисляется из `GET /me.permissions`; browser-side restrictions служат только отображению и не заменяют серверные проверки.
 
 ## Что нельзя выдавать за работающий backend

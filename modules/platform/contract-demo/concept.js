@@ -4,21 +4,30 @@
 const prefix="/internal/platform-admin";
 const rights={
  owner:["tenant.read","tenant.create","tenant.draft.update","tenant.activate","platform.reviewer.bootstrap"],
- reader:["tenant.read"],
  reviewer:["tenant.provision.approve"]
 };
 const seed=[
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c801",code:"NORTH",name:"North Shipping (demo)",status:"draft",revision:3,profile:{legalName:"North Shipping Ltd.",tradeName:"North",description:"Тестовая компания",registrationNumber:"",taxNumber:"",countryCode:"GB",contactEmail:"office@example.test",website:""}},
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c802",code:"BLUE",name:"Blue Logistics (demo)",status:"active",revision:7,profile:{legalName:"Blue Logistics",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c803",code:"EAST",name:"East Maritime (demo)",status:"provisioning",revision:2,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c804",code:"WEST",name:"West Operations (demo)",status:"suspended",revision:5,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c805",code:"SOUTH",name:"South Transport (demo)",status:"disabled",revision:4,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}}
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c801",code:"north",name:"North Shipping (demo)",status:"draft",revision:3,profile:{legalName:"North Shipping Ltd.",tradeName:"North",description:"Тестовая компания",registrationNumber:"",taxNumber:"",countryCode:"GB",contactEmail:"office@example.test",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c802",code:"blue",name:"Blue Logistics (demo)",status:"active",revision:7,profile:{legalName:"Blue Logistics",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c803",code:"east",name:"East Maritime (demo)",status:"provisioning",revision:2,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c804",code:"west",name:"West Operations (demo)",status:"suspended",revision:5,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c805",code:"south",name:"South Transport (demo)",status:"disabled",revision:4,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}}
  ,
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c806",code:"HARBOR",name:"Harbor Engineering (demo)",status:"active",revision:4,profile:{legalName:"Harbor Engineering Ltd.",tradeName:"Harbor Tech",description:"Сервисная компания · демонстрация",registrationNumber:"HE-DEMO",taxNumber:"",countryCode:"DE",contactEmail:"contact@example.test",website:""}},
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c807",code:"DELTA",name:"Delta Offshore (demo)",status:"draft",revision:1,profile:{legalName:"Delta Offshore Demo GmbH",tradeName:"Delta",description:"Черновик компании · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"DE",contactEmail:"",website:""}},
- {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c808",code:"POLAR",name:"Polar Research (demo)",status:"active",revision:6,profile:{legalName:"Polar Research Inc.",tradeName:"Polar",description:"Научная организация · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"NO",contactEmail:"research@example.test",website:""}}];
-let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, pageNo=0, selectedId=null, editingId=null;
-let reviews=[], reviewDecisions=[], forcedConflict=false;
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c806",code:"harbor",name:"Harbor Engineering (demo)",status:"active",revision:4,profile:{legalName:"Harbor Engineering Ltd.",tradeName:"Harbor Tech",description:"Сервисная компания · демонстрация",registrationNumber:"HE-DEMO",taxNumber:"",countryCode:"DE",contactEmail:"contact@example.test",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c807",code:"delta",name:"Delta Offshore (demo)",status:"draft",revision:1,profile:{legalName:"Delta Offshore Demo GmbH",tradeName:"Delta",description:"Черновик компании · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"DE",contactEmail:"",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c808",code:"polar",name:"Polar Research (demo)",status:"active",revision:6,profile:{legalName:"Polar Research Inc.",tradeName:"Polar",description:"Научная организация · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"NO",contactEmail:"research@example.test",website:""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c809","code":"atlas","name":"Atlas Marine (demo)","status":"active","revision":8,"profile":{"legalName":"Atlas Marine GmbH","tradeName":"Atlas","description":"Hamburg maritime operations","registrationNumber":"DEMO-ATLAS","taxNumber":"","countryCode":"DE","contactEmail":"atlas@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c810","code":"orion","name":"Orion Laboratories (demo)","status":"draft","revision":2,"profile":{"legalName":"Orion Laboratories Ltd.","tradeName":"Orion","description":"Laboratory services fixture","registrationNumber":"DEMO-ORION","taxNumber":"","countryCode":"GB","contactEmail":"orion@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c811","code":"cedar","name":"Cedar Freight (demo)","status":"active","revision":5,"profile":{"legalName":"Cedar Freight AS","tradeName":"Cedar","description":"Logistics and shipping fixture","registrationNumber":"DEMO-CEDAR","taxNumber":"","countryCode":"NO","contactEmail":"cedar@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c812","code":"meridian","name":"Meridian Energy (demo)","status":"provisioning","revision":3,"profile":{"legalName":"Meridian Energy BV","tradeName":"Meridian","description":"Provisioning lifecycle test","registrationNumber":"DEMO-MERIDIAN","taxNumber":"","countryCode":"NL","contactEmail":"meridian@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c813","code":"nimbus","name":"Nimbus Robotics (demo)","status":"active","revision":9,"profile":{"legalName":"Nimbus Robotics GmbH","tradeName":"Nimbus","description":"Industrial automation fixture","registrationNumber":"DEMO-NIMBUS","taxNumber":"","countryCode":"DE","contactEmail":"nimbus@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c814","code":"seabird","name":"Seabird Foods (demo)","status":"disabled","revision":4,"profile":{"legalName":"Seabird Foods Ltd.","tradeName":"Seabird","description":"Disabled tenant lifecycle test","registrationNumber":"DEMO-SEABIRD","taxNumber":"","countryCode":"IE","contactEmail":"seabird@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c815","code":"granite","name":"Granite Industrial (demo)","status":"suspended","revision":6,"profile":{"legalName":"Granite Industrial Oy","tradeName":"Granite","description":"Suspended tenant lifecycle test","registrationNumber":"DEMO-GRANITE","taxNumber":"","countryCode":"FI","contactEmail":"granite@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c816","code":"aurora","name":"Aurora Data (demo)","status":"draft","revision":1,"profile":{"legalName":"Aurora Data AB","tradeName":"Aurora","description":"New draft with incomplete setup","registrationNumber":"DEMO-AURORA","taxNumber":"","countryCode":"SE","contactEmail":"aurora@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c817","code":"vector","name":"Vector Services (demo)","status":"active","revision":7,"profile":{"legalName":"Vector Services SAS","tradeName":"Vector","description":"Multiple modules and users fixture","registrationNumber":"DEMO-VECTOR","taxNumber":"","countryCode":"FR","contactEmail":"vector@example.test","website":""}},
+ {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c818","code":"tidewater","name":"Tidewater Solutions (demo)","status":"draft","revision":2,"profile":{"legalName":"Tidewater Solutions Ltd.","tradeName":"Tidewater","description":"New draft for review testing","registrationNumber":"DEMO-TIDEWATER","taxNumber":"","countryCode":"GB","contactEmail":"tidewater@example.test","website":""}}];
+let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, companyShown=5, selectedId=null, editingId=null;
+let reviews=[], reviewDecisions=[], forcedConflict=false, serverMode="standard";
 const $=id=>document.getElementById(id);
 const profile=()=>({legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""});
 const permitted=right=>Boolean(session?.permissions.includes(right));
@@ -31,8 +40,35 @@ function feedback(message,error=false){
  // The Login layout uses the canonical card and its own accessible status.
  if(page==="login")$("session-panel").setAttribute("aria-label",message);
 }
+const ownerSections=["overview","companies","provisioning","reviewer","email-operator","monitor","logs"];
+const validScreens=["login",...ownerSections,"activation","mail","p4","contract"];
+const hasOwnerOps=()=>permitted("tenant.create")&&permitted("tenant.activate");
+const canCompanies=()=>permitted("tenant.read")||permitted("tenant.create");
+const isAllowed=key=>
+ key==="login"||key==="contract"?true:
+ key==="overview"||key==="companies"?canCompanies():
+ key==="provisioning"||key==="monitor"||key==="logs"?hasOwnerOps()&&canCompanies():
+ key==="activation"?permitted("tenant.provision.approve"):
+ key==="reviewer"||key==="email-operator"?permitted("platform.reviewer.bootstrap"):
+ key==="mail"?serverMode==="lab"&&(permitted("platform.mail.manage")||permitted("platform.reviewer.bootstrap")):
+ key==="p4"?serverMode==="lab"&&permitted("platform.reviewer.bootstrap"):false;
+const homeSection=()=>permitted("tenant.provision.approve")?"activation":canCompanies()?"overview":permitted("platform.reviewer.bootstrap")?"reviewer":"contract";
+function renderNavigation(){
+ document.querySelectorAll("#concept-nav [data-page]").forEach(el=>{
+  const enabled=Boolean(session)&&isAllowed(el.dataset.page);
+  el.parentElement.hidden=!enabled;
+  el.parentElement.style.display=enabled?"":"none";
+  el.tabIndex=enabled?0:-1;
+ });
+}
 function navigate(next){
- if(!["login","overview","companies","provisioning","activation","reviewer","email-operator","mail","monitor","logs","contract"].includes(next))next="login";
+ if(!validScreens.includes(next))next="login";
+ if(session&&next!=="login"&&!isAllowed(next)){
+  const forbidden=next;
+  next=homeSection();
+  feedback("Доступ к разделу «"+forbidden+"» отсутствует в текущем наборе permissions / серверных флагов; открыт доступный раздел.",true);
+ }
+ 
  if(!session&&next!=="login"){
   requestedPage=next;
   next="login";
@@ -40,12 +76,13 @@ function navigate(next){
   $("session-panel").textContent="Для открытия раздела «"+({overview:"Обзор платформы",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer",logs:"Журнал",monitor:"Мониторинг",mail:"Почта",contract:"Правила API","email-operator":"Email Operator"}[requestedPage]||requestedPage)+"» выберите тестовый субъект, выполните mock-вход и нажмите кнопку перехода. Это не настоящая авторизация.";
  }
  page=next;
+ renderNavigation();
  document.querySelectorAll("[data-screen]").forEach(el=>{el.hidden=el.dataset.screen!==next;});
  document.querySelector(".app.mp-template-app").hidden=next==="login";
  document.body.classList.toggle("mp-login-page",next==="login");
  document.querySelectorAll("[data-page]").forEach(el=>{if(el.dataset.page===next){el.setAttribute("aria-current","page");el.classList.add("active");}else{el.removeAttribute("aria-current");el.classList.remove("active");}});
- $("page-heading").textContent={login:"Вход / MFA",overview:"Обзор платформы",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer", "email-operator":"Email Operator",mail:"Почтовый сервер · LAB",monitor:"Мониторинг служб",logs:"Журнал",contract:"Контракт и ограничения"}[next];
- $("platform-topbar-title").textContent="Platform / "+({login:"Вход",overview:"Главная",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer","email-operator":"Email Operator",mail:"Почта · LAB",monitor:"Мониторинг",logs:"Журнал",contract:"Правила API"}[next]);
+ $("page-heading").textContent={login:"Вход / MFA",overview:"Обзор платформы",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer", "email-operator":"Email Operator",mail:"Почтовый сервер · LAB",monitor:"Мониторинг служб",logs:"Журнал",p4:"Локальная приёмка · LAB",contract:"Контракт и ограничения"}[next];
+ $("platform-topbar-title").textContent="Platform / "+({login:"Вход",overview:"Главная",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer","email-operator":"Email Operator",mail:"Почта · LAB",monitor:"Мониторинг",logs:"Журнал",p4:"P4 LAB",contract:"Правила API"}[next]);
  $("sidebar").classList.remove("open");$("overlay").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
  if(location.hash.slice(1)!==next)history.replaceState(null,"","#"+next);
  if(next==="companies")renderCompanies();
@@ -53,13 +90,18 @@ function navigate(next){
 }
 function login(){
  const type=$("demo-actor").value, status=$("demo-login-status").value;
+ if(!Object.hasOwn(rights,type)){feedback("Тестовый субъект не существует в модели VDMS.",true);return;}
  session=null;
  if(status!=="success"){
   $("session-panel").textContent="Mock HTTP "+status+" · вход не выполнен.";
   feedback(status==="401"?"401: Неверные учетные данные (имитация).":"503: Сервис временно недоступен (имитация).",true);
   updateActions();return;
  }
- session={actorId:type==="owner"?"mock-owner":type==="reviewer"?"mock-reviewer":"mock-reader",login:"fixture-"+type,permissions:[...rights[type]]};
+ serverMode=$("demo-server-mode").value;
+ session={actorId:type==="owner"?"mock-owner":"mock-reviewer",login:"fixture-"+type,permissions:[...rights[type]]};
+ // Real VDMS grants Mail Operator permissions explicitly, never implicitly from Owner.
+ // Only the LAB fixture simulates additional SQL grants, without changing a server.
+ if(type==="owner"&&serverMode==="lab")session.permissions.push("platform.mail.diagnose","platform.mail.test_send");
  $("session-panel").replaceChildren(textNode("strong","Симуляция завершена: POST /login 204 → POST /access 200 → GET /me 200."),textNode("p","Тестовая фикстура actorId: "+session.actorId),textNode("p","GET /me.permissions: "+session.permissions.join(", ")));
  feedback("Демо-сессия создана только в памяти вкладки. Нет настоящего Platform JWT.");
  updateActions();
@@ -77,7 +119,7 @@ function changeDataMode(next,force=false){
  companies=next==="demo"?structuredClone(seed):[];
  reviews=[];reviewDecisions=[];invitations.length=0;
  reviewerChecked=false;selectedInvitationId="";reviewerDetailLoaded=false;
- showHistory=false;selectedId=null;editingId=null;forcedConflict=false;pageNo=0;logOffset=0;
+ showHistory=false;selectedId=null;editingId=null;forcedConflict=false;companyShown=Number($("company-batch").value);logShown=Number($("log-limit").value);
  $("company-status").value="all";$("company-search").value="";
  $("reviewer-status-filter").value="all";reviewMode="pending";
  document.querySelectorAll("[data-review-mode]").forEach(tab=>{
@@ -93,20 +135,31 @@ function renderCompanies(){
  const filter=$("company-status").value,query=$("company-search").value.trim().toLowerCase();
  if(!permitted("tenant.read")){
   const tr=document.createElement("tr"),td=textNode("td","403 · нет tenant.read. Войдите через тестовую фикстуру с правом чтения.");td.colSpan=5;tr.append(td);tbody.append(tr);
-  $("next-page").disabled=$("prev-page").disabled=true;$("page-indicator").textContent="Нет доступа";$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
+  $("company-more").hidden=true;$("company-more").disabled=true;$("company-range").textContent="Нет доступа";$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
  }
- const filtered=companies.filter(c=>filter==="all"||c.status===filter);
- const pages=Math.max(1,Math.ceil(filtered.length/2));pageNo=Math.min(pageNo,pages-1);
- // This is a deterministic cursor-like UI fixture, not a real server search API.
- const view=filtered.slice(pageNo*2,(pageNo+1)*2).filter(c=>c.name.toLowerCase().includes(query)||c.code.toLowerCase().includes(query));
- if(!view.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет записей на этой странице.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;tr.append(td);tbody.append(tr);}
- for(const c of view){
+ const normalized=text=>String(text??"").toLocaleLowerCase("ru").normalize("NFKC");
+ const filtered=companies.filter(c=>{
+  if(filter!=="all"&&c.status!==filter)return false;
+  if(!query)return true;
+  const searchable=[c.tenantId,c.code,c.name,...Object.values(c.profile||{})].map(normalized).join(" ");
+  return searchable.includes(normalized(query));
+ });
+ const shown=filtered.slice(0,companyShown);
+ if(!shown.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет компаний с такими параметрами поиска.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;tr.append(td);tbody.append(tr);}
+ for(const c of shown){
   const tr=document.createElement("tr");
   for(const [i,value] of [c.code,c.name,c.status,c.revision].entries()){const cell=textNode("td",value);cell.dataset.label=["Код","Компания","Статус","Revision"][i];tr.append(cell);}
   const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
  }
- $("prev-page").disabled=pageNo===0;$("next-page").disabled=pageNo>=pages-1;
- $("page-indicator").textContent=(companies.length?"Страница "+(pageNo+1)+" / "+pages:"Компаний: 0")+" · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
+ $("company-filter-summary").textContent=(query||filter!=="all")?"Найдено: "+filtered.length+" · поиск только по загруженным демо-данным":"Все загруженные компании: "+companies.length;
+ $("company-reset").disabled=!query&&filter==="all";
+ const hasMore=shown.length<filtered.length, batch=Number($("company-batch").value);
+ $("company-more").hidden=!hasMore;
+ $("company-more").disabled=!hasMore;
+ $("company-more").textContent="Показать ещё "+Math.min(batch,filtered.length-shown.length);
+ $("company-range").textContent=filtered.length?"Показано "+shown.length+" из "+filtered.length:"Компаний: 0";
+ // Display slices emulate successive cursor pages; actual VDMS would use nextCursor.
+ $("company-more").title=hasMore?"Демо cursor · следующая порция после "+shown.length+" записей":"Все загруженные записи показаны";
  renderDetail();
 }
 function renderDetail(){
@@ -158,10 +211,11 @@ function saveRecord(ev){
   companies.unshift(c);selectedId=c.tenantId;
   feedback("Mock POST /companies → 201 draft · requestId="+id+". Ответ не сохраняется на сервере.");
  }
- $("record-dialog").close();pageNo=0;$("company-status").value="all";$("company-search").value="";renderCompanies();
+ $("record-dialog").close();companyShown=Number($("company-batch").value);$("company-status").value="all";$("company-search").value="";renderCompanies();
 }
 function requestActivation(c){
  if(!permitted("tenant.activate")||c.status!=="draft"){feedback("403: невозможно подать заявку.",true);return;}
+ if(reviews.some(r=>r.tenantId===c.tenantId&&r.state==="requested")){feedback("409: ожидающая заявка для этой компании уже существует.",true);return;}
  const id=requestId();
  reviews.unshift({requestId:id,tenantId:c.tenantId,tenantName:c.name,tenantCode:c.code,requesterActorId:session.actorId,requesterLogin:session.login,expectedRevision:c.revision,createdAt:new Date().toISOString(),state:"requested"});
  feedback("Mock POST /companies/{tenantID}/activation-requests → 201 requested. Компания остаётся draft.");
@@ -170,17 +224,26 @@ function requestActivation(c){
 let reviewMode="pending";
 function renderReviews(){
  const root=$("activation-queue");root.replaceChildren();
- if(!permitted("tenant.provision.approve")){root.append(textNode("p","403 · требуется tenant.provision.approve. Выберите Reviewer в разделе входа."));return;}
+ $("review-seed-demo").disabled=!permitted("tenant.provision.approve")||dataMode!=="demo";
+ if(!permitted("tenant.provision.approve")){$("review-count").textContent="0";root.append(textNode("p","403 · требуется tenant.provision.approve. Выберите Reviewer в разделе входа."));return;}
  const mode=reviewMode;
- const items=reviews.filter(r=>mode==="pending"?r.state==="requested":r.state===mode);
+ const items=mode==="pending"?reviews.filter(r=>r.state==="requested"):
+ reviewDecisions.filter(h=>h.decision===mode&&h.reviewerActorId===session.actorId)
+  .map(h=>reviews.find(r=>r.requestId===h.requestId)).filter(Boolean);
+ const approvalsEnabled=serverMode==="restricted"||serverMode==="lab";
+ $("review-approval-text").textContent=approvalsEnabled?
+  "Restricted/LAB fixture: решение доступно только с имитацией подтверждения. В VDMS нужны password + TOTP, серверные флаги и SQL v57/v59.":
+  "Стандартный режим: approval/reject выключены серверным флагом. Очередь доступна только для чтения Reviewer.";
  $("review-count").textContent=String(items.length);
- if(!items.length){root.append(textNode("p",mode==="pending"?"Нет ожидающих заявок. Создайте заявку под Owner, затем войдите Reviewer.":"В этой mock-истории пока нет решений."));return;}
+ if(!items.length){root.append(textNode("p",mode==="pending"?"Нет ожидающих заявок. Создайте заявку под Owner или загрузите тестовые заявки Reviewer.":"В личной истории Reviewer пока нет решений."));return;}
  for(const r of items){
   const div=document.createElement("article");div.className="mp-record";
   const info=document.createElement("div");info.append(textNode("strong",r.tenantName+" · "+r.state),textNode("small","Request "+r.requestId+" · "+r.requesterLogin+" · revision "+r.expectedRevision+" · "+r.createdAt));
   div.append(info);
   const actions=document.createElement("div");actions.className="mp-row";
-  if(r.state!=="requested"){actions.append(textNode("span","Решение Reviewer: "+r.state,"mp-badge"));div.append(actions);root.append(div);continue;}
+  if(mode!=="pending"){const item=reviewDecisions.find(x=>x.requestId===r.requestId&&x.reviewerActorId===session.actorId);
+ actions.append(textNode("span","Решение Reviewer: "+r.state+(item?.reason?" · Причина: "+item.reason:""),"mp-badge"));div.append(actions);root.append(div);continue;}
+ if(!approvalsEnabled){actions.append(textNode("span","Одобрение недоступно в конфигурации сервера (mock).","mp-help"));div.append(actions);root.append(div);continue;}
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
    b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
@@ -194,7 +257,7 @@ function renderReviews(){
 
 let reviewTargetId=null,reviewTargetDecision=null;
 function openReviewDecision(r,decision){
- if(!session||!permitted("tenant.provision.approve")||r.requesterActorId===session.actorId){feedback("403: самостоятельное одобрение недопустимо.",true);return;}
+ if(!session||!permitted("tenant.provision.approve")||r.requesterActorId===session.actorId||serverMode==="standard"){feedback("403: нет допуска Reviewer или серверный режим Approval отключён.",true);return;}
  reviewTargetId=r.requestId;reviewTargetDecision=decision;
  $("review-decision-form").reset();$("review-decision-error").textContent="";
  $("review-reason-field").hidden=decision!=="rejected";
@@ -208,8 +271,12 @@ $("review-cancel").addEventListener("click",closeReviewDecision);
 $("review-decision-form").addEventListener("submit",e=>{
  e.preventDefault();$("review-decision-error").textContent="";
  const r=reviews.find(x=>x.requestId===reviewTargetId);
- if(!r||r.state!=="requested"||!permitted("tenant.provision.approve")||r.requesterActorId===session?.actorId){
+ if(!r||r.state!=="requested"||!permitted("tenant.provision.approve")||r.requesterActorId===session?.actorId||serverMode==="standard"){
   $("review-decision-error").textContent="403/409: решение больше недоступно.";return;
+ }
+ const company=companies.find(c=>c.tenantId===r.tenantId);
+ if(!company||company.status!=="draft"||company.revision!==r.expectedRevision){
+  $("review-decision-error").textContent="409: revision компании изменилась либо draft недоступен.";return;
  }
  if(!$("review-decision-consent").checked){$("review-decision-error").textContent="Подтвердите демонстрационный характер решения.";return;}
  let reason=null;
@@ -226,10 +293,14 @@ $("review-decision-form").addEventListener("submit",e=>{
  renderReviews();
 });
 $("mock-login").addEventListener("click",login);$("mock-logout").addEventListener("click",logout);
-$("company-status").addEventListener("change",()=>{pageNo=0;renderCompanies();});
-$("company-search").addEventListener("input",renderCompanies);
-$("prev-page").addEventListener("click",()=>{pageNo=Math.max(0,pageNo-1);renderCompanies();});
-$("next-page").addEventListener("click",()=>{pageNo++;renderCompanies();});
+$("company-status").addEventListener("change",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
+$("company-search").addEventListener("input",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
+$("company-batch").addEventListener("change",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
+$("company-more").addEventListener("click",()=>{companyShown+=Number($("company-batch").value);renderCompanies();});
+$("company-reset").addEventListener("click",()=>{
+ $("company-search").value="";$("company-status").value="all";
+ companyShown=Number($("company-batch").value);renderCompanies();
+});
 $("new-company").addEventListener("click",()=>openRecord(null));
 $("record-form").addEventListener("submit",saveRecord);
 $("close-record").addEventListener("click",()=>$("record-dialog").close());
@@ -239,14 +310,24 @@ window.addEventListener("hashchange",()=>navigate(location.hash.slice(1)));
 document.querySelectorAll("[data-page]").forEach(el=>el.addEventListener("click",ev=>{ev.preventDefault();navigate(el.dataset.page);}));
 
 const invitations=[];
-let showHistory=false,logOffset=0;
+let showHistory=false,logShown=5;
 const baseLogs=[
  {at:"2026-11-23T09:00:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"NORTH"},
  {at:"2026-11-23T08:55:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"},
  {at:"2026-11-23T08:50:00Z",category:"review",eventType:"activation.requested",outcome:"success",subject:"NORTH"},
  {at:"2026-11-22T15:00:00Z",category:"tenant",eventType:"company.updated",outcome:"success",subject:"EAST"},
  {at:"2026-11-22T14:00:00Z",category:"auth",eventType:"platform.login",outcome:"denied",subject:"demo"},
- {at:"2026-11-22T13:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"BLUE"}
+ {at:"2026-11-22T13:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"blue"},
+ {at:"2026-11-22T12:00:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"harbor"},
+ {at:"2026-11-22T11:30:00Z",category:"tenant",eventType:"company.updated",outcome:"success",subject:"polar"},
+ {at:"2026-11-22T11:00:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"},
+ {at:"2026-11-22T10:30:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"delta"},
+ {at:"2026-11-22T10:00:00Z",category:"review",eventType:"activation.requested",outcome:"success",subject:"north"},
+ {at:"2026-11-22T09:30:00Z",category:"tenant",eventType:"company.updated",outcome:"success",subject:"west"},
+ {at:"2026-11-22T09:00:00Z",category:"auth",eventType:"platform.login",outcome:"denied",subject:"fixture-reviewer"},
+ {at:"2026-11-22T08:30:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"south"},
+ {at:"2026-11-22T08:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"blue"},
+ {at:"2026-11-22T07:30:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"}
 ];
 function canInvite(){return permitted("platform.reviewer.bootstrap")&&permitted("tenant.create")&&permitted("tenant.activate");}
 let reviewerChecked=false,selectedInvitationId="",reviewerDetailLoaded=false;
@@ -284,7 +365,7 @@ function renderReviewer(){
  renderSelectedInvitation();
  if(showHistory){
   const historyPanel=$("reviewer-history-panel");historyPanel.hidden=false;historyPanel.replaceChildren(textNode("strong","GET /activation-reviews/history · mock"));
-  historyPanel.append(textNode("p",reviewDecisions.length?reviewDecisions.map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
+  historyPanel.append(textNode("p",reviewDecisions.length?reviewDecisions.filter(x=>x.reviewerActorId===session.actorId).map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
  }else $("reviewer-history-panel").hidden=true;
 }
 function renderSelectedInvitation(){
@@ -350,22 +431,60 @@ function renderLogs(){
  const canView=session?.actorId==="mock-owner"&&permitted("tenant.create")&&permitted("tenant.activate");
  if(!canView){
   const td=textNode("td","403 · Platform Owner с MFA и правами tenant.create/tenant.activate необходим.");td.colSpan=5;const row=document.createElement("tr");row.append(td);tbody.append(row);
-  $("log-prev").disabled=$("log-next").disabled=true;$("log-offset").textContent="Нет доступа";return;
+  $("log-more").hidden=true;$("log-more").disabled=true;$("log-range").textContent="Нет доступа";return;
  }
- const cat=$("log-category").value,limit=Number($("log-limit").value);
- const values=baseLogs.filter(x=>cat==="all"||x.category===cat);
- logOffset=Math.min(logOffset,Math.max(0,Math.ceil(values.length/limit)-1)*limit);
- const shown=values.slice(logOffset,logOffset+limit);
+ const cat=$("log-category").value,batch=Number($("log-limit").value);
+ const query=$("log-search").value.trim().toLocaleLowerCase("ru").normalize("NFKC");
+ const dateFrom=$("log-date-from").value,dateTo=$("log-date-to").value;
+ const timeFrom=$("log-time-from").value,timeTo=$("log-time-to").value;
+ const hasInvalidDate=dateFrom&&dateTo&&dateFrom>dateTo;
+ const hasInvalidTime=timeFrom&&timeTo&&timeFrom>timeTo;
+ const invalid=hasInvalidDate||hasInvalidTime;
+ $("log-filter-error").textContent=hasInvalidDate?"Начальная дата позже конечной. Исправьте диапазон.":hasInvalidTime?"Начальное время позже конечного. Исправьте диапазон UTC.":"";
+ if(invalid){
+  const tr=document.createElement("tr"),td=textNode("td","Исправьте диапазон дат или времени для отображения событий.");td.colSpan=5;tr.append(td);tbody.append(tr);
+  $("log-range").textContent="Диапазон некорректен";
+  $("log-more").hidden=true;$("log-more").disabled=true;return;
+ }
+ const values=baseLogs.filter(x=>{
+  if(cat!=="all"&&x.category!==cat)return false;
+  if(query&&![x.at,x.category,x.eventType,x.outcome,x.subject].join(" ").toLocaleLowerCase("ru").normalize("NFKC").includes(query))return false;
+  const day=x.at.slice(0,10),time=x.at.slice(11,16);
+  if(dateFrom&&day<dateFrom)return false;
+  if(dateTo&&day>dateTo)return false;
+  if(timeFrom&&time<timeFrom)return false;
+  if(timeTo&&time>timeTo)return false;
+  return true;
+ });
+ const shown=values.slice(0,logShown);
  for(const item of shown){const row=document.createElement("tr");for(const [i,key] of ["at","category","eventType","outcome","subject"].entries()){const cell=textNode("td",item[key]);cell.dataset.label=["Дата","Категория","Событие","Результат","Объект"][i];row.append(cell);}tbody.append(row);}
- if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Журнал пуст.");td.colSpan=5;tr.append(td);tbody.append(tr);}
- $("log-offset").textContent="offset: "+logOffset+" · nextOffset: "+(logOffset+limit<values.length?logOffset+limit:"null")+" (mock)";
- $("log-prev").disabled=logOffset===0;$("log-next").disabled=logOffset+limit>=values.length;
+ if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Нет событий по выбранным условиям.");td.colSpan=5;tr.append(td);tbody.append(tr);}
+ const hasMore=shown.length<values.length;
+ $("log-range").textContent=values.length?"Показано "+shown.length+" из "+values.length:"Записей: 0";
+ $("log-more").hidden=!hasMore;$("log-more").disabled=!hasMore;
+ $("log-more").textContent="Показать ещё "+Math.min(batch,values.length-shown.length);
+ $("log-more").title=hasMore?"Mock GET /platform-logs?limit="+batch+"&offset="+shown.length:"Все загруженные события показаны";
 }
 document.querySelectorAll("[data-review-mode]").forEach(btn=>btn.addEventListener("click",()=>{
  reviewMode=btn.dataset.reviewMode;
  document.querySelectorAll("[data-review-mode]").forEach(tab=>{const active=tab===btn;tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;});
  renderReviews();
 }));
+$("review-seed-demo").addEventListener("click",()=>{
+ if(!permitted("tenant.provision.approve")){feedback("403: требуется Reviewer.",true);return;}
+ if(dataMode!=="demo"){feedback("Пустой набор: перейдите на Owner Overview и выберите демо-данные.",true);return;}
+ let added=0;
+ for(const code of ["north","delta"]){
+  const c=companies.find(x=>x.code===code&&x.status==="draft");
+  if(!c||reviews.some(r=>r.tenantId===c.tenantId))continue;
+  reviews.push({requestId:requestId(),tenantId:c.tenantId,tenantName:c.name,tenantCode:c.code,requesterActorId:"mock-owner",requesterLogin:"fixture-owner",expectedRevision:c.revision,createdAt:"2026-11-23T11:00:00Z",state:"requested"});
+  added++;
+ }
+ reviewMode="pending";
+ document.querySelectorAll("[data-review-mode]").forEach(tab=>{let active=tab.dataset.reviewMode==="pending";tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;});
+ renderReviews();
+ feedback("Mock Reviewer: загружено "+added+" заявок из тех же данных Owner, без API.");
+});
 $("review-refresh").addEventListener("click",()=>{renderReviews();feedback("Mock GET /activation-reviews · обновлено без сетевого запроса.");});
 $("reviewer-operator").addEventListener("change",()=>{reviewerChecked=false;renderReviewer();});
 $("reviewer-check-status").addEventListener("click",()=>{reviewerChecked=true;renderReviewer();feedback("Mock GET /reviewers/status → 200 или 503; состояние не проверено на сервере.");});
@@ -374,17 +493,22 @@ $("reviewer-existing-check").addEventListener("click",()=>{reviewerDetailLoaded=
 $("reviewer-status-filter").addEventListener("change",renderReviewer);
 $("invite-reviewer").addEventListener("click",createInvitation);
 $("reviewer-history").addEventListener("click",()=>{showHistory=!showHistory;renderReviewer();});
-$("log-category").addEventListener("change",()=>{logOffset=0;renderLogs();});
-$("log-limit").addEventListener("change",()=>{logOffset=0;renderLogs();});
-$("log-prev").addEventListener("click",()=>{logOffset=Math.max(0,logOffset-Number($("log-limit").value));renderLogs();});
-$("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").value);renderLogs();});
+const onLogFilterChange=()=>{logShown=Number($("log-limit").value);renderLogs();};
+for(const id of ["log-category","log-limit","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).addEventListener("change",onLogFilterChange);
+$("log-search").addEventListener("input",onLogFilterChange);
+$("log-more").addEventListener("click",()=>{logShown+=Number($("log-limit").value);renderLogs();});
+$("log-reset").addEventListener("click",()=>{
+ for(const id of ["log-search","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).value="";
+ $("log-category").value="all";onLogFilterChange();
+});
 
 $("overview-data-mode").addEventListener("change",()=>changeDataMode($("overview-data-mode").value));
+$("overview-load-demo").textContent="Загрузить "+seed.length+" демо-компаний";
 $("overview-load-demo").addEventListener("click",()=>changeDataMode("demo",true));
 $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  $("open-platform").addEventListener("click",()=>{
  if(!session){feedback("Сначала выполните демонстрационный вход; реальные пароли и TOTP вводить не требуется.",true);return;}
- const destination=requestedPage||"companies";
+ const destination=requestedPage||homeSection();
  requestedPage=null;
  $("open-platform").textContent="Открыть Platform Admin →";
  navigate(destination);
@@ -393,10 +517,10 @@ $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  if(!permitted("tenant.read")&&!permitted("tenant.create"))return;
  const index=companies.findIndex(c=>c.tenantId===tenantId);
  if(index<0)return;
- selectedId=tenantId;pageNo=Math.floor(index/2);
+ selectedId=tenantId;companyShown=Math.max(Number($("company-batch").value),index+1);
  $("company-status").value="all";$("company-search").value="";
  navigate("companies");renderCompanies();
 }
-function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate,openOverviewCompany,dataMode};}
+function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate,openOverviewCompany,dataMode,serverMode};}
  navigate(location.hash.slice(1)||"login");updateActions();
 })();

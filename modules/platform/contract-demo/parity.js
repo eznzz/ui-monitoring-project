@@ -44,10 +44,20 @@ const tenantDemo={
  DELTA:{users:[{login:"draft-owner.demo",displayName:"Владелец черновика (demo)",active:false}],
  modules:[]},
  POLAR:{users:[{login:"research.demo",displayName:"Исследователь (demo)",active:true},{login:"coordinator.demo",displayName:"Координатор (demo)",active:true}],
- modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"objects",name:"Objects (пример)",status:"demo",enabled:true},{code:"analytics",name:"Analytics (пример)",status:"demo",enabled:false}]}
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"objects",name:"Objects (пример)",status:"demo",enabled:true},{code:"analytics",name:"Analytics (пример)",status:"demo",enabled:false}]},
+ ATLAS:{"users":[{"login":"fleet.demo","displayName":"Координатор флота (demo)","active":true},{"login":"captain-atlas.demo","displayName":"Капитан (demo)","active":true},{"login":"archive.demo","displayName":"Архивный пользователь (demo)","active":false}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":true},{"code":"fleet","name":"Fleet (пример)","status":"demo","enabled":true},{"code":"documents","name":"Documents (пример)","status":"demo","enabled":true}]},
+ ORION:{"users":[{"login":"orion-owner.demo","displayName":"Владелец черновика (demo)","active":false}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":false}]},
+ CEDAR:{"users":[{"login":"dispatcher.demo","displayName":"Диспетчер (demo)","active":true},{"login":"logistics.demo","displayName":"Логист (demo)","active":true}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":true},{"code":"freight","name":"Freight (пример)","status":"demo","enabled":true}]},
+ MERIDIAN:{"users":[{"login":"setup.demo","displayName":"Специалист внедрения (demo)","active":false}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":false},{"code":"energy","name":"Energy (пример)","status":"demo","enabled":false}]},
+ NIMBUS:{"users":[{"login":"roboticist.demo","displayName":"Инженер (demo)","active":true},{"login":"qa-nimbus.demo","displayName":"Тестировщик (demo)","active":true},{"login":"analyst.demo","displayName":"Аналитик (demo)","active":true}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":true},{"code":"maintenance","name":"Maintenance (пример)","status":"demo","enabled":true},{"code":"analytics","name":"Analytics (пример)","status":"demo","enabled":false}]},
+ SEABIRD:{"users":[],"modules":[]},
+ GRANITE:{"users":[{"login":"inspector-granite.demo","displayName":"Инспектор (demo)","active":false}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":false},{"code":"audit","name":"Audit (пример)","status":"demo","enabled":false}]},
+ AURORA:{"users":[],"modules":[]},
+ VECTOR:{"users":[{"login":"vector-admin.demo","displayName":"Администратор (demo)","active":true},{"login":"vector-reader.demo","displayName":"Оператор (demo)","active":true},{"login":"vector-archive.demo","displayName":"Архивный (demo)","active":false}],"modules":[{"code":"core","name":"Core (пример)","status":"demo","enabled":true},{"code":"objects","name":"Objects (пример)","status":"demo","enabled":true},{"code":"documents","name":"Documents (пример)","status":"demo","enabled":true},{"code":"analytics","name":"Analytics (пример)","status":"demo","enabled":false}]},
+ TIDEWATER:{"users":[{"login":"draft.demo","displayName":"Создатель черновика (demo)","active":false}],"modules":[]}
 };
 let overviewTenantID="";
-function fixtureFor(company){return tenantDemo[company?.code]||null;}
+function fixtureFor(company){return tenantDemo[company?.code?.toUpperCase()]||null;}
 function tableCell(value,label){
  const td=element("td",value);td.dataset.label=label;return td;
 }
@@ -182,7 +192,7 @@ function mailOperator(){
 }
 function mail(){
  const root=$("mail-settings");empty(root);
- if(!canReviewerAdmin()&&!ctx.permitted("platform.mail.manage")){restricted(root,"Требуется platform.mail.manage либо разрешение Owner для Reviewer.");$("mail-check").disabled=true;return;}
+ if(!ctx.permitted("platform.mail.diagnose")){restricted(root,"Для GET /mail/settings требуется platform.mail.diagnose (явная SQL grant), даже если Lab UI отображается.");$("mail-check").disabled=true;return;}
  const info=[["host","smtp.example.test (fixture)"],["port","587"],["encryption","starttls"],["tlsVerify","true"],["from","noreply@example.test"],["credentialsConfigured","false"]];
  info.forEach(([k,v])=>root.append(detail(k,v)));
  $("mail-check").disabled=!mailLab;
@@ -238,8 +248,11 @@ mailMode.append(labLabel,lab);
 $("mail-check").parentElement.parentElement.insertBefore(mailMode,$("mail-check").parentElement);
 lab.addEventListener("change",()=>{mailLab=lab.value==="on";mail();});
 $("mail-check").addEventListener("click",()=>{
- if(!mailLab||(!canReviewerAdmin()&&!ctx.permitted("platform.mail.manage"))){ctx.feedback("Действие недоступно.",true);return;}
  const action=$("mail-action").value,recipient=$("mail-recipient").value;
+ const required=action==="send"?"platform.mail.test_send":"platform.mail.diagnose";
+ if(!mailLab||!ctx.permitted(required)){ctx.feedback("403: для "+action+" требуется "+required+".",true);return;}
+ if((action==="tls"||action==="auth")&&recipient){ctx.feedback("400: получатель для tls/auth должен быть пустым.",true);return;}
+ if((action==="envelope"||action==="send")&&!["owner","reviewer"].includes(recipient)){ctx.feedback("400: для envelope/send выберите owner или reviewer.",true);return;}
  mailAttempt++;
  const outcome=action==="send"?"failed":"passed",stage=action==="send"?"unavailable":action==="auth"?"auth":action==="envelope"?"rcpt_to":"tls";
  $("mail-result").textContent="Mock HTTP 200 · status: "+outcome+" · stage: "+stage+" · request #"+mailAttempt;

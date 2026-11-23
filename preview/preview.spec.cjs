@@ -11,11 +11,11 @@ test('preview landing links and theme work', async ({page})=>{
  await page.locator('[data-preview="reviewer"]').click();
  await expect(page).toHaveURL(/\/modules\/platform\/contract-demo\/index\.html#login$/);
  await expect(page.locator('#screen-login')).toBeVisible();
- await expect(page.locator('#session-panel')).toContainText('Reviewer');
- await page.locator('#demo-actor').selectOption('owner');
+ await expect(page.locator('#session-panel')).toContainText('Активация');
+ await page.locator('#demo-actor').selectOption('reviewer');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
- await expect(page.locator('#screen-reviewer')).toBeVisible();
+ await expect(page.locator('#screen-activation')).toBeVisible();
  expect(errors).toEqual([]);
 });
 
@@ -29,6 +29,8 @@ test('design-system markup is canonical on Platform and Login',async ({page})=>{
  await expect(page.locator('.app.mp-template-app')).toBeVisible();
  await expect(page.locator('#sidebar .sidebar__nav')).toBeVisible();
  await expect(page.locator('#userMenu .user-menu__trigger')).toBeVisible();
+ await expect(page.locator('#screen-overview')).toBeVisible();
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#screen-companies')).toHaveClass(/mp-card/);
  await expect(page.locator('#screen-companies .mp-basic-table')).toBeVisible();
  await expect(page.locator('#companies-body tr:first-child td[data-label="Компания"]')).toHaveCount(1);
@@ -76,7 +78,7 @@ test('Preview deep link to overview opens contextual login and visible companies
  await page.locator('#open-platform').click();
  await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await expect(page.locator('#overview-companies-body')).toContainText('North Shipping');
  await expect(page.locator('#overview-companies-body')).toContainText('Polar Research');
  await expect(page.locator('#overview-tenant-body tr:visible')).toHaveCount(3);
@@ -90,12 +92,20 @@ test('direct overview link never implies authorization before demo login', async
  await expect(page.locator('#feedback')).toContainText('Сначала выполните демонстрационный вход');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await page.locator('#overview-data-mode').selectOption('empty');
  await expect(page.locator('#overview-companies-body')).toContainText('Компаний пока нет');
  await page.locator('#overview-load-demo').click();
  await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await page.locator('#overview-load-demo').click();
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
+});
+
+test('Preview has only the VDMS Owner and independent Reviewer entry points',async ({page})=>{
+ await page.goto('http://127.0.0.1:8765/preview/');
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(4);
+ await expect(page.locator('[data-preview="reviewer"]')).toHaveAttribute('href','../modules/platform/contract-demo/index.html#activation');
+ await expect(page.getByRole('link',{name:/Обзор Owner/})).toHaveCount(1);
+ await expect(page.getByText('Platform Reader',{exact:true})).toHaveCount(0);
 });

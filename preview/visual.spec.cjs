@@ -9,6 +9,9 @@ test('capture design-system layouts for visual review', async ({page})=>{
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-overview')).toBeVisible();
+ await page.screenshot({path:'test-results/visual-owner-overview-desktop.png',fullPage:true});
+ await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await page.screenshot({path:'test-results/visual-platform-desktop.png',fullPage:true});
  await page.locator('#userTrigger').click();
