@@ -21,13 +21,13 @@ test('login error and mock session',async ({page})=>{
 test('reader denied writes and owner can create and edit draft',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'reader');
- await page.locator('a[data-page="companies"]').click();
+ await page.locator('#open-platform').click();
  await expect(page.locator('#new-company')).toBeDisabled();
  await expect(page.locator('#companies-body')).toContainText('North Shipping');
  await page.locator('a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();
- await page.locator('a[data-page="companies"]').click();
+ await page.locator('#open-platform').click();
  await page.locator('#new-company').click();
  await page.locator('#record-code').fill('SMOKE');
  await page.locator('#record-name').fill('Smoke Test');
@@ -43,7 +43,7 @@ test('reader denied writes and owner can create and edit draft',async ({page})=>
 test('409 and reviewer activation flow',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page);
- await page.locator('a[data-page="companies"]').click();
+ await page.locator('#open-platform').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Имитировать 409 при сохранении'}).click();
  await page.locator('#record-name').fill('Conflicted');
@@ -64,17 +64,20 @@ test('409 and reviewer activation flow',async ({page})=>{
 test('mobile navigation remains reachable',async ({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto(url);
- await page.locator('#menu-toggle').click();
- await expect(page.locator('#concept-sidebar')).toHaveClass(/is-open/);
+ await signIn(page);
+ await page.locator('#open-platform').click();
+ await page.locator('#burger').click();
+ await expect(page.locator('#sidebar')).toHaveClass(/open/);
  await page.locator('a[data-page="contract"]').click();
  await expect(page.locator('#screen-contract')).toBeVisible();
- await expect(page.locator('#concept-sidebar')).not.toHaveClass(/is-open/);
+ await expect(page.locator('#sidebar')).not.toHaveClass(/open/);
 });
 
 
 test('Reviewer invitation state and owner audit journal',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
+ await page.locator('#open-platform').click();
  await page.locator('a[data-page="reviewer"]').click();
  await page.locator('#reviewer-email').fill('reviewer@example.test');
  await page.locator('#reviewer-login').fill('reviewer-demo');
@@ -87,6 +90,7 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
  await page.locator('a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('reader');
  await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
  await page.locator('a[data-page="logs"]').click();
  await expect(page.locator('#log-body')).toContainText('403');
  expect(errors).toEqual([]);
