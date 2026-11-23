@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Monitoring Project — UI Preview</title>
+<meta name="description" content="Интерактивное демо и согласование интерфейса Monitoring Project">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../style.css">
+<style>
+.preview{max-width:1120px;margin:0 auto;padding:clamp(18px,4vw,50px);display:grid;gap:26px;}
+.preview-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.preview-brand{font-weight:750;font-size:18px;letter-spacing:-.03em}
+.preview-flag{border:1px solid var(--vms-color-border);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--vms-color-muted)}
+.preview-lead{display:grid;gap:12px}
+.preview-lead h1{font-size:clamp(27px,3vw,40px);line-height:1.15;letter-spacing:-.045em}
+.preview-lead p{color:var(--vms-color-muted);max-width:730px;line-height:1.65}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.preview-card{border:1px solid var(--vms-color-border);border-radius:10px;padding:22px;background:var(--vms-color-surface);display:grid;gap:13px;min-height:220px}
+.preview-card h2{font-size:18px;margin:0}
+.preview-card p{font-size:13px;line-height:1.6;color:var(--vms-color-muted)}
+.preview-card a{margin-top:auto;display:inline-flex;align-items:center;gap:8px;text-decoration:underline;text-underline-offset:3px;color:var(--vms-color-primary);font-weight:650}
+.preview-label{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--vms-color-muted)}
+.preview-note{border-top:1px solid var(--vms-color-border);padding-top:18px;font-size:13px;line-height:1.65;color:var(--vms-color-muted)}
+.preview-btn{border:1px solid var(--vms-color-border);background:var(--vms-color-surface);color:var(--vms-color-text);padding:8px 12px;border-radius:6px;cursor:pointer}
+</style>
+</head>
+<body>
+<main class="preview" id="preview-main">
+ <header class="preview-header"><div class="preview-brand">Monitoring Project <span style="font-weight:400;color:var(--vms-color-muted)">/ Preview</span></div><button class="preview-btn" type="button" id="theme">◐ Сменить тему</button></header>
+ <div class="preview-lead"><span class="preview-label">CONCEPT / CENTRAL NODE VDMS</span><h1>Интерактивное демо интерфейса</h1><p>Проверяем пользовательские сценарии до утверждения дизайна и переноса на React + TypeScript. В Preview используются только тестовые данные, без подключения к VDMS и без реальной авторизации.</p></div>
+ <section class="preview-grid" aria-label="Интерактивные разделы">
+  <article class="preview-card"><span class="preview-label">ЭТАП 01 · CENTRAL PLATFORM</span><h2>Platform Login и компании</h2><p>Вход с тестовыми ролями и ошибками, список компаний, создание draft, редактирование с revision, сценарии заявок на активацию.</p><a href="../modules/platform/contract-demo/index.html#login" data-preview="platform">Открыть интерактивный концепт →</a></article>
+  <article class="preview-card"><span class="preview-label">ЭТАП 02 · REVIEWER / AUDIT</span><h2>Reviewer и журнал</h2><p>Очередь активации, приглашения Reviewer, состояния заявок и административный журнал. Все решения симулируются в браузере.</p><a href="../modules/platform/contract-demo/index.html#reviewer" data-preview="reviewer">Открыть экран Reviewer →</a></article>
+  <article class="preview-card"><span class="preview-label">ДИЗАЙН-СИСТЕМА</span><h2>Каталог компонентов</h2><p>Кнопки, формы, таблицы, состояния, графики, светлая и тёмная темы из основного Monitoring Project.</p><a href="../components/index.html">Открыть каталог компонентов →</a></article>
+ </section>
+ <div class="preview-note"><strong>Предпросмотр, не production.</strong> Эта ветка не должна заменять опубликованный `main`. Каждая доработка проверяется в Pull Request; доступность отдельного публичного домена предпросмотра зависит от настройки хостинга. <a href="https://github.com/eznzz/ui-monitoring-project/pull/7">PR #7</a> · <a href="https://github.com/eznzz/ui-monitoring-project/pull/8">PR #8</a>.</div>
+</main>
+<script>
+(function(){'use strict';
+const btn=document.getElementById('theme');
+function setTheme(d){document.body.classList.toggle('dark',d);btn.textContent=d?'☀ Светлая тема':'◐ Тёмная тема';}
+let v=null;try{v=localStorage.getItem('vms-theme');}catch(_){}
+setTheme(v==='dark'||(v!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches));
+btn.addEventListener('click',()=>{let d=!document.body.classList.contains('dark');setTheme(d);try{localStorage.setItem('vms-theme',d?'dark':'light');}catch(_){}});
+})();
+</script>
+</body>
+</html>
