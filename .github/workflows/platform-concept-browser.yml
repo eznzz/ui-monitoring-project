@@ -65,14 +65,15 @@ jobs:
           cp -R preview modules components tokens _site/
           cp index.html style.css script.js mobile.css _site/
           touch _site/.nojekyll
+          python3 scripts/version_pages_assets.py _site "${GITHUB_SHA}"
           cat > _site/index.html <<'HTML'
           <!doctype html>
           <html lang="ru">
           <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
           <meta name="robots" content="noindex,nofollow">
-          <meta http-equiv="refresh" content="0;url=./preview/">
+          <meta http-equiv="refresh" content="0;url=./preview/?v=${GITHUB_SHA}">
           <title>Monitoring Project — Preview</title></head>
-          <body><p>Перейти к <a href="./preview/">Monitoring Project Preview</a>.</p></body>
+          <body><p>Перейти к <a href="./preview/?v=${GITHUB_SHA}">Monitoring Project Preview</a>.</p></body>
           </html>
           HTML
           test -f _site/preview/index.html
@@ -100,3 +101,26 @@ jobs:
       - name: Deploy validated preview to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published UI version and Owner/Reviewer routes
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 24); do
+            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/preview/?verify=${GITHUB_SHA}" -o /tmp/pages-preview.html || true
+            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/modules/platform/contract-demo/index.html?verify=${GITHUB_SHA}" -o /tmp/pages-concept.html || true
+            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/modules/platform/contract-demo/concept.js?verify=${GITHUB_SHA}" -o /tmp/pages-concept.js || true
+            if grep -Fq "name=\"mp-deployment-commit\" content=\"${GITHUB_SHA}\"" /tmp/pages-preview.html &&
+               grep -Fq "name=\"mp-deployment-commit\" content=\"${GITHUB_SHA}\"" /tmp/pages-concept.html &&
+               grep -Fq 'id="company-more"' /tmp/pages-concept.html &&
+               grep -Fq 'const homeSection=' /tmp/pages-concept.js &&
+               ! grep -Fq 'value="reader"' /tmp/pages-concept.html; then
+              echo "Verified live GitHub Pages build: ${GITHUB_SHA}"
+              echo "Live preview: ${SITE_URL%/}/preview/?v=${GITHUB_SHA}"
+              exit 0
+            fi
+            echo "Published build not yet consistent (attempt ${attempt}/24)"
+            sleep 5
+          done
+          echo "ERROR: GitHub Pages HTML and JS do not match deployed commit ${GITHUB_SHA}" >&2
+          exit 1
