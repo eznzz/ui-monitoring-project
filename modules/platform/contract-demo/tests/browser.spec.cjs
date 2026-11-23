@@ -250,6 +250,8 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await expect(page.locator('#overview-kpis')).toContainText('Tenant DB · общий инвентарь');
  await expect(page.locator('#overview-kpis')).toContainText('Не доступен');
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
+ await expect(page.locator('label[for="overview-load-demo"]')).toHaveText('Восстановить демонстрационный набор');
+ await expect(page.locator('#overview-load-demo')).toHaveText('Загрузить 18 демо-компаний');
  await expect(page.locator('#overview-company-statuses')).toContainText('draft · 5');
  await expect(page.locator('#overview-tenant-body')).toContainText('captain.demo');
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 3');
