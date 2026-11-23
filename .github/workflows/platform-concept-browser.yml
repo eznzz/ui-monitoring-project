@@ -24,7 +24,7 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8765/modules/platform/contract-demo/index.html >/dev/null && exit 0; sleep 1; done
           exit 1
       - name: Browser scenarios
-        run: npx playwright test modules/platform/contract-demo/tests/browser.spec.cjs --project=chromium --reporter=line
+        run: npx playwright test modules/platform/contract-demo/tests/browser.spec.cjs --reporter=line
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
