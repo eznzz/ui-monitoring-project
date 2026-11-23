@@ -27,12 +27,99 @@ function kpi(label,value){
  const card=element("article",undefined,"mp-card mp-stack");
  card.append(element("span",label,"mp-eyebrow"),element("strong",value,"mp-section-title"));return card;
 }
+// Independent, explicitly fictional Tenant fixture data; not derived from Platform API.
+const tenantDemo={
+ NORTH:{users:[{login:"captain.demo",displayName:"Капитан (demo)",active:true},{login:"operator.demo",displayName:"Оператор (demo)",active:true},{login:"auditor.demo",displayName:"Аудитор (demo)",active:false}],
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"documents",name:"Documents (пример)",status:"demo",enabled:true},{code:"monitoring",name:"Monitoring (пример)",status:"demo",enabled:false}]},
+ BLUE:{users:[{login:"manager.demo",displayName:"Менеджер (demo)",active:true},{login:"reader.demo",displayName:"Читатель (demo)",active:true}],
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"documents",name:"Documents (пример)",status:"demo",enabled:false}]}
+};
+let overviewTenantID="";
+function fixtureFor(company){return tenantDemo[company?.code]||null;}
+function tableCell(value,label){
+ const td=element("td",value);td.dataset.label=label;return td;
+}
 function overview(){
- const root=$("overview-kpis");empty(root);
- if(!canCompanies()){restricted(root,"Обзор доступен при tenant.read или tenant.create.");$("overview-open-companies").disabled=true;$("overview-open-provisioning").disabled=true;return;}
- const companyCount=ctx.companies.length;
- root.append(kpi("Загружено компаний",companyCount),kpi("Provisioning (загружено)",ctx.companies.filter(c=>c.status==="provisioning").length),kpi("Active (загружено)",ctx.companies.filter(c=>c.status==="active").length));
- $("overview-open-companies").disabled=false;$("overview-open-provisioning").disabled=!canOperate();
+ const root=$("overview-kpis"),companyBody=$("overview-companies-body"),statuses=$("overview-company-statuses"),dbBody=$("overview-databases-body");
+ for(const el of [root,companyBody,statuses,dbBody])empty(el);
+ const allowed=canCompanies();
+ const ids=["overview-open-companies","overview-open-provisioning","overview-open-monitor","overview-open-reviewer"];
+ for(const id of ids)$(id).disabled=!allowed||(id==="overview-open-provisioning"||id==="overview-open-monitor"? !canOperate():id==="overview-open-reviewer"?!canReviewerAdmin():false);
+ $("overview-tenant-select").disabled=!allowed;
+ $("overview-tenant-kind").disabled=!allowed;
+ if(!allowed){
+  restricted(root,"Обзор Platform доступен при tenant.read или tenant.create.");
+  restricted($("overview-tenant-kpis"),"Нельзя просматривать Tenant-демо без авторизации в Platform mock.");
+  $("overview-tenant-head").replaceChildren();
+  $("overview-tenant-body").replaceChildren();
+  const blocked=element("tr");
+  const cell=tableCell("403 · нет права чтения компаний","Доступ");cell.colSpan=5;blocked.append(cell);companyBody.append(blocked);
+  return;
+ }
+ const companies=ctx.companies;
+ const chosen=companies.find(c=>c.tenantId===overviewTenantID)||companies[0]||null;
+ overviewTenantID=chosen?.tenantId||"";
+ root.append(
+  kpi("Компаний · загружено",companies.length),
+  kpi("Активных · загружено",companies.filter(c=>c.status==="active").length),
+  kpi("Provisioning · загружено",companies.filter(c=>c.status==="provisioning").length)
+ );
+ const fixture=fixtureFor(chosen);
+ root.append(
+  kpi("Пользователи · Tenant demo",fixture?fixture.users.length+" mock":"Нет данных"),
+  kpi("Модули · Tenant demo",fixture?fixture.modules.length+" mock":"Нет данных"),
+  kpi("Tenant DB · общий инвентарь","Не доступен")
+ );
+ const order=["draft","provisioning","active","suspended","disabled"];
+ for(const status of order){
+  const count=companies.filter(c=>c.status===status).length;
+  statuses.append(element("span",status+" · "+count,"mp-badge"));
+ }
+ if(!companies.length)companyBody.append(element("tr")).firstChild?.append(tableCell("Нет загруженных компаний","Компании"));
+ for(const company of companies){
+  const tr=element("tr");
+  tr.append(tableCell(company.name,"Компания"),tableCell(company.code,"Код"),tableCell(company.status,"Статус Platform"),tableCell(company.revision,"Ревизия"));
+  const last=tableCell("","Действие");
+  addButton(last,"Открыть",()=>{
+   ctx.navigate("companies");
+   const row=Array.from(document.querySelectorAll("#companies-body button")).find(btn=>btn.closest("tr")?.textContent.includes(company.code));
+   if(row)row.click();
+  });
+  tr.append(last);companyBody.append(tr);
+ }
+ const select=$("overview-tenant-select");
+ select.replaceChildren(new Option("Выберите компанию",""));
+ for(const c of companies)select.add(new Option(c.name+" · "+c.code,c.tenantId));
+ select.value=overviewTenantID;
+ overviewTenant();
+ for(const c of companies){
+  const tr=element("tr");
+  const dbState=c.status==="provisioning"?"Требуется C01 проверка":"Не проверено";
+  tr.append(tableCell(c.name,"Компания"),tableCell(c.status,"Статус Platform"),
+    tableCell(dbState,"Tenant DB"),tableCell("Не проверено","Маршрут"),tableCell(c.status==="provisioning"?"GET /companies/{tenantID}/provisioning":"Нет Platform DB inventory","Доказательство"));
+  dbBody.append(tr);
+ }
+}
+function overviewTenant(){
+ const kpis=$("overview-tenant-kpis"),body=$("overview-tenant-body"),thead=$("overview-tenant-head");
+ empty(kpis);empty(body);empty(thead);
+ if(!canCompanies()){restricted(kpis,"Нет доступа к обзору.");return;}
+ const c=ctx.companies.find(x=>x.tenantId===$("overview-tenant-select").value);
+ const fixture=fixtureFor(c);
+ const kind=$("overview-tenant-kind").value;
+ if(!fixture){
+  kpis.append(element("span","Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-badge"));
+  return;
+ }
+ if(kind==="users"){
+  kpis.append(element("span","Всего (демо): "+fixture.users.length,"mp-badge"),element("span","Активных (демо): "+fixture.users.filter(u=>u.active).length,"mp-badge"));
+  const row=element("tr");for(const heading of ["Логин","Имя","Состояние"])row.append(element("th",heading));thead.append(row);
+  for(const user of fixture.users){const tr=element("tr");tr.append(tableCell(user.login,"Логин"),tableCell(user.displayName,"Имя"),tableCell(user.active?"active (demo)":"disabled (demo)","Состояние"));body.append(tr);}
+ }else{
+  kpis.append(element("span","Модулей в фикстуре: "+fixture.modules.length,"mp-badge"),element("span","Enabled (демо): "+fixture.modules.filter(m=>m.enabled).length,"mp-badge"));
+  const row=element("tr");for(const heading of ["Код","Название","Состояние"])row.append(element("th",heading));thead.append(row);
+  for(const module of fixture.modules){const tr=element("tr");tr.append(tableCell(module.code,"Код"),tableCell(module.name,"Название"),tableCell(module.enabled?"enabled (demo)":"disabled (demo)","Состояние"));body.append(tr);}
+ }
 }
 function provisioning(){
  const list=$("provisioning-list"),panel=$("provisioning-detail");empty(list);empty(panel);
@@ -101,6 +188,13 @@ function render(page,context){
  if(page==="monitor")monitor();
 }
 // Setup: all event handlers are local mock actions, never network requests.
+$("overview-tenant-select").addEventListener("change",()=>{
+ overviewTenantID=$("overview-tenant-select").value;
+ overview();
+});
+$("overview-tenant-kind").addEventListener("change",overviewTenant);
+$("overview-open-monitor").addEventListener("click",()=>{if(canOperate())ctx.navigate("monitor");});
+$("overview-open-reviewer").addEventListener("click",()=>{if(canReviewerAdmin())ctx.navigate("reviewer");});
 $("overview-open-companies").addEventListener("click",()=>{if(canCompanies())ctx.navigate("companies");});
 $("overview-open-provisioning").addEventListener("click",()=>{if(canOperate())ctx.navigate("provisioning");});
 $("provisioning-refresh").addEventListener("click",()=>{provisioning();ctx.feedback("Mock GET /companies?status=provisioning → 200 · read-only.");});
