@@ -27,8 +27,13 @@
   <section class="content__card mp-login-form-card">
    <header class="mp-login-form-heading"><span class="mp-eyebrow">Начало работы</span><h2 id="login-heading">Platform Login</h2><p class="mp-help">POST /login → POST /access → GET /me. В публичном макете нет ввода пароля, TOTP и настоящих запросов.</p></header>
    <div class="mp-stack">
-    <div class="form-row mp-field"><label for="demo-actor">Тестовый субъект (фикстура)</label><select id="demo-actor"><option value="owner">Platform Owner · mock</option><option value="reader">Platform Reader · mock</option><option value="reviewer">Reviewer · mock</option></select></div>
-    <div class="form-row mp-field"><label for="demo-login-status">Ответ сервера (сценарий)</label><select id="demo-login-status"><option value="success">204 → 200 → 200 · Успех</option><option value="401">401 · Отказ в доступе</option><option value="503">503 · Сервис недоступен</option></select></div>
+    <div class="form-row mp-field"><label for="demo-actor">Тестовый субъект (фикстура)</label><select id="demo-actor"><option value="owner">Platform Owner · mock</option><option value="reviewer">Reviewer · mock</option></select></div>
+    <div class="form-row mp-field"><label for="demo-server-mode">Конфигурация сервера (фикстура)</label><select id="demo-server-mode">
+<option value="standard">Стандартная · одобрения выключены</option>
+<option value="restricted">Restricted · одобрения разрешены (mock)</option>
+<option value="lab">LAB · диагностика и одобрения (mock)</option>
+</select><p class="mp-help">Флаги сервера VDMS проверяются на backend. Переключатель здесь воспроизводит их доступность, без API или MFA.</p></div>
+<div class="form-row mp-field"><label for="demo-login-status">Ответ сервера (сценарий)</label><select id="demo-login-status"><option value="success">204 → 200 → 200 · Успех</option><option value="401">401 · Отказ в доступе</option><option value="503">503 · Сервис недоступен</option></select></div>
     <div class="mp-login-actions"><button class="btn mp-btn mp-btn--primary mp-btn--full" id="mock-login" type="button"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Сымитировать вход</button><button class="mp-btn mp-btn--secondary" id="mock-logout" type="button">Сымитировать выход</button>
     <p class="mp-note">Секреты не вводятся и не сохраняются. Проверка прав выполняется только внутри mock-сценариев.</p></div>
     <div class="mp-subtle mp-stack" id="session-panel" aria-live="polite">Сессия отсутствует. Никакие учётные данные не запрашиваются.</div>
@@ -54,6 +59,7 @@
 <li><a class="mp-nav-link" href="#email-operator" data-page="email-operator"><i class="fa-solid fa-envelope icon" aria-hidden="true"></i><span>Email Operator</span></a></li>
 <li><a class="mp-nav-link" href="#mail" data-page="mail"><i class="fa-solid fa-server icon" aria-hidden="true"></i><span>Почтовый сервер · LAB</span></a></li>
 <li><a class="mp-nav-link" href="#monitor" data-page="monitor"><i class="fa-solid fa-heart-pulse icon" aria-hidden="true"></i><span>Мониторинг служб</span></a></li>
+<li><a class="mp-nav-link" href="#p4" data-page="p4"><i class="fa-solid fa-flask icon" aria-hidden="true"></i><span>Локальная приёмка · LAB</span></a></li>
 <li><a class="mp-nav-link" href="#logs" data-page="logs"><i class="fa-solid fa-clipboard-list icon" aria-hidden="true"></i><span>Журнал</span></a></li>
 <li><a class="mp-nav-link" href="#contract" data-page="contract"><i class="fa-solid fa-circle-info icon" aria-hidden="true"></i><span>Правила API</span></a></li></ul></nav>
     <div class="mp-template-sidebar-footer">
@@ -164,7 +170,9 @@
   <button type="button" role="tab" aria-selected="false" data-review-mode="approved">Мои одобрения</button>
   <button type="button" role="tab" aria-selected="false" data-review-mode="rejected">Мои отказы</button>
   </div>
-  <div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="review-refresh">Обновить заявки</button><span id="review-count" class="mp-pill">0</span></div>
+  <div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="review-seed-demo">Загрузить 2 демо-заявки</button><span class="mp-help">Заявки от отдельного Owner; доступны только в демо-режиме.</span></div>
+<div class="mp-info-strip" id="review-approval-status"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Серверное подтверждение</strong><p id="review-approval-text">Для принятия решений требуется включённый серверный режим и свежий Reviewer MFA. В демо MFA не обрабатывается.</p></div></div>
+<div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="review-refresh">Обновить заявки</button><span id="review-count" class="mp-pill">0</span></div>
   <div id="activation-queue" class="mp-stack"></div>
   <p class="mp-help">В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</p>
 </section>
@@ -211,6 +219,15 @@
  <div class="mp-form-grid"><div class="mp-field"><label for="monitor-scenario">Сценарий диагностики (фикстура)</label><select id="monitor-scenario"><option value="configured">Операторы настроены</option><option value="unavailable">IPC недоступен</option><option value="unknown">Нет прямой проверки</option></select></div><div class="mp-field"><label for="monitor-last">Последняя проверка</label><output id="monitor-last">Не выполнялась</output></div></div>
  <div class="mp-kpi-grid" id="monitor-summary"></div><div class="mp-dashboard-grid" id="monitor-services"></div>
  <div class="mp-info-strip"><i class="fa-solid fa-circle-info"></i><div><strong>Только чтение</strong><p>Не выполняются SQL, restart контейнеров, реальные SMTP-тесты или операции создания баз. Статус «Настроен» не означает «Работает».</p></div></div>
+</section>
+<section class="mp-card mp-stack" data-screen="p4" id="screen-p4" hidden aria-labelledby="p4-heading">
+ <div class="mp-row mp-between"><div><span class="mp-eyebrow">Local acceptance / LAB</span><h2 class="mp-section-title" id="p4-heading">Локальная приёмка C01 P4</h2><p class="mp-help">В VDMS раздел доступен только при VITE_C01_P4_LAB_UI=1 и permission platform.reviewer.bootstrap.</p></div><span class="mp-demo-chip">LAB · mock</span></div>
+ <div class="mp-stack"><div class="mp-info-strip"><i class="fa-solid fa-shield-halved"></i><div><strong>Только демонстрация чек-листа</strong><p>Эта страница не выполняет CLI, SQL, provisioning или изменение Tenant DB. Для реальной приёмки требуется изолированный стенд и защищённые операции VDMS.</p></div></div>
+ <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Проверка</th><th>Статус</th><th>Действие</th></tr></thead><tbody>
+ <tr><td data-label="Проверка">Тестовое окружение</td><td data-label="Статус">Не проверено</td><td data-label="Действие">Только read-only fixture</td></tr>
+ <tr><td data-label="Проверка">C01 receipts</td><td data-label="Статус">Не проверено</td><td data-label="Действие">См. Provisioning</td></tr>
+ <tr><td data-label="Проверка">Отдельный Reviewer</td><td data-label="Статус">Не проверено</td><td data-label="Действие">См. Заявки</td></tr>
+ </tbody></table></div></div>
 </section>
 <section class="mp-card mp-stack" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
  <h2 class="mp-section-title" id="logs-heading">Журнал платформы</h2>
