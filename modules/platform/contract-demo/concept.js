@@ -184,37 +184,99 @@ const baseLogs=[
  {at:"2026-11-22T13:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"BLUE"}
 ];
 function canInvite(){return permitted("platform.reviewer.bootstrap")&&permitted("tenant.create")&&permitted("tenant.activate");}
+let reviewerChecked=false,selectedInvitationId="",reviewerDetailLoaded=false;
+function reviewerAvailability(){
+ const available=$("reviewer-operator").value==="enabled";
+ $("reviewer-status-summary").textContent=!reviewerChecked?"Не проверено":available?
+  "activeReviewers: "+invitations.filter(x=>x.confirmed).length+" · invitationEnabled: true (mock)":
+  "invitationEnabled: false / 503 (mock)";
+ return available;
+}
 function renderReviewer(){
  const root=$("reviewer-invitations");root.replaceChildren();
- const available=$("reviewer-operator").value==="enabled";
+ const available=reviewerAvailability();
  $("invite-reviewer").disabled=!canInvite()||!available;
+ $("reviewer-existing-check").disabled=!canInvite()||!available||!selectedInvitationId;
  $("reviewer-history").disabled=!permitted("tenant.provision.approve");
- if(!available){root.append(textNode("p","503 · Reviewer Operator не подключён на выбранном стенде (mock)."));return;}
- if(!canInvite()){root.append(textNode("p","403 · приглашения требуют platform.reviewer.bootstrap, tenant.create и tenant.activate."));return;}
- if(!invitations.length){root.append(textNode("p","У текущего тестового Owner нет приглашений."));}
- for(const item of invitations.filter(x=>$("reviewer-status-filter").value==="all"||x.state===$("reviewer-status-filter").value)){
+ const select=$("reviewer-existing");const old=selectedInvitationId;
+ select.replaceChildren(new Option("Выберите запрос",""));
+ for(const item of invitations)select.add(new Option(item.reviewerLogin+" · "+item.recipientEmail+" · "+item.state,item.requestId));
+ if(invitations.some(x=>x.requestId===old))select.value=old;
+ else{selectedInvitationId="";select.value="";}
+ if(!available){root.append(textNode("p","503 / disabled · Reviewer Operator не подключён на выбранном стенде (mock)."));renderSelectedInvitation();return;}
+ if(!canInvite()){root.append(textNode("p","403 · требуется platform.reviewer.bootstrap (и подтверждение Owner на backend)."));renderSelectedInvitation();return;}
+ const filtered=invitations.filter(x=>$("reviewer-status-filter").value==="all"||x.state===$("reviewer-status-filter").value);
+ if(!filtered.length)root.append(textNode("p","Приглашений в текущем фильтре нет."));
+ for(const item of filtered){
   const row=document.createElement("article");row.className="mp-record";
-  const info=document.createElement("div");info.append(textNode("strong",item.reviewerLogin+" · "+item.state),textNode("small",item.recipientEmail+" · "+item.requestId));row.append(info);
-  const controls=document.createElement("div");controls.className="mp-row";
-  const advance=textNode("button","Следующий mock-статус");
-  advance.type="button";advance.className="mp-btn mp-btn--secondary";advance.disabled=item.state==="claimed";
-  advance.addEventListener("click",()=>{const flow=["requested","queued","sent","claimed"];item.state=flow[Math.min(flow.length-1,flow.indexOf(item.state)+1)];feedback("Mock GET /reviewers/invitations/{requestID}/status → "+item.state+". Отправка письма и Claim не выполнялись.");renderReviewer();});controls.append(advance);
-  const confirm=textNode("button","Owner confirmation (mock)");
-  confirm.type="button";confirm.className="mp-btn mp-btn--secondary";confirm.disabled=item.state!=="claimed"||item.confirmed;
-  confirm.addEventListener("click",()=>{item.confirmed=true;feedback("Mock owner-confirm → confirmed. Реального подтверждения паролем/TOTP не было.");renderReviewer();});
-  controls.append(confirm);row.append(controls);root.append(row);
+  const info=document.createElement("div");
+  info.append(textNode("strong",item.reviewerLogin+" · "+item.state),textNode("small",item.recipientEmail+" · "+item.requestId));row.append(info);
+  const actions=document.createElement("div");actions.className="mp-row";
+  const view=textNode("button","Выбрать запрос");view.type="button";view.className="mp-btn mp-btn--secondary";
+  view.addEventListener("click",()=>{selectedInvitationId=item.requestId;reviewerDetailLoaded=false;renderReviewer();});
+  actions.append(view);row.append(actions);root.append(row);
  }
+ renderSelectedInvitation();
  if(showHistory){
   const historyPanel=$("reviewer-history-panel");historyPanel.hidden=false;historyPanel.replaceChildren(textNode("strong","GET /activation-reviews/history · mock"));
   historyPanel.append(textNode("p",reviewDecisions.length?reviewDecisions.map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
  }else $("reviewer-history-panel").hidden=true;
+}
+function renderSelectedInvitation(){
+ const root=$("reviewer-selected-detail");root.replaceChildren(textNode("h3","Состояние существующего приглашения","mp-section-title"));
+ const item=invitations.find(x=>x.requestId===selectedInvitationId);
+ if(!canInvite()||!reviewerAvailability()){root.append(textNode("p","Просмотр ограничен правами и состоянием оператора.","mp-help"));return;}
+ if(!item){root.append(textNode("p","Выберите запрос для просмотра его актуального состояния.","mp-help"));return;}
+ if(!reviewerDetailLoaded){root.append(textNode("p","Выбран запрос. Нажмите «Проверить запрос» для GET /reviewers/invitations/{requestID}/status (mock).","mp-help"));return;}
+ const list=document.createElement("dl");list.className="mp-description-grid";
+ for(const [k,v] of [["requestId",item.requestId],["reviewerLogin",item.reviewerLogin],["recipientEmail",item.recipientEmail],["state",item.state],["Owner confirmation",item.confirmed?"confirmed":"pending"]]){
+  const dl=document.createElement("div");dl.append(textNode("dt",k),textNode("dd",v));list.append(dl);
+ }root.append(list);
+ const actions=document.createElement("div");actions.className="mp-stack";
+ if(item.state==="requested"||item.state==="queued"){
+  const note=textNode("p",item.state==="queued"?
+   "Предыдущая попытка могла достичь SMTP. Перед новой попыткой проверьте почтовый ящик Reviewer.":
+   "Приглашение зарегистрировано, но письмо не отправлено.","mp-help");
+  const confirmLabel=document.createElement("label");confirmLabel.className="mp-role-option";
+  const checkbox=document.createElement("input");checkbox.type="checkbox";
+  const desc=textNode("span","Подтверждаю: это только mock. Я понимаю необходимость проверки почтового ящика и защищённого MFA в VDMS.");
+  confirmLabel.append(checkbox,desc);
+  const send=textNode("button",item.state==="queued"?"Имитировать повторную отправку":"Имитировать отправку приглашения");
+  send.type="button";send.className="mp-btn mp-btn--primary";send.disabled=true;
+  checkbox.addEventListener("change",()=>{send.disabled=!checkbox.checked;});
+  send.addEventListener("click",()=>{
+   // Two-step fixture: requested -> queued (unknown SMTP outcome), queued -> sent.
+   item.state=item.state==="requested"?"queued":"sent";
+   feedback("Mock POST /reviewers/invitations/email/send → "+item.state+". Никакой SMTP-доставки не было.");
+   renderReviewer();
+  });
+  actions.append(note,confirmLabel,send);
+ }
+ if(item.state==="sent"){
+  actions.append(textNode("p","Сервер сообщает sent. В реальной системе Claim выполняется Reviewer по одноразовой ссылке отдельно от Owner.","mp-help"));
+  const claim=textNode("button","Имитировать внешний Claim (без токена)");
+  claim.type="button";claim.className="mp-btn mp-btn--secondary";
+  claim.addEventListener("click",()=>{item.state="claimed";feedback("Mock Reviewer Claim → claimed. Реальная регистрация не выполнена.");renderReviewer();});
+  actions.append(claim);
+ }
+ if(item.state==="claimed"&&!item.confirmed){
+  actions.append(textNode("p","GET /reviewers/invitations/{requestID}/owner-confirm → pending. Для реального подтверждения необходимы Owner password, свежий TOTP и согласие.","mp-help"));
+  const l=document.createElement("label");l.className="mp-role-option";
+  const c=document.createElement("input");c.type="checkbox";l.append(c,textNode("span","Подтверждаю макетный сценарий Owner Confirmation (без полномочий на сервере)."));
+  const confirm=textNode("button","Подтвердить Reviewer (mock)");confirm.type="button";confirm.className="mp-btn mp-btn--primary";confirm.disabled=true;
+  c.addEventListener("change",()=>{confirm.disabled=!c.checked;});
+  confirm.addEventListener("click",()=>{item.confirmed=true;feedback("Mock POST /reviewers/invitations/owner-confirm → confirmed. Реальные permissions не выдавались.");renderReviewer();});
+  actions.append(l,confirm);
+ }
+ if(item.state==="claimed"&&item.confirmed)actions.append(textNode("p","Owner confirmation: confirmed (mock). В реальном сервере назначается tenant.provision.approve.","mp-badge"));
+ root.append(actions);
 }
 function createInvitation(){
  if(!canInvite()){feedback("403 · недостаточно разрешений.",true);return;}
  if($("reviewer-operator").value!=="enabled"){feedback("503 · Reviewer Operator отсутствует.",true);return;}
  const email=$("reviewer-email").value.trim(),loginName=$("reviewer-login").value.trim();
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!email.endsWith("@example.test")||!loginName){feedback("Введите демонстрационный login и e-mail на example.test.",true);return;}
- invitations.unshift({requestId:requestId(),reviewerLogin:loginName,recipientEmail:email,state:"requested",confirmed:false});
+ const newId=requestId();invitations.unshift({requestId:newId,reviewerLogin:loginName,recipientEmail:email,state:"requested",confirmed:false});selectedInvitationId=newId;reviewerDetailLoaded=false;
  feedback("Mock POST /reviewers/invitations → 201 requested. Письмо НЕ отправлено.");
  $("reviewer-email").value="";$("reviewer-login").value="";renderReviewer();
 }
@@ -240,7 +302,10 @@ document.querySelectorAll("[data-review-mode]").forEach(btn=>btn.addEventListene
  renderReviews();
 }));
 $("review-refresh").addEventListener("click",()=>{renderReviews();feedback("Mock GET /activation-reviews · обновлено без сетевого запроса.");});
-$("reviewer-operator").addEventListener("change",renderReviewer);
+$("reviewer-operator").addEventListener("change",()=>{reviewerChecked=false;renderReviewer();});
+$("reviewer-check-status").addEventListener("click",()=>{reviewerChecked=true;renderReviewer();feedback("Mock GET /reviewers/status → 200 или 503; состояние не проверено на сервере.");});
+$("reviewer-existing").addEventListener("change",()=>{selectedInvitationId=$("reviewer-existing").value;reviewerDetailLoaded=false;renderReviewer();});
+$("reviewer-existing-check").addEventListener("click",()=>{reviewerDetailLoaded=true;renderSelectedInvitation();feedback("Mock GET /reviewers/invitations/{requestID}/status → 200.");});
 $("reviewer-status-filter").addEventListener("change",renderReviewer);
 $("invite-reviewer").addEventListener("click",createInvitation);
 $("reviewer-history").addEventListener("click",()=>{showHistory=!showHistory;renderReviewer();});
