@@ -47,7 +47,7 @@ const tenantDemo={
  modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"objects",name:"Objects (пример)",status:"demo",enabled:true},{code:"analytics",name:"Analytics (пример)",status:"demo",enabled:false}]}
 };
 let overviewTenantID="";
-function fixtureFor(company){return tenantDemo[company?.code]||null;}
+function fixtureFor(company){return tenantDemo[company?.code?.toUpperCase()]||null;}
 function tableCell(value,label){
  const td=element("td",value);td.dataset.label=label;return td;
 }
