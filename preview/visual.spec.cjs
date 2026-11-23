@@ -1,0 +1,18 @@
+const { test, expect } = require('@playwright/test');
+const url = 'http://127.0.0.1:8765/modules/platform/contract-demo/index.html';
+test('capture design-system layouts for visual review', async ({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto(url+'#login');
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await page.screenshot({path:'test-results/visual-login-desktop.png',fullPage:true});
+ await page.locator('#demo-actor').selectOption('owner');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-companies')).toBeVisible();
+ await page.screenshot({path:'test-results/visual-platform-desktop.png',fullPage:true});
+ await page.locator('#userTrigger').click();
+ await page.locator('#themeToggle').click();
+ await page.screenshot({path:'test-results/visual-platform-dark.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ await page.screenshot({path:'test-results/visual-platform-mobile.png',fullPage:true});
+});
