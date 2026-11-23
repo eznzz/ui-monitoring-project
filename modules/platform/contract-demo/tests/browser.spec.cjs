@@ -59,6 +59,7 @@ test('409 and reviewer activation flow',async ({page})=>{
  await page.locator('a[data-page="activation"]').click();
  await expect(page.locator('#activation-queue')).toContainText('North Shipping');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
+ await page.locator('[data-review-mode="approved"]').click();
  await expect(page.locator('#activation-queue')).toContainText('approved');
  expect(errors).toEqual([]);
 });
@@ -84,7 +85,10 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
  await page.locator('#reviewer-login').fill('reviewer-demo');
  await page.locator('#invite-reviewer').click();
  await expect(page.locator('#reviewer-invitations')).toContainText('requested');
- await page.getByRole('button',{name:'Следующий mock-статус'}).click();
+ await page.locator('#reviewer-existing-check').click();
+ await expect(page.locator('#reviewer-selected-detail')).toContainText('requested');
+ await page.locator('#reviewer-selected-detail input[type="checkbox"]').check();
+ await page.getByRole('button',{name:'Имитировать отправку приглашения'}).click();
  await expect(page.locator('#reviewer-invitations')).toContainText('queued');
  await page.locator('a[data-page="logs"]').click();
  await expect(page.locator('#log-body')).toContainText('company.created');
@@ -161,5 +165,33 @@ test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
  await expect(page.locator('#activation-queue')).toContainText('approved');
  await page.locator('[data-review-mode="rejected"]').click();
  await expect(page.locator('#review-count')).toHaveText('0');
+ expect(errors).toEqual([]);
+});
+
+test('Reviewer invitation existing request, SMTP uncertainty and owner confirmation',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ await page.locator('a[data-page="reviewer"]').click();
+ await page.locator('#reviewer-check-status').click();
+ await expect(page.locator('#reviewer-status-summary')).toContainText('activeReviewers: 0');
+ await page.locator('#reviewer-email').fill('another@example.test');
+ await page.locator('#reviewer-login').fill('reviewer-another');
+ await page.locator('#invite-reviewer').click();
+ await page.locator('#reviewer-existing-check').click();
+ await expect(page.locator('#reviewer-selected-detail')).toContainText('requested');
+ await page.locator('#reviewer-selected-detail input[type="checkbox"]').check();
+ await page.getByRole('button',{name:'Имитировать отправку приглашения'}).click();
+ await page.locator('#reviewer-existing-check').click();
+ await expect(page.locator('#reviewer-selected-detail')).toContainText('очтовый ящик Reviewer');
+ await page.locator('#reviewer-selected-detail input[type="checkbox"]').check();
+ await page.getByRole('button',{name:'Имитировать повторную отправку'}).click();
+ await page.locator('#reviewer-existing-check').click();
+ await page.getByRole('button',{name:'Имитировать внешний Claim (без токена)'}).click();
+ await page.locator('#reviewer-existing-check').click();
+ await expect(page.locator('#reviewer-selected-detail')).toContainText('pending');
+ await page.locator('#reviewer-selected-detail input[type="checkbox"]').check();
+ await page.getByRole('button',{name:'Подтвердить Reviewer (mock)'}).click();
+ await page.locator('#reviewer-existing-check').click();
+ await expect(page.locator('#reviewer-selected-detail')).toContainText('confirmed');
  expect(errors).toEqual([]);
 });
