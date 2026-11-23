@@ -108,7 +108,7 @@ function overviewTenant(){
  const fixture=fixtureFor(c);
  const kind=$("overview-tenant-kind").value;
  if(!fixture){
-  kpis.append(element("span","Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-badge"));
+  kpis.append(element("p","Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-help"));
   return;
  }
  if(kind==="users"){
