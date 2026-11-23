@@ -81,9 +81,7 @@ function overview(){
   tr.append(tableCell(company.name,"Компания"),tableCell(company.code,"Код"),tableCell(company.status,"Статус Platform"),tableCell(company.revision,"Ревизия"));
   const last=tableCell("","Действие");
   addButton(last,"Открыть",()=>{
-   ctx.navigate("companies");
-   const row=Array.from(document.querySelectorAll("#companies-body button")).find(btn=>btn.closest("tr")?.textContent.includes(company.code));
-   if(row)row.click();
+   ctx.openOverviewCompany(company.tenantId);
   });
   tr.append(last);companyBody.append(tr);
  }
