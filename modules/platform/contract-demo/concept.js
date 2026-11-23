@@ -42,11 +42,12 @@ const isAllowed=key=>
  key==="reviewer"||key==="email-operator"?permitted("platform.reviewer.bootstrap"):
  key==="mail"?serverMode==="lab"&&(permitted("platform.mail.manage")||permitted("platform.reviewer.bootstrap")):
  key==="p4"?serverMode==="lab"&&permitted("platform.reviewer.bootstrap"):false;
-const homeSection=()=>permitted("tenant.provision.approve")?"activation":canCompanies()?"overview":permitted("platform.reviewer.bootstrap")?"reviewer":"contract";
+const homeSection=()=>permitted("tenant.provision.approve")?"activation":canCompanies()?"companies":permitted("platform.reviewer.bootstrap")?"reviewer":"contract";
 function renderNavigation(){
  document.querySelectorAll("#concept-nav [data-page]").forEach(el=>{
   const enabled=Boolean(session)&&isAllowed(el.dataset.page);
   el.parentElement.hidden=!enabled;
+  el.parentElement.style.display=enabled?"":"none";
   el.tabIndex=enabled?0:-1;
  });
 }
@@ -79,6 +80,7 @@ function navigate(next){
 }
 function login(){
  const type=$("demo-actor").value, status=$("demo-login-status").value;
+ if(!Object.hasOwn(rights,type)){feedback("Тестовый субъект не существует в модели VDMS.",true);return;}
  session=null;
  if(status!=="success"){
   $("session-panel").textContent="Mock HTTP "+status+" · вход не выполнен.";
