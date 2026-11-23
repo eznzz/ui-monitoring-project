@@ -17,11 +17,11 @@
 
 ## Простая карта экранов
 
-**Точка входа:** `/preview/` → отдельная карточка Owner или Reviewer → общий стандартный Login → соответствующее workspace. Прямая ссылка в недоступный раздел не обходит permission checks; показывается разрешённая стартовая страница.
+**Точка входа:** `/preview/` → отдельная карточка Owner или Reviewer → общий стандартный Login → соответствующее workspace. Без заданного маршрута Owner попадает в `#overview`, Reviewer — в `#activation`. Прямые ссылки на разрешённые разделы сохраняются. Прямая ссылка в недоступный раздел не обходит permission checks; показывается разрешённая стартовая страница.
 
 | Workspace / route | Серверный permission | Feature flags / условия | Демонстрационный результат |
 | --- | --- | --- | --- |
-| Owner `#companies` | `tenant.read` или `tenant.create` в nav; чтение фактически `tenant.read` | JWT + /me | Реестр (из memory fixtures), курсор-like pagination; create draft, edit expectedRevision, 409 |
+| Owner `#companies` | `tenant.read` или `tenant.create` в nav; чтение фактически `tenant.read` | JWT + /me | Реестр (из memory fixtures), «Показать ещё» по 5/10 записей над cursor-like dataset; create draft, edit expectedRevision, 409 |
 | Owner `#overview` | `tenant.read` или `tenant.create` | Загруженные CompanySummary | KPI только по загруженным компаниям, фиктивные Tenant users/modules **отдельно от Platform API** |
 | Owner `#provisioning` | `tenant.create` + `tenant.activate` + чтение | C01 endpoint и operators | read-only C01 evidence; никакого запуска SQL, создания базы или маршрута |
 | Reviewer `#activation` | `tenant.provision.approve` | Queue read независимо от режима approval | Только очереди Owner-запросов и личная история текущего Reviewer |
@@ -53,3 +53,13 @@
 ## До настоящей 100% функциональности с VDMS
 
 UI mock остаётся **концептом**; он не может подтверждать реальную работу сервера. Для реальной parity необходимы React/TypeScript port, `/me` permissions из текущей сессии, API adapter, Server Feature Flags, bearer token только в памяти, HttpOnly refresh cookie, запросы с UUIDv4/expectedRevision, реальные ошибки и проверка по тестовому стенду VDMS. Только после этого уместно говорить о 100% контрактной и runtime функциональной эквивалентности.
+
+## Главный экран и постепенная загрузка
+
+Owner после mock-входа без явной цели открывает **Обзор платформы**. Reviewer — заявки на активацию. Явная ссылка `#companies` ведёт непосредственно к реестру после mock-входа.
+
+Компании: первые 5 записей, далее `Показать ещё N`; выбор 5/10; фильтр и поиск работают по всему загруженному в браузере набору. Выбор компании из Overview раскрывает достаточное число строк для доступа к её карточке. Реальный VDMS `GET /companies` использует cursor и nextCursor, который в будущем должен использоваться для догрузки данных.
+
+Журнал: первые 5 записей, далее `Показать ещё N`; выбор 5/10; смена категории сбрасывает отображение на первую порцию. Реальный VDMS `GET /platform-logs` использует limit/offset. При реальном подключении следующая порция должна запрашиваться с offset равным количеству ранее загруженных строк, без повторного отображения.
+
+Кнопка скрыта после последней записи и при пустом результате. Стили только штатные `mp-page-tools`, `mp-btn`, `mp-field`, `mp-help`, `mp-basic-table`.
