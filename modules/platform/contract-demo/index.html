@@ -149,9 +149,10 @@
   <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · фильтр status, cursor; кнопка «Показать ещё» дополняет список</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
   <div class="mp-form-grid">
    <div class="mp-field"><label for="company-status">Статус</label><select id="company-status"><option value="all">Все</option><option value="draft">draft</option><option value="provisioning">provisioning</option><option value="active">active</option><option value="suspended">suspended</option><option value="disabled">disabled</option></select></div>
-   <div class="mp-field"><label for="company-search">Поиск по загруженным компаниям (демо)</label><input id="company-search" type="search" placeholder="Название или код"></div>
+   <div class="mp-field"><label for="company-search">Найти компанию</label><input id="company-search" type="search" placeholder="Название, код, UUID или реквизиты" aria-describedby="company-search-hint"><p class="mp-help" id="company-search-hint">Поиск по загруженным записям (mock), включая профиль компании.</p></div>
   </div>
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
+  <div class="mp-row mp-between"><span class="mp-help" id="company-filter-summary" aria-live="polite"></span><button class="mp-btn mp-btn--secondary" id="company-reset" type="button">Сбросить поиск и фильтры</button></div>
   <div class="mp-page-tools" aria-label="Загрузка списка компаний">
    <span class="mp-help" id="company-range" aria-live="polite">Показано 5 из 8</span>
    <div class="mp-row">
@@ -239,7 +240,17 @@
 <section class="mp-card mp-stack" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
  <h2 class="mp-section-title" id="logs-heading">Журнал платформы</h2>
  <p class="mp-help">GET /platform-logs?limit&amp;offset · только Platform Owner с действующим MFA, tenant.create и tenant.activate. Данные демонстрационные.</p>
- <div class="mp-form-grid"><div class="mp-field"><label for="log-category">Фильтр категории (локальная fixture)</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div><div class="mp-field"><label for="log-limit">Добавлять записей</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div></div>
+ <div class="mp-form-grid">
+  <div class="mp-field"><label for="log-category">Категория</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div>
+  <div class="mp-field"><label for="log-search">Поиск по журналу</label><input id="log-search" type="search" placeholder="Событие, объект, результат" aria-describedby="log-filter-hint"></div>
+  <div class="mp-field"><label for="log-date-from">Дата с (UTC)</label><input id="log-date-from" type="date"></div>
+  <div class="mp-field"><label for="log-date-to">Дата по (UTC, включительно)</label><input id="log-date-to" type="date"></div>
+  <div class="mp-field"><label for="log-time-from">Время с (UTC)</label><input id="log-time-from" type="time"></div>
+  <div class="mp-field"><label for="log-time-to">Время по (UTC, включительно)</label><input id="log-time-to" type="time"></div>
+  <div class="mp-field"><label for="log-limit">Добавлять записей</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div>
+ </div>
+ <div class="mp-row mp-between"><p class="mp-help" id="log-filter-hint">Диапазоны дат и времени суток пересекаются. Все значения и события — UTC. Фильтрация только загруженной mock-истории, не параметры серверного API.</p><button type="button" class="mp-btn mp-btn--secondary" id="log-reset">Сбросить фильтры</button></div>
+ <p class="mp-error" id="log-filter-error" role="alert" aria-live="polite"></p>
  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
  <div class="mp-page-tools" aria-label="Загрузка событий журнала">
   <span class="mp-help" id="log-range" aria-live="polite">Показано 5 из 6</span>
