@@ -2,9 +2,20 @@
 
 A lightweight, framework-free dashboard template and a growing design system for enterprise interfaces.
 
-## Preview
+## Preview via GitHub Pages
 
-The live demo can be deployed with GitHub Pages from the repository root (`main` / `/`).
+**Планируемый постоянный адрес:** https://eznzz.github.io/ui-monitoring-project/
+
+- `/preview/` — главная страница демонстрационного проекта.
+- `/modules/platform/contract-demo/index.html#overview` — Owner Overview (после mock-входа).
+- `/modules/platform/contract-demo/index.html#activation` — независимый Reviewer (после mock-входа).
+- `/components/` — каталог дизайн-системы.
+
+**Источник публикации — исключительно `preview`**, не `main`. Workflow `.github/workflows/platform-concept-browser.yml` выполняет Playwright, затем собирает статический сайт в `_site`, публикует артефакт и только после успешного завершения тестов запускает `actions/deploy-pages`. При изменениях в PR публикации нет. Корневой URL GitHub Pages перенаправляет на `/preview/`.
+
+Для первого запуска в **Settings → Pages → Build and deployment → Source** необходимо выбрать **GitHub Actions** (требуется администратор репозитория). После настройки проверить в Actions job `deploy-pages`, а затем HTTP-доступность сайта. Публикуются только **mock**-страницы и статические ресурсы; реальные токены, API, БД, MFA и почтовые учётные данные недопустимы.
+
+До подтверждения развёртывания ссылка может ещё не открываться.
 
 ## Component catalog
 
