@@ -1,8 +1,9 @@
 const { test, expect } = require('@playwright/test');
 const url = 'http://127.0.0.1:8765/modules/platform/contract-demo/index.html';
-async function signIn(page,actor='owner',status='success'){
+async function signIn(page,actor='owner',status='success',mode='restricted'){
  await page.goto(url);
  await page.locator('#demo-actor').selectOption(actor);
+ await page.locator('#demo-server-mode').selectOption(mode);
  await page.locator('#demo-login-status').selectOption(status);
  await page.locator('#mock-login').click();
 }
@@ -18,16 +19,19 @@ test('login error and mock session',async ({page})=>{
  await expect(page.locator('#session-panel')).toContainText('очищена');
  expect(errors).toEqual([]);
 });
-test('reader denied writes and owner can create and edit draft',async ({page})=>{
+test('only actual Owner and Reviewer fixtures exist; Owner can create and edit draft',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'reader');
+ await signIn(page,'reviewer');
  await page.locator('#open-platform').click();
- await expect(page.locator('#new-company')).toBeDisabled();
- await expect(page.locator('#companies-body')).toContainText('North Shipping');
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="companies"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="reviewer"]')).toBeHidden();
+ await expect(page.locator('#demo-actor option')).toHaveCount(2);
  await page.locator('#concept-nav a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-companies')).toBeVisible();
  await page.locator('#new-company').click();
  await page.locator('#record-code').fill('smoke');
  await page.locator('#record-name').fill('Smoke Test');
@@ -98,11 +102,11 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
  await page.locator('a[data-page="logs"]').click();
  await expect(page.locator('#log-body')).toContainText('company.created');
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reader');
+ await page.locator('#demo-actor').selectOption('reviewer');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
- await page.locator('a[data-page="logs"]').click();
- await expect(page.locator('#log-body')).toContainText('403');
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="logs"]')).toBeHidden();
  expect(errors).toEqual([]);
 });
 
@@ -129,7 +133,7 @@ test('VDMS Owner overview, C01 provisioning evidence and service monitor',async 
 });
 test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner','success','lab');await page.locator('#open-platform').click();
  await page.locator('a[data-page="email-operator"]').click();
  await expect(page.locator('#email-operator-status')).toContainText('configured');
  await page.locator('#email-template-subject').fill('Test email template');
@@ -144,12 +148,16 @@ test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({
  await page.locator('#concept-nav a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('reviewer');
  await page.locator('#mock-login').click();await page.locator('#open-platform').click();
- await page.locator('a[data-page="overview"]').click();
- await expect(page.locator('#overview-kpis')).toContainText('403');
- await page.locator('a[data-page="email-operator"]').click();
- await expect(page.locator('#email-template-save')).toBeDisabled();
- await page.locator('a[data-page="monitor"]').click();
- await expect(page.locator('#monitor-services')).toContainText('403');
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="overview"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="email-operator"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="monitor"]')).toBeHidden();
+ await page.goto(url+'#overview');
+ await page.locator('#demo-actor').selectOption('reviewer');
+ await page.locator('#demo-server-mode').selectOption('lab');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-activation')).toBeVisible();
  expect(errors).toEqual([]);
 });
 test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
@@ -242,10 +250,10 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 3');
  await page.locator('#overview-tenant-kind').selectOption('modules');
  await expect(page.locator('#overview-tenant-body')).toContainText('Documents (пример)');
- await page.locator('#overview-tenant-select').selectOption({label:'Blue Logistics (demo) · BLUE'});
+ await page.locator('#overview-tenant-select').selectOption({label:'Blue Logistics (demo) · blue'});
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Модулей в фикстуре: 2');
  await page.locator('#overview-tenant-kind').selectOption('users');
- await page.locator('#overview-tenant-select').selectOption({label:'South Transport (demo) · SOUTH'});
+ await page.locator('#overview-tenant-select').selectOption({label:'South Transport (demo) · south'});
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Пользователей в этой тестовой компании нет');
  await expect(page.locator('#overview-databases-body')).toContainText('Не проверено');
  await expect(page.locator('#overview-databases-body')).toContainText('Требуется C01 проверка');
@@ -258,15 +266,14 @@ test('full overview separates Platform company counts and demo Tenant users/modu
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'reviewer');await page.locator('#open-platform').click();
- await page.locator('a[data-page="overview"]').click();
- await expect(page.locator('#overview-kpis')).toContainText('403');
- await expect(page.locator('#overview-tenant-select')).toBeDisabled();
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="overview"]')).toBeHidden();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reader');
+ await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();await page.locator('#open-platform').click();
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(8);
- await expect(page.locator('#overview-open-provisioning')).toBeDisabled();
+ await expect(page.locator('#overview-open-provisioning')).toBeEnabled();
  await page.setViewportSize({width:390,height:844});
  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
  expect(overflow).toBe(false);
@@ -326,14 +333,79 @@ test('demo tenant company selection covers varied user and module empty states',
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');await page.locator('#open-platform').click();
  await page.locator('a[data-page="overview"]').click();
- await page.locator('#overview-tenant-select').selectOption({label:'Harbor Engineering (demo) · HARBOR'});
+ await page.locator('#overview-tenant-select').selectOption({label:'Harbor Engineering (demo) · harbor'});
  await expect(page.locator('#overview-tenant-body')).toContainText('engineer.demo');
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 4');
  await page.locator('#overview-tenant-kind').selectOption('modules');
  await expect(page.locator('#overview-tenant-body')).toContainText('Maintenance (пример)');
- await page.locator('#overview-tenant-select').selectOption({label:'Delta Offshore (demo) · DELTA'});
+ await page.locator('#overview-tenant-select').selectOption({label:'Delta Offshore (demo) · delta'});
  await expect(page.locator('#overview-tenant-kpis')).toContainText('не назначено модулей');
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
  expect(errors).toEqual([]);
+});
+
+
+test('VDMS role navigation and feature flags are enforced on real routes',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner','success','standard');
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-companies')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="activation"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeHidden();
+ await page.locator('#concept-nav a[data-page="reviewer"]').click();
+ await expect(page.locator('#screen-reviewer')).toBeVisible();
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reviewer');
+ await page.locator('#demo-server-mode').selectOption('standard');
+ await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="companies"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="logs"]')).toBeHidden();
+ await page.locator('#review-seed-demo').click();
+ await expect(page.locator('#review-count')).toHaveText('2');
+ await expect(page.locator('#activation-queue')).toContainText('North Shipping');
+ await expect(page.locator('#activation-queue').getByRole('button',{name:'Одобрить (mock)'})).toHaveCount(0);
+ await expect(page.locator('#review-approval-text')).toContainText('выключены серверным флагом');
+ expect(errors).toEqual([]);
+});
+test('linked Owner draft requests are visible to Reviewer and history stays personal',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner','success','restricted');await page.locator('#open-platform').click();
+ await page.locator('#companies-body button').first().click();
+ await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reviewer');
+ await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-activation')).toBeVisible();
+ await expect(page.locator('#review-count')).toHaveText('1');
+ await page.getByRole('button',{name:'Одобрить (mock)'}).click();
+ await page.locator('#review-decision-consent').check();
+ await page.locator('#review-submit').click();
+ await expect(page.locator('#review-count')).toHaveText('0');
+ await page.locator('[data-review-mode="approved"]').click();
+ await expect(page.locator('#review-count')).toHaveText('1');
+ await expect(page.locator('#activation-queue')).toContainText('North Shipping');
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('owner');
+ await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await page.locator('#companies-body button').first().click();
+ await expect(page.locator('#company-detail')).toContainText('draft');
+ await expect(page.locator('#concept-nav a[data-page="activation"]')).toBeHidden();
+ expect(errors).toEqual([]);
+});
+test('LAB-only route toggles and active Reviewer permissions are independent',async ({page})=>{
+ await signIn(page,'owner','success','lab');
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeVisible();
+ await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeVisible();
+ await page.locator('#concept-nav a[data-page="p4"]').click();
+ await expect(page.locator('#screen-p4')).toBeVisible();
+ await expect(page.locator('#screen-p4')).toContainText('Не проверено');
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reviewer');
+ await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeHidden();
+ await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
 });
