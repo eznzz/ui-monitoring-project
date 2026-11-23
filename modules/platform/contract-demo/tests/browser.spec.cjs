@@ -154,7 +154,8 @@ test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({
  await expect(page.locator('#concept-nav a[data-page="overview"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="email-operator"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="monitor"]')).toBeHidden();
- await page.goto(url+'#overview');
+ await page.goto(url+'?fresh=1#overview');
+ await expect(page.locator('#screen-login')).toBeVisible();
  await page.locator('#demo-actor').selectOption('reviewer');
  await page.locator('#demo-server-mode').selectOption('lab');
  await page.locator('#mock-login').click();
