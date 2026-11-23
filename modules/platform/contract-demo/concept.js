@@ -42,7 +42,7 @@ const isAllowed=key=>
  key==="reviewer"||key==="email-operator"?permitted("platform.reviewer.bootstrap"):
  key==="mail"?serverMode==="lab"&&(permitted("platform.mail.manage")||permitted("platform.reviewer.bootstrap")):
  key==="p4"?serverMode==="lab"&&permitted("platform.reviewer.bootstrap"):false;
-const homeSection=()=>permitted("tenant.provision.approve")?"activation":canCompanies()?"companies":permitted("platform.reviewer.bootstrap")?"reviewer":"contract";
+const homeSection=()=>permitted("tenant.provision.approve")?"activation":canCompanies()?"overview":permitted("platform.reviewer.bootstrap")?"reviewer":"contract";
 function renderNavigation(){
  document.querySelectorAll("#concept-nav [data-page]").forEach(el=>{
   const enabled=Boolean(session)&&isAllowed(el.dataset.page);
