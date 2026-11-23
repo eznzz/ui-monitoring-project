@@ -265,7 +265,7 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await page.locator('#overview-companies-body tr').last().getByRole('button',{name:'Открыть'}).click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await expect(page.locator('#company-detail')).toContainText('Polar Research');
- await expect(page.locator('#page-indicator')).toHaveText('4 / 4');
+ await expect(page.locator('#company-range')).toHaveText('Показано 8 из 8');
  expect(errors).toEqual([]);
 });
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
@@ -419,45 +419,64 @@ test('LAB-only route toggles and active Reviewer permissions are independent',as
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
 });
 
-test('compact company pager shows range, boundaries and filtered totals',async ({page})=>{
+test('company list progressively appends 5 entries and supports 10-entry batch',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-overview')).toBeVisible();
  await page.locator('#concept-nav a[data-page="companies"]').click();
- const pager=page.locator('#screen-companies nav[aria-label="Страницы списка компаний"]');
- await expect(pager).toBeVisible();
- await expect(page.locator('#page-range')).toHaveText('Показано 1–2 из 8');
- await expect(page.locator('#page-indicator')).toHaveText('1 / 4');
- await expect(page.locator('#prev-page')).toBeDisabled();
- await expect(page.locator('#next-page')).toBeEnabled();
- await page.locator('#next-page').click();
- await expect(page.locator('#page-indicator')).toHaveText('2 / 4');
- await expect(page.locator('#page-range')).toHaveText('Показано 3–4 из 8');
- await page.locator('#next-page').click();await page.locator('#next-page').click();
- await expect(page.locator('#page-indicator')).toHaveText('4 / 4');
- await expect(page.locator('#page-range')).toHaveText('Показано 7–8 из 8');
- await expect(page.locator('#next-page')).toBeDisabled();
+ await expect(page.locator('#company-range')).toHaveText('Показано 5 из 8');
+ await expect(page.locator('#companies-body tr')).toHaveCount(5);
+ await expect(page.locator('#company-more')).toBeVisible();
+ await expect(page.locator('#company-more')).toHaveText('Показать ещё 3');
+ await page.locator('#company-more').click();
+ await expect(page.locator('#companies-body tr')).toHaveCount(8);
+ await expect(page.locator('#company-range')).toHaveText('Показано 8 из 8');
+ await expect(page.locator('#company-more')).toBeHidden();
  await page.locator('#company-status').selectOption('draft');
- await expect(page.locator('#page-indicator')).toHaveText('1 / 1');
- await expect(page.locator('#page-range')).toHaveText('Показано 1–2 из 2');
- await expect(page.locator('#prev-page')).toBeDisabled();
- await expect(page.locator('#next-page')).toBeDisabled();
+ await expect(page.locator('#company-range')).toHaveText('Показано 2 из 2');
+ await expect(page.locator('#companies-body tr')).toHaveCount(2);
  await page.locator('#company-status').selectOption('all');
+ await page.locator('#company-batch').selectOption('10');
+ await expect(page.locator('#companies-body tr')).toHaveCount(8);
+ await expect(page.locator('#company-more')).toBeHidden();
+ await page.locator('#company-search').fill('harbor');
+ await expect(page.locator('#companies-body tr')).toHaveCount(1);
+ await expect(page.locator('#company-range')).toHaveText('Показано 1 из 1');
+ await page.locator('#company-search').fill('');
  await page.setViewportSize({width:390,height:844});
- await expect(pager).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
  expect(errors).toEqual([]);
 });
-test('compact company pager covers empty state without phantom pages',async ({page})=>{
+test('company list empty state does not offer additional entries',async ({page})=>{
  await signIn(page,'owner');await page.locator('#open-platform').click();
- await page.locator('#concept-nav a[data-page="overview"]').click();
  await page.locator('#overview-data-mode').selectOption('empty');
  await page.locator('#overview-open-companies').click();
- await expect(page.locator('#page-range')).toHaveText('Компаний: 0');
- await expect(page.locator('#page-indicator')).toHaveText('1 / 1');
- await expect(page.locator('#prev-page')).toBeDisabled();
- await expect(page.locator('#next-page')).toBeDisabled();
+ await expect(page.locator('#company-range')).toHaveText('Компаний: 0');
+ await expect(page.locator('#companies-body')).toContainText('Компаний пока нет');
+ await expect(page.locator('#company-more')).toBeHidden();
 });
-
+test('audit log appends further events using 5 or 10, resets after filtering',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="logs"]').click();
+ await expect(page.locator('#log-body tr')).toHaveCount(5);
+ await expect(page.locator('#log-range')).toHaveText('Показано 5 из 6');
+ await expect(page.locator('#log-more')).toHaveText('Показать ещё 1');
+ await page.locator('#log-more').click();
+ await expect(page.locator('#log-body tr')).toHaveCount(6);
+ await expect(page.locator('#log-range')).toHaveText('Показано 6 из 6');
+ await expect(page.locator('#log-more')).toBeHidden();
+ await page.locator('#log-category').selectOption('auth');
+ await expect(page.locator('#log-body tr')).toHaveCount(2);
+ await expect(page.locator('#log-range')).toHaveText('Показано 2 из 2');
+ await page.locator('#log-category').selectOption('all');
+ await page.locator('#log-limit').selectOption('10');
+ await expect(page.locator('#log-body tr')).toHaveCount(6);
+ await expect(page.locator('#log-more')).toBeHidden();
+ await page.setViewportSize({width:390,height:844});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
+ expect(errors).toEqual([]);
+});
 test('Owner home is overview, Reviewer home is activation, explicit Company deep links remain intact',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');await page.locator('#open-platform').click();
@@ -479,5 +498,5 @@ test('direct Company route still opens Companies after Owner mock login',async (
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
  await expect(page.locator('#screen-companies')).toBeVisible();
- await expect(page.locator('#page-indicator')).toHaveText('1 / 4');
+ await expect(page.locator('#company-range')).toHaveText('Показано 5 из 8');
 });
