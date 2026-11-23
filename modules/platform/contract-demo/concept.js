@@ -503,6 +503,7 @@ $("log-reset").addEventListener("click",()=>{
 });
 
 $("overview-data-mode").addEventListener("change",()=>changeDataMode($("overview-data-mode").value));
+$("overview-load-demo").textContent="Загрузить "+seed.length+" демо-компаний";
 $("overview-load-demo").addEventListener("click",()=>changeDataMode("demo",true));
 $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  $("open-platform").addEventListener("click",()=>{
