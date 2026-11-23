@@ -354,6 +354,14 @@ $("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").val
 
 $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  $("open-platform").addEventListener("click",()=>navigate("companies"));
- function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate};}
+ function openOverviewCompany(tenantId){
+ if(!permitted("tenant.read")&&!permitted("tenant.create"))return;
+ const index=companies.findIndex(c=>c.tenantId===tenantId);
+ if(index<0)return;
+ selectedId=tenantId;pageNo=Math.floor(index/2);
+ $("company-status").value="all";$("company-search").value="";
+ navigate("companies");renderCompanies();
+}
+function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate,openOverviewCompany};}
  navigate(location.hash.slice(1)||"login");updateActions();
 })();
