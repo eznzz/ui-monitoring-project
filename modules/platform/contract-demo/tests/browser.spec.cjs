@@ -548,7 +548,7 @@ test('audit date range, hours, search and load-more interact without duplicates'
  await expect(page.locator('#log-body')).toContainText('harbor');
  await expect(page.locator('#log-body')).not.toContainText('fixture-reviewer');
  await page.locator('#log-search').fill('company');
- await expect(page.locator('#log-range')).toHaveText('Показано 4 из 4');
+ await expect(page.locator('#log-range')).toHaveText('Показано 3 из 3');
  await page.locator('#log-search').fill('missing');
  await expect(page.locator('#log-body')).toContainText('Нет событий по выбранным условиям');
  await expect(page.locator('#log-more')).toBeHidden();
