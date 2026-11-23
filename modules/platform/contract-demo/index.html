@@ -154,7 +154,7 @@
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
   <div class="mp-row mp-between"><span class="mp-help" id="company-filter-summary" aria-live="polite"></span><button class="mp-btn mp-btn--secondary" id="company-reset" type="button">Сбросить поиск и фильтры</button></div>
   <div class="mp-page-tools" aria-label="Загрузка списка компаний">
-   <span class="mp-help" id="company-range" aria-live="polite">Показано 5 из 8</span>
+   <span class="mp-help" id="company-range" aria-live="polite">Показано 5 из 18</span>
    <div class="mp-row">
     <label class="mp-help" for="company-batch">Добавлять по</label>
     <select id="company-batch" aria-label="Количество компаний при загрузке"><option value="5">5</option><option value="10">10</option></select>
@@ -247,14 +247,17 @@
   <div class="mp-field"><label for="log-date-to">Дата по (UTC, включительно)</label><input id="log-date-to" type="date"></div>
   <div class="mp-field"><label for="log-time-from">Время с (UTC)</label><input id="log-time-from" type="time"></div>
   <div class="mp-field"><label for="log-time-to">Время по (UTC, включительно)</label><input id="log-time-to" type="time"></div>
-  <div class="mp-field"><label for="log-limit">Добавлять записей</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div>
  </div>
  <div class="mp-row mp-between"><p class="mp-help" id="log-filter-hint">Диапазоны дат и времени суток пересекаются. Все значения и события — UTC. Фильтрация только загруженной mock-истории, не параметры серверного API.</p><button type="button" class="mp-btn mp-btn--secondary" id="log-reset">Сбросить фильтры</button></div>
  <p class="mp-error" id="log-filter-error" role="alert" aria-live="polite"></p>
  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
  <div class="mp-page-tools" aria-label="Загрузка событий журнала">
-  <span class="mp-help" id="log-range" aria-live="polite">Показано 5 из 6</span>
-  <button class="mp-btn mp-btn--secondary" id="log-more" type="button">Показать ещё 5</button>
+  <span class="mp-help" id="log-range" aria-live="polite">Показано 5 из 16</span>
+  <div class="mp-row">
+   <label class="mp-help" for="log-limit">Добавлять по</label>
+   <select id="log-limit" aria-label="Количество событий при загрузке"><option value="5">5</option><option value="10">10</option></select>
+   <button class="mp-btn mp-btn--secondary" id="log-more" type="button">Показать ещё 5</button>
+  </div>
  </div>
 </section>
 <section class="mp-card mp-stack" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
