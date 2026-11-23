@@ -189,6 +189,7 @@ function saveRecord(ev){
 }
 function requestActivation(c){
  if(!permitted("tenant.activate")||c.status!=="draft"){feedback("403: невозможно подать заявку.",true);return;}
+ if(reviews.some(r=>r.tenantId===c.tenantId&&r.state==="requested")){feedback("409: ожидающая заявка для этой компании уже существует.",true);return;}
  const id=requestId();
  reviews.unshift({requestId:id,tenantId:c.tenantId,tenantName:c.name,tenantCode:c.code,requesterActorId:session.actorId,requesterLogin:session.login,expectedRevision:c.revision,createdAt:new Date().toISOString(),state:"requested"});
  feedback("Mock POST /companies/{tenantID}/activation-requests → 201 requested. Компания остаётся draft.");
@@ -197,17 +198,26 @@ function requestActivation(c){
 let reviewMode="pending";
 function renderReviews(){
  const root=$("activation-queue");root.replaceChildren();
- if(!permitted("tenant.provision.approve")){root.append(textNode("p","403 · требуется tenant.provision.approve. Выберите Reviewer в разделе входа."));return;}
+ $("review-seed-demo").disabled=!permitted("tenant.provision.approve")||dataMode!=="demo";
+ if(!permitted("tenant.provision.approve")){$("review-count").textContent="0";root.append(textNode("p","403 · требуется tenant.provision.approve. Выберите Reviewer в разделе входа."));return;}
  const mode=reviewMode;
- const items=reviews.filter(r=>mode==="pending"?r.state==="requested":r.state===mode);
+ const items=mode==="pending"?reviews.filter(r=>r.state==="requested"):
+ reviewDecisions.filter(h=>h.decision===mode&&h.reviewerActorId===session.actorId)
+  .map(h=>reviews.find(r=>r.requestId===h.requestId)).filter(Boolean);
+ const approvalsEnabled=serverMode==="restricted"||serverMode==="lab";
+ $("review-approval-text").textContent=approvalsEnabled?
+  "Restricted/LAB fixture: решение доступно только с имитацией подтверждения. В VDMS нужны password + TOTP, серверные флаги и SQL v57/v59.":
+  "Стандартный режим: approval/reject выключены серверным флагом. Очередь доступна только для чтения Reviewer.";
  $("review-count").textContent=String(items.length);
- if(!items.length){root.append(textNode("p",mode==="pending"?"Нет ожидающих заявок. Создайте заявку под Owner, затем войдите Reviewer.":"В этой mock-истории пока нет решений."));return;}
+ if(!items.length){root.append(textNode("p",mode==="pending"?"Нет ожидающих заявок. Создайте заявку под Owner или загрузите тестовые заявки Reviewer.":"В личной истории Reviewer пока нет решений."));return;}
  for(const r of items){
   const div=document.createElement("article");div.className="mp-record";
   const info=document.createElement("div");info.append(textNode("strong",r.tenantName+" · "+r.state),textNode("small","Request "+r.requestId+" · "+r.requesterLogin+" · revision "+r.expectedRevision+" · "+r.createdAt));
   div.append(info);
   const actions=document.createElement("div");actions.className="mp-row";
-  if(r.state!=="requested"){actions.append(textNode("span","Решение Reviewer: "+r.state,"mp-badge"));div.append(actions);root.append(div);continue;}
+  if(mode!=="pending"){const item=reviewDecisions.find(x=>x.requestId===r.requestId&&x.reviewerActorId===session.actorId);
+ actions.append(textNode("span","Решение Reviewer: "+r.state+(item?.reason?" · Причина: "+item.reason:""),"mp-badge"));div.append(actions);root.append(div);continue;}
+ if(!approvalsEnabled){actions.append(textNode("span","Одобрение недоступно в конфигурации сервера (mock).","mp-help"));div.append(actions);root.append(div);continue;}
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
    b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
@@ -221,7 +231,7 @@ function renderReviews(){
 
 let reviewTargetId=null,reviewTargetDecision=null;
 function openReviewDecision(r,decision){
- if(!session||!permitted("tenant.provision.approve")||r.requesterActorId===session.actorId){feedback("403: самостоятельное одобрение недопустимо.",true);return;}
+ if(!session||!permitted("tenant.provision.approve")||r.requesterActorId===session.actorId||serverMode==="standard"){feedback("403: нет допуска Reviewer или серверный режим Approval отключён.",true);return;}
  reviewTargetId=r.requestId;reviewTargetDecision=decision;
  $("review-decision-form").reset();$("review-decision-error").textContent="";
  $("review-reason-field").hidden=decision!=="rejected";
@@ -235,8 +245,12 @@ $("review-cancel").addEventListener("click",closeReviewDecision);
 $("review-decision-form").addEventListener("submit",e=>{
  e.preventDefault();$("review-decision-error").textContent="";
  const r=reviews.find(x=>x.requestId===reviewTargetId);
- if(!r||r.state!=="requested"||!permitted("tenant.provision.approve")||r.requesterActorId===session?.actorId){
+ if(!r||r.state!=="requested"||!permitted("tenant.provision.approve")||r.requesterActorId===session?.actorId||serverMode==="standard"){
   $("review-decision-error").textContent="403/409: решение больше недоступно.";return;
+ }
+ const company=companies.find(c=>c.tenantId===r.tenantId);
+ if(!company||company.status!=="draft"||company.revision!==r.expectedRevision){
+  $("review-decision-error").textContent="409: revision компании изменилась либо draft недоступен.";return;
  }
  if(!$("review-decision-consent").checked){$("review-decision-error").textContent="Подтвердите демонстрационный характер решения.";return;}
  let reason=null;
@@ -311,7 +325,7 @@ function renderReviewer(){
  renderSelectedInvitation();
  if(showHistory){
   const historyPanel=$("reviewer-history-panel");historyPanel.hidden=false;historyPanel.replaceChildren(textNode("strong","GET /activation-reviews/history · mock"));
-  historyPanel.append(textNode("p",reviewDecisions.length?reviewDecisions.map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
+  historyPanel.append(textNode("p",reviewDecisions.length?reviewDecisions.filter(x=>x.reviewerActorId===session.actorId).map(x=>x.requestId.slice(0,8)+": "+x.decision).join(" · "):"У текущего Reviewer пока нет решений в mock-истории."));
  }else $("reviewer-history-panel").hidden=true;
 }
 function renderSelectedInvitation(){
@@ -393,6 +407,21 @@ document.querySelectorAll("[data-review-mode]").forEach(btn=>btn.addEventListene
  document.querySelectorAll("[data-review-mode]").forEach(tab=>{const active=tab===btn;tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;});
  renderReviews();
 }));
+$("review-seed-demo").addEventListener("click",()=>{
+ if(!permitted("tenant.provision.approve")){feedback("403: требуется Reviewer.",true);return;}
+ if(dataMode!=="demo"){feedback("Пустой набор: перейдите на Owner Overview и выберите демо-данные.",true);return;}
+ let added=0;
+ for(const code of ["north","delta"]){
+  const c=companies.find(x=>x.code===code&&x.status==="draft");
+  if(!c||reviews.some(r=>r.tenantId===c.tenantId))continue;
+  reviews.push({requestId:requestId(),tenantId:c.tenantId,tenantName:c.name,tenantCode:c.code,requesterActorId:"mock-owner",requesterLogin:"fixture-owner",expectedRevision:c.revision,createdAt:"2026-11-23T11:00:00Z",state:"requested"});
+  added++;
+ }
+ reviewMode="pending";
+ document.querySelectorAll("[data-review-mode]").forEach(tab=>{let active=tab.dataset.reviewMode==="pending";tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;});
+ renderReviews();
+ feedback("Mock Reviewer: загружено "+added+" заявок из тех же данных Owner, без API.");
+});
 $("review-refresh").addEventListener("click",()=>{renderReviews();feedback("Mock GET /activation-reviews · обновлено без сетевого запроса.");});
 $("reviewer-operator").addEventListener("change",()=>{reviewerChecked=false;renderReviewer();});
 $("reviewer-check-status").addEventListener("click",()=>{reviewerChecked=true;renderReviewer();feedback("Mock GET /reviewers/status → 200 или 503; состояние не проверено на сервере.");});
