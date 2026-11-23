@@ -1,0 +1,33 @@
+name: Central Platform concept browser smoke
+on:
+  pull_request:
+    paths:
+      - 'modules/platform/contract-demo/**'
+      - '.github/workflows/platform-concept-browser.yml'
+  workflow_dispatch:
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test tools
+        run: |
+          npm install --no-save --no-package-lock @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Serve static prototype
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/monitoring-concept-http.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8765/modules/platform/contract-demo/index.html >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Browser scenarios
+        run: npx playwright test modules/platform/contract-demo/tests/browser.spec.cjs --reporter=line
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: concept-browser-failure
+          path: test-results/
