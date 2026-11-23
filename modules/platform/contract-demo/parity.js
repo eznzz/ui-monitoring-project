@@ -54,7 +54,7 @@ function tableCell(value,label){
 function overview(){
  $("overview-data-mode").value=ctx.dataMode;
  $("overview-mode-label").textContent=ctx.dataMode==="empty"?"Пустое состояние":"Демонстрационные данные";
- $("overview-kpi-source").textContent=ctx.dataMode==="empty"?"Источник: пустой mock-набор":"Источник: 8 демонстрационных компаний";
+ $("overview-kpi-source").textContent=ctx.dataMode==="empty"?"Источник: пустой mock-набор":"Источник: "+ctx.companies.length+" записей текущего mock-набора";
  const root=$("overview-kpis"),companyBody=$("overview-companies-body"),statuses=$("overview-company-statuses"),dbBody=$("overview-databases-body");
  for(const el of [root,companyBody,statuses,dbBody])empty(el);
  const allowed=canCompanies();
