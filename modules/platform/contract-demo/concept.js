@@ -127,7 +127,13 @@ function renderCompanies(){
   const tr=document.createElement("tr"),td=textNode("td","403 · нет tenant.read. Войдите через тестовую фикстуру с правом чтения.");td.colSpan=5;tr.append(td);tbody.append(tr);
   $("company-more").hidden=true;$("company-more").disabled=true;$("company-range").textContent="Нет доступа";$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
  }
- const filtered=companies.filter(c=>(filter==="all"||c.status===filter)&&(c.name.toLowerCase().includes(query)||c.code.toLowerCase().includes(query)));
+ const normalized=text=>String(text??"").toLocaleLowerCase("ru").normalize("NFKC");
+ const filtered=companies.filter(c=>{
+  if(filter!=="all"&&c.status!==filter)return false;
+  if(!query)return true;
+  const searchable=[c.tenantId,c.code,c.name,...Object.values(c.profile||{})].map(normalized).join(" ");
+  return searchable.includes(normalized(query));
+ });
  const shown=filtered.slice(0,companyShown);
  if(!shown.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет компаний с такими параметрами поиска.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;tr.append(td);tbody.append(tr);}
  for(const c of shown){
@@ -135,6 +141,8 @@ function renderCompanies(){
   for(const [i,value] of [c.code,c.name,c.status,c.revision].entries()){const cell=textNode("td",value);cell.dataset.label=["Код","Компания","Статус","Revision"][i];tr.append(cell);}
   const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
  }
+ $("company-filter-summary").textContent=(query||filter!=="all")?"Найдено: "+filtered.length+" · поиск только по загруженным демо-данным":"Все загруженные компании: "+companies.length;
+ $("company-reset").disabled=!query&&filter==="all";
  const hasMore=shown.length<filtered.length, batch=Number($("company-batch").value);
  $("company-more").hidden=!hasMore;
  $("company-more").disabled=!hasMore;
@@ -279,6 +287,10 @@ $("company-status").addEventListener("change",()=>{companyShown=Number($("compan
 $("company-search").addEventListener("input",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
 $("company-batch").addEventListener("change",()=>{companyShown=Number($("company-batch").value);renderCompanies();});
 $("company-more").addEventListener("click",()=>{companyShown+=Number($("company-batch").value);renderCompanies();});
+$("company-reset").addEventListener("click",()=>{
+ $("company-search").value="";$("company-status").value="all";
+ companyShown=Number($("company-batch").value);renderCompanies();
+});
 $("new-company").addEventListener("click",()=>openRecord(null));
 $("record-form").addEventListener("submit",saveRecord);
 $("close-record").addEventListener("click",()=>$("record-dialog").close());
@@ -412,10 +424,31 @@ function renderLogs(){
   $("log-more").hidden=true;$("log-more").disabled=true;$("log-range").textContent="Нет доступа";return;
  }
  const cat=$("log-category").value,batch=Number($("log-limit").value);
- const values=baseLogs.filter(x=>cat==="all"||x.category===cat);
+ const query=$("log-search").value.trim().toLocaleLowerCase("ru").normalize("NFKC");
+ const dateFrom=$("log-date-from").value,dateTo=$("log-date-to").value;
+ const timeFrom=$("log-time-from").value,timeTo=$("log-time-to").value;
+ const hasInvalidDate=dateFrom&&dateTo&&dateFrom>dateTo;
+ const hasInvalidTime=timeFrom&&timeTo&&timeFrom>timeTo;
+ const invalid=hasInvalidDate||hasInvalidTime;
+ $("log-filter-error").textContent=hasInvalidDate?"Начальная дата позже конечной. Исправьте диапазон.":hasInvalidTime?"Начальное время позже конечного. Исправьте диапазон UTC.":"";
+ if(invalid){
+  const tr=document.createElement("tr"),td=textNode("td","Исправьте диапазон дат или времени для отображения событий.");td.colSpan=5;tr.append(td);tbody.append(tr);
+  $("log-range").textContent="Диапазон некорректен";
+  $("log-more").hidden=true;$("log-more").disabled=true;return;
+ }
+ const values=baseLogs.filter(x=>{
+  if(cat!=="all"&&x.category!==cat)return false;
+  if(query&&![x.at,x.category,x.eventType,x.outcome,x.subject].join(" ").toLocaleLowerCase("ru").normalize("NFKC").includes(query))return false;
+  const day=x.at.slice(0,10),time=x.at.slice(11,16);
+  if(dateFrom&&day<dateFrom)return false;
+  if(dateTo&&day>dateTo)return false;
+  if(timeFrom&&time<timeFrom)return false;
+  if(timeTo&&time>timeTo)return false;
+  return true;
+ });
  const shown=values.slice(0,logShown);
  for(const item of shown){const row=document.createElement("tr");for(const [i,key] of ["at","category","eventType","outcome","subject"].entries()){const cell=textNode("td",item[key]);cell.dataset.label=["Дата","Категория","Событие","Результат","Объект"][i];row.append(cell);}tbody.append(row);}
- if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Журнал пуст.");td.colSpan=5;tr.append(td);tbody.append(tr);}
+ if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Нет событий по выбранным условиям.");td.colSpan=5;tr.append(td);tbody.append(tr);}
  const hasMore=shown.length<values.length;
  $("log-range").textContent=values.length?"Показано "+shown.length+" из "+values.length:"Записей: 0";
  $("log-more").hidden=!hasMore;$("log-more").disabled=!hasMore;
@@ -450,9 +483,14 @@ $("reviewer-existing-check").addEventListener("click",()=>{reviewerDetailLoaded=
 $("reviewer-status-filter").addEventListener("change",renderReviewer);
 $("invite-reviewer").addEventListener("click",createInvitation);
 $("reviewer-history").addEventListener("click",()=>{showHistory=!showHistory;renderReviewer();});
-$("log-category").addEventListener("change",()=>{logShown=Number($("log-limit").value);renderLogs();});
-$("log-limit").addEventListener("change",()=>{logShown=Number($("log-limit").value);renderLogs();});
+const onLogFilterChange=()=>{logShown=Number($("log-limit").value);renderLogs();};
+for(const id of ["log-category","log-limit","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).addEventListener("change",onLogFilterChange);
+$("log-search").addEventListener("input",onLogFilterChange);
 $("log-more").addEventListener("click",()=>{logShown+=Number($("log-limit").value);renderLogs();});
+$("log-reset").addEventListener("click",()=>{
+ for(const id of ["log-search","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).value="";
+ $("log-category").value="all";onLogFilterChange();
+});
 
 $("overview-data-mode").addEventListener("change",()=>changeDataMode($("overview-data-mode").value));
 $("overview-load-demo").addEventListener("click",()=>changeDataMode("demo",true));
