@@ -263,7 +263,7 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await page.locator('#overview-companies-body tr').last().getByRole('button',{name:'Открыть'}).click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await expect(page.locator('#company-detail')).toContainText('Polar Research');
- await expect(page.locator('#page-indicator')).toContainText('Страница 4');
+ await expect(page.locator('#page-indicator')).toHaveText('4 / 4');
  expect(errors).toEqual([]);
 });
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
@@ -413,4 +413,42 @@ test('LAB-only route toggles and active Reviewer permissions are independent',as
  await page.locator('#mock-login').click();await page.locator('#open-platform').click();
  await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
+});
+
+test('compact company pager shows range, boundaries and filtered totals',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ const pager=page.locator('#screen-companies nav[aria-label="Страницы списка компаний"]');
+ await expect(pager).toBeVisible();
+ await expect(page.locator('#page-range')).toHaveText('Показано 1–2 из 8');
+ await expect(page.locator('#page-indicator')).toHaveText('1 / 4');
+ await expect(page.locator('#prev-page')).toBeDisabled();
+ await expect(page.locator('#next-page')).toBeEnabled();
+ await page.locator('#next-page').click();
+ await expect(page.locator('#page-indicator')).toHaveText('2 / 4');
+ await expect(page.locator('#page-range')).toHaveText('Показано 3–4 из 8');
+ await page.locator('#next-page').click();await page.locator('#next-page').click();
+ await expect(page.locator('#page-indicator')).toHaveText('4 / 4');
+ await expect(page.locator('#page-range')).toHaveText('Показано 7–8 из 8');
+ await expect(page.locator('#next-page')).toBeDisabled();
+ await page.locator('#company-status').selectOption('draft');
+ await expect(page.locator('#page-indicator')).toHaveText('1 / 1');
+ await expect(page.locator('#page-range')).toHaveText('Показано 1–2 из 2');
+ await expect(page.locator('#prev-page')).toBeDisabled();
+ await expect(page.locator('#next-page')).toBeDisabled();
+ await page.locator('#company-status').selectOption('all');
+ await page.setViewportSize({width:390,height:844});
+ await expect(pager).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
+ expect(errors).toEqual([]);
+});
+test('compact company pager covers empty state without phantom pages',async ({page})=>{
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ await page.locator('#concept-nav a[data-page="overview"]').click();
+ await page.locator('#overview-data-mode').selectOption('empty');
+ await page.locator('#overview-open-companies').click();
+ await expect(page.locator('#page-range')).toHaveText('Компаний: 0');
+ await expect(page.locator('#page-indicator')).toHaveText('1 / 1');
+ await expect(page.locator('#prev-page')).toBeDisabled();
+ await expect(page.locator('#next-page')).toBeDisabled();
 });
