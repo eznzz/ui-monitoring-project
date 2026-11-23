@@ -13,8 +13,11 @@ const seed=[
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c803",code:"EAST",name:"East Maritime (demo)",status:"provisioning",revision:2,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c804",code:"WEST",name:"West Operations (demo)",status:"suspended",revision:5,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}},
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c805",code:"SOUTH",name:"South Transport (demo)",status:"disabled",revision:4,profile:{legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""}}
-];
-let companies=structuredClone(seed), session=null, page="login", pageNo=0, selectedId=null, editingId=null;
+ ,
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c806",code:"HARBOR",name:"Harbor Engineering (demo)",status:"active",revision:4,profile:{legalName:"Harbor Engineering Ltd.",tradeName:"Harbor Tech",description:"Сервисная компания · демонстрация",registrationNumber:"HE-DEMO",taxNumber:"",countryCode:"DE",contactEmail:"contact@example.test",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c807",code:"DELTA",name:"Delta Offshore (demo)",status:"draft",revision:1,profile:{legalName:"Delta Offshore Demo GmbH",tradeName:"Delta",description:"Черновик компании · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"DE",contactEmail:"",website:""}},
+ {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c808",code:"POLAR",name:"Polar Research (demo)",status:"active",revision:6,profile:{legalName:"Polar Research Inc.",tradeName:"Polar",description:"Научная организация · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"NO",contactEmail:"research@example.test",website:""}}];
+let companies=structuredClone(seed), dataMode="demo", session=null, page="login", pageNo=0, selectedId=null, editingId=null;
 let reviews=[], reviewDecisions=[], forcedConflict=false;
 const $=id=>document.getElementById(id);
 const profile=()=>({legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""});
@@ -61,6 +64,24 @@ function updateActions(){
  $("new-company").title=permitted("tenant.create")?"POST /companies":"Нет tenant.create в mock GET /me";
  renderCompanies();renderReviews();renderReviewer();renderLogs();if(window.MPPlatformParity)window.MPPlatformParity.render(page,parityContext());
 }
+
+function changeDataMode(next){
+ if(!["demo","empty"].includes(next)||next===dataMode)return;
+ dataMode=next;
+ companies=next==="demo"?structuredClone(seed):[];
+ reviews=[];reviewDecisions=[];invitations.length=0;
+ reviewerChecked=false;selectedInvitationId="";reviewerDetailLoaded=false;
+ showHistory=false;selectedId=null;editingId=null;forcedConflict=false;pageNo=0;logOffset=0;
+ $("company-status").value="all";$("company-search").value="";
+ $("reviewer-status-filter").value="all";reviewMode="pending";
+ document.querySelectorAll("[data-review-mode]").forEach(tab=>{
+  const active=tab.dataset.reviewMode==="pending";tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;
+ });
+ if(window.MPPlatformParity?.resetFixtures)window.MPPlatformParity.resetFixtures();
+ $("overview-data-mode").value=dataMode;
+ feedback(dataMode==="empty"?"Пустое состояние: компании и связанные фикстуры очищены (только в браузере).":"Демо-данные восстановлены. Ранее созданные mock-записи сброшены.");
+ updateActions();
+}
 function renderCompanies(){
  const tbody=$("companies-body");tbody.replaceChildren();
  const filter=$("company-status").value,query=$("company-search").value.trim().toLowerCase();
@@ -72,14 +93,14 @@ function renderCompanies(){
  const pages=Math.max(1,Math.ceil(filtered.length/2));pageNo=Math.min(pageNo,pages-1);
  // This is a deterministic cursor-like UI fixture, not a real server search API.
  const view=filtered.slice(pageNo*2,(pageNo+1)*2).filter(c=>c.name.toLowerCase().includes(query)||c.code.toLowerCase().includes(query));
- if(!view.length){const tr=document.createElement("tr");const td=textNode("td","Нет записей на этой странице.");td.colSpan=5;tr.append(td);tbody.append(tr);}
+ if(!view.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет записей на этой странице.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;tr.append(td);tbody.append(tr);}
  for(const c of view){
   const tr=document.createElement("tr");
   for(const [i,value] of [c.code,c.name,c.status,c.revision].entries()){const cell=textNode("td",value);cell.dataset.label=["Код","Компания","Статус","Revision"][i];tr.append(cell);}
   const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
  }
  $("prev-page").disabled=pageNo===0;$("next-page").disabled=pageNo>=pages-1;
- $("page-indicator").textContent="Страница "+(pageNo+1)+" / "+pages+" · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
+ $("page-indicator").textContent=(companies.length?"Страница "+(pageNo+1)+" / "+pages:"Компаний: 0")+" · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
  renderDetail();
 }
 function renderDetail(){
@@ -352,6 +373,7 @@ $("log-limit").addEventListener("change",()=>{logOffset=0;renderLogs();});
 $("log-prev").addEventListener("click",()=>{logOffset=Math.max(0,logOffset-Number($("log-limit").value));renderLogs();});
 $("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").value);renderLogs();});
 
+$("overview-data-mode").addEventListener("change",()=>changeDataMode($("overview-data-mode").value));
 $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  $("open-platform").addEventListener("click",()=>navigate("companies"));
  function openOverviewCompany(tenantId){
@@ -362,6 +384,6 @@ $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  $("company-status").value="all";$("company-search").value="";
  navigate("companies");renderCompanies();
 }
-function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate,openOverviewCompany};}
+function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate,openOverviewCompany,dataMode};}
  navigate(location.hash.slice(1)||"login");updateActions();
 })();
