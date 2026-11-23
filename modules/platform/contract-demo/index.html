@@ -146,20 +146,20 @@
  </div>
 </section>
 <section class="mp-card mp-stack" data-screen="companies" id="screen-companies" hidden aria-labelledby="companies-heading">
-  <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · фильтр status, cursor pagination</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
+  <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · фильтр status, cursor; кнопка «Показать ещё» дополняет список</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
   <div class="mp-form-grid">
    <div class="mp-field"><label for="company-status">Статус</label><select id="company-status"><option value="all">Все</option><option value="draft">draft</option><option value="provisioning">provisioning</option><option value="active">active</option><option value="suspended">suspended</option><option value="disabled">disabled</option></select></div>
-   <div class="mp-field"><label for="company-search">Поиск на текущей странице (демо)</label><input id="company-search" type="search" placeholder="Название или код"></div>
+   <div class="mp-field"><label for="company-search">Поиск по загруженным компаниям (демо)</label><input id="company-search" type="search" placeholder="Название или код"></div>
   </div>
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
-  <nav class="mp-page-tools" aria-label="Страницы списка компаний">
-   <span class="mp-help" id="page-range" aria-live="polite">Показано 1–2 из 8</span>
-   <div class="mp-row" role="group" aria-label="Переключение страниц">
-    <button class="mp-btn mp-btn--secondary" id="prev-page" type="button" aria-label="Предыдущая страница" title="Предыдущая страница"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
-    <span class="mp-pill" id="page-indicator" aria-live="polite">1 / 4</span>
-    <button class="mp-btn mp-btn--secondary" id="next-page" type="button" aria-label="Следующая страница" title="Следующая страница"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+  <div class="mp-page-tools" aria-label="Загрузка списка компаний">
+   <span class="mp-help" id="company-range" aria-live="polite">Показано 5 из 8</span>
+   <div class="mp-row">
+    <label class="mp-help" for="company-batch">Добавлять по</label>
+    <select id="company-batch" aria-label="Количество компаний при загрузке"><option value="5">5</option><option value="10">10</option></select>
+    <button class="mp-btn mp-btn--secondary" id="company-more" type="button">Показать ещё 5</button>
    </div>
-  </nav>
+  </div>
   <section class="mp-subtle mp-stack" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
 </section>
 
@@ -239,9 +239,12 @@
 <section class="mp-card mp-stack" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
  <h2 class="mp-section-title" id="logs-heading">Журнал платформы</h2>
  <p class="mp-help">GET /platform-logs?limit&amp;offset · только Platform Owner с действующим MFA, tenant.create и tenant.activate. Данные демонстрационные.</p>
- <div class="mp-form-grid"><div class="mp-field"><label for="log-category">Фильтр категории (локальная fixture)</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div><div class="mp-field"><label for="log-limit">limit</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div></div>
+ <div class="mp-form-grid"><div class="mp-field"><label for="log-category">Фильтр категории (локальная fixture)</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div><div class="mp-field"><label for="log-limit">Добавлять записей</label><select id="log-limit"><option value="5">5</option><option value="10">10</option></select></div></div>
  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
- <div class="mp-page-tools"><span id="log-offset">offset: 0</span><button class="mp-btn mp-btn--secondary" id="log-prev" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="log-next" type="button">Вперёд</button></div>
+ <div class="mp-page-tools" aria-label="Загрузка событий журнала">
+  <span class="mp-help" id="log-range" aria-live="polite">Показано 5 из 6</span>
+  <button class="mp-btn mp-btn--secondary" id="log-more" type="button">Показать ещё 5</button>
+ </div>
 </section>
 <section class="mp-card mp-stack" data-screen="contract" id="screen-contract" hidden aria-labelledby="contract-heading">
  <h2 class="mp-section-title" id="contract-heading">Границы и источники</h2>
