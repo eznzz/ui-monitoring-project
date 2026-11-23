@@ -244,6 +244,7 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await expect(page.locator('#overview-tenant-body')).toContainText('Documents (пример)');
  await page.locator('#overview-tenant-select').selectOption({label:'Blue Logistics (demo) · BLUE'});
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Модулей в фикстуре: 2');
+ await page.locator('#overview-tenant-kind').selectOption('users');
  await page.locator('#overview-tenant-select').selectOption({label:'South Transport (demo) · SOUTH'});
  await expect(page.locator('#overview-tenant-kpis')).toContainText('Пользователей в этой тестовой компании нет');
  await expect(page.locator('#overview-databases-body')).toContainText('Не проверено');
