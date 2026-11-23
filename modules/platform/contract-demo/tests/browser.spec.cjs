@@ -248,6 +248,10 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await expect(page.locator('#overview-tenant-kpis')).toContainText('нет Tenant-фикстур');
  await expect(page.locator('#overview-databases-body')).toContainText('Не проверено');
  await expect(page.locator('#overview-databases-body')).toContainText('Требуется C01 проверка');
+ await page.locator('#overview-companies-body tr').last().getByRole('button',{name:'Открыть'}).click();
+ await expect(page.locator('#screen-companies')).toBeVisible();
+ await expect(page.locator('#company-detail')).toContainText('South Transport');
+ await expect(page.locator('#page-indicator')).toContainText('Страница 3');
  expect(errors).toEqual([]);
 });
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
