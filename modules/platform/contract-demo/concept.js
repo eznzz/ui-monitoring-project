@@ -87,7 +87,7 @@ function renderDetail(){
  const c=selected();if(!c){panel.append(textNode("p","Выберите компанию для просмотра карточки."));return;}
  panel.append(textNode("h3",c.name),textNode("small","GET "+prefix+"/companies/{tenantID} · mock 200"));
  const dl=document.createElement("dl");
- const pairs=[["Tenant UUID",c.tenantId],["Код",c.code],["Статус",c.status],["Revision",c.revision],["Legal name",c.profile.legalName||"—"],["Contact email",c.profile.contactEmail||"—"]];
+ const pairs=[["Tenant UUID",c.tenantId],["Код",c.code],["Статус",c.status],["Revision",c.revision],["Юридическое название",c.profile.legalName||"—"],["Торговое название",c.profile.tradeName||"—"],["Описание",c.profile.description||"—"],["Регистрационный номер",c.profile.registrationNumber||"—"],["Налоговый номер",c.profile.taxNumber||"—"],["Страна",c.profile.countryCode||"—"],["Контактный e-mail",c.profile.contactEmail||"—"],["Веб-сайт",c.profile.website||"—"]];
  for(const [name,value] of pairs)dl.append(textNode("dt",name),textNode("dd",value));
  panel.append(dl);
  const actions=document.createElement("div");actions.className="mp-row";
@@ -102,25 +102,29 @@ function openRecord(id){
  $("record-form").reset();$("record-error").textContent="";
  $("record-mode").textContent=c?"PATCH /companies/{tenantID}":"POST /companies";
  $("record-dialog-title").textContent=c?"Редактирование черновика":"Новая компания";
- $("record-note").textContent=c?"Изменить только name и contactEmail с expectedRevision="+c.revision+".":"Создать draft: requestId (UUID v4), code, name.";
- $("code-field").hidden=Boolean(c);$("email-field").hidden=!c;
- $("record-code").value=c?.code||"";$("record-name").value=c?.name||"";$("record-email").value=c?.profile.contactEmail||"";
+ $("record-note").textContent=c?"Изменить name и поля profile с expectedRevision="+c.revision+".":"Создать draft: requestId (UUID v4), code, name.";
+ $("code-field").hidden=Boolean(c);$("profile-fields").hidden=!c;
+ $("record-code").value=c?.code||"";$("record-name").value=c?.name||"";
+ for(const key of ["legalName","tradeName","description","registrationNumber","taxNumber","countryCode","contactEmail","website"])$("profile-"+key).value=c?.profile[key]||"";
  $("record-dialog").showModal();$("record-name").focus();
 }
 function saveRecord(ev){
  ev.preventDefault();$("record-error").textContent="";
- const name=$("record-name").value.trim(),code=$("record-code").value.trim().toUpperCase(),email=$("record-email").value.trim();
- if(!name){$("record-error").textContent="Введите название.";return;}
+ const name=$("record-name").value.trim(),code=$("record-code").value.trim();
+ if(!name||name.length>200){$("record-error").textContent="Введите название (не более 200 символов).";return;}
  if(editingId){
   const c=companies.find(x=>x.tenantId===editingId);
   if(!c||c.status!=="draft"||!permitted("tenant.draft.update")){$("record-error").textContent="403: действие недоступно.";return;}
   if(forcedConflict){forcedConflict=false;$("record-error").textContent="409: revision устарела. Закройте форму, перечитайте карточку и повторите изменение.";return;}
-  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$("record-error").textContent="Проверьте формат e-mail.";return;}
-  c.name=name;c.profile.contactEmail=email;c.revision++;
+  const updated={};
+  for(const key of ["legalName","tradeName","description","registrationNumber","taxNumber","countryCode","contactEmail","website"])updated[key]=$("profile-"+key).value.trim();
+  if(updated.contactEmail&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(updated.contactEmail)){$("record-error").textContent="Проверьте формат e-mail.";return;}
+  if(updated.countryCode&&!/^[A-Za-z]{2}$/.test(updated.countryCode)){$("record-error").textContent="Код страны: две латинские буквы.";return;}
+  c.name=name;Object.assign(c.profile,updated);c.revision++;
   feedback("Mock PATCH "+prefix+"/companies/{tenantID} → 200, revision="+c.revision+".");
  }else{
   if(!permitted("tenant.create")){$("record-error").textContent="403: нет tenant.create.";return;}
-  if(!code||!/^[A-Z0-9_-]{2,40}$/.test(code)){$("record-error").textContent="Код: 2–40 символов A–Z, 0–9, _ или -.";return;}
+  if(code.length<2||code.length>63||!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(code)){$("record-error").textContent="Код: 2–63 символа, строчные a–z, 0–9 и дефис между сегментами.";return;}
   if(companies.some(c=>c.code===code)){$("record-error").textContent="409: такой code уже существует.";return;}
   const id=requestId(),newId=requestId();
   const c={tenantId:newId,code,name,status:"draft",revision:1,profile:profile()};
