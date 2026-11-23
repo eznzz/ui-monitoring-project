@@ -61,6 +61,9 @@ test('409 and reviewer activation flow',async ({page})=>{
  await page.locator('a[data-page="activation"]').click();
  await expect(page.locator('#activation-queue')).toContainText('North Shipping');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
+ await expect(page.locator('#review-decision-dialog')).toBeVisible();
+ await page.locator('#review-decision-consent').check();
+ await page.locator('#review-submit').click();
  await page.locator('[data-review-mode="approved"]').click();
  await expect(page.locator('#activation-queue')).toContainText('approved');
  expect(errors).toEqual([]);
@@ -161,6 +164,9 @@ test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
  await page.locator('a[data-page="activation"]').click();
  await expect(page.locator('#review-count')).toHaveText('1');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
+ await expect(page.locator('#review-decision-dialog')).toBeVisible();
+ await page.locator('#review-decision-consent').check();
+ await page.locator('#review-submit').click();
  await expect(page.locator('#review-count')).toHaveText('0');
  await page.locator('[data-review-mode="approved"]').click();
  await expect(page.locator('#activation-queue')).toContainText('North Shipping');
@@ -195,5 +201,28 @@ test('Reviewer invitation existing request, SMTP uncertainty and owner confirmat
  await page.getByRole('button',{name:'Подтвердить Reviewer (mock)'}).click();
  await page.locator('#reviewer-existing-check').click();
  await expect(page.locator('#reviewer-selected-detail')).toContainText('confirmed');
+ expect(errors).toEqual([]);
+});
+
+test('VDMS Reviewer rejection requires reason and records own rejection',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ await page.locator('a[data-page="companies"]').click();
+ await page.locator('#companies-body button').first().click();
+ await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reviewer');
+ await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await page.locator('a[data-page="activation"]').click();
+ await page.getByRole('button',{name:'Отклонить (mock)'}).click();
+ await expect(page.locator('#review-decision-dialog')).toBeVisible();
+ await page.locator('#review-decision-consent').check();
+ await page.locator('#review-submit').click();
+ await expect(page.locator('#review-decision-error')).toContainText('причину отказа');
+ await page.locator('#review-reason').fill('Missing compliance documents');
+ await page.locator('#review-submit').click();
+ await expect(page.locator('#review-decision-dialog')).not.toBeVisible();
+ await page.locator('[data-review-mode="rejected"]').click();
+ await expect(page.locator('#activation-queue')).toContainText('rejected');
  expect(errors).toEqual([]);
 });
