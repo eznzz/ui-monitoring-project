@@ -2,15 +2,16 @@ name: Central Platform concept browser smoke
 on:
   push:
     branches: [preview]
-    paths:
-      - 'preview/**'
-      - 'modules/platform/contract-demo/**'
-      - '.github/workflows/platform-concept-browser.yml'
   pull_request:
     paths:
       - 'modules/platform/contract-demo/**'
       - '.github/workflows/platform-concept-browser.yml'
   workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: platform-preview-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   browser-smoke:
     runs-on: ubuntu-latest
@@ -56,3 +57,46 @@ jobs:
         with:
           name: concept-browser-failure
           path: test-results/
+
+      - name: Stage static site for GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
+        run: |
+          mkdir -p _site
+          cp -R preview modules components tokens _site/
+          cp index.html style.css script.js mobile.css _site/
+          touch _site/.nojekyll
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="ru">
+          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <meta name="robots" content="noindex,nofollow">
+          <meta http-equiv="refresh" content="0;url=./preview/">
+          <title>Monitoring Project — Preview</title></head>
+          <body><p>Перейти к <a href="./preview/">Monitoring Project Preview</a>.</p></body>
+          </html>
+          HTML
+          test -f _site/preview/index.html
+          test -f _site/modules/platform/contract-demo/index.html
+          test -f _site/tokens/tokens.css
+          test -f _site/style.css
+      - name: Package GitHub Pages site
+        if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy-pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
+    needs: browser-smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy validated preview to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
