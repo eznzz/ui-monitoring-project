@@ -75,7 +75,7 @@ function overview(){
   const count=companies.filter(c=>c.status===status).length;
   statuses.append(element("span",status+" · "+count,"mp-badge"));
  }
- if(!companies.length)companyBody.append(element("tr")).firstChild?.append(tableCell("Нет загруженных компаний","Компании"));
+ if(!companies.length){const tr=element("tr");const td=tableCell("Нет загруженных компаний","Компании");td.colSpan=5;tr.append(td);companyBody.append(tr);}
  for(const company of companies){
   const tr=element("tr");
   tr.append(tableCell(company.name,"Компания"),tableCell(company.code,"Код"),tableCell(company.status,"Статус Platform"),tableCell(company.revision,"Ревизия"));
