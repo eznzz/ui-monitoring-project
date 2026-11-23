@@ -182,7 +182,7 @@ function mailOperator(){
 }
 function mail(){
  const root=$("mail-settings");empty(root);
- if(!canReviewerAdmin()&&!ctx.permitted("platform.mail.manage")){restricted(root,"Требуется platform.mail.manage либо разрешение Owner для Reviewer.");$("mail-check").disabled=true;return;}
+ if(!ctx.permitted("platform.mail.diagnose")){restricted(root,"Для GET /mail/settings требуется platform.mail.diagnose (явная SQL grant), даже если Lab UI отображается.");$("mail-check").disabled=true;return;}
  const info=[["host","smtp.example.test (fixture)"],["port","587"],["encryption","starttls"],["tlsVerify","true"],["from","noreply@example.test"],["credentialsConfigured","false"]];
  info.forEach(([k,v])=>root.append(detail(k,v)));
  $("mail-check").disabled=!mailLab;
@@ -238,8 +238,11 @@ mailMode.append(labLabel,lab);
 $("mail-check").parentElement.parentElement.insertBefore(mailMode,$("mail-check").parentElement);
 lab.addEventListener("change",()=>{mailLab=lab.value==="on";mail();});
 $("mail-check").addEventListener("click",()=>{
- if(!mailLab||(!canReviewerAdmin()&&!ctx.permitted("platform.mail.manage"))){ctx.feedback("Действие недоступно.",true);return;}
  const action=$("mail-action").value,recipient=$("mail-recipient").value;
+ const required=action==="send"?"platform.mail.test_send":"platform.mail.diagnose";
+ if(!mailLab||!ctx.permitted(required)){ctx.feedback("403: для "+action+" требуется "+required+".",true);return;}
+ if((action==="tls"||action==="auth")&&recipient){ctx.feedback("400: получатель для tls/auth должен быть пустым.",true);return;}
+ if((action==="envelope"||action==="send")&&!["owner","reviewer"].includes(recipient)){ctx.feedback("400: для envelope/send выберите owner или reviewer.",true);return;}
  mailAttempt++;
  const outcome=action==="send"?"failed":"passed",stage=action==="send"?"unavailable":action==="auth"?"auth":action==="envelope"?"rcpt_to":"tls";
  $("mail-result").textContent="Mock HTTP 200 · status: "+outcome+" · stage: "+stage+" · request #"+mailAttempt;
