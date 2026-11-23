@@ -226,3 +226,45 @@ test('VDMS Reviewer rejection requires reason and records own rejection',async (
  await expect(page.locator('#activation-queue')).toContainText('rejected');
  expect(errors).toEqual([]);
 });
+
+test('full overview separates Platform company counts and demo Tenant users/modules',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');await page.locator('#open-platform').click();
+ await page.locator('a[data-page="overview"]').click();
+ await expect(page.locator('#screen-overview')).toBeVisible();
+ await expect(page.locator('#overview-kpis .mp-card')).toHaveCount(6);
+ await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено');
+ await expect(page.locator('#overview-kpis')).toContainText('Tenant DB · общий инвентарь');
+ await expect(page.locator('#overview-kpis')).toContainText('Не доступен');
+ await expect(page.locator('#overview-companies-body tr')).toHaveCount(5);
+ await expect(page.locator('#overview-company-statuses')).toContainText('draft · 1');
+ await expect(page.locator('#overview-tenant-body')).toContainText('captain.demo');
+ await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 3');
+ await page.locator('#overview-tenant-kind').selectOption('modules');
+ await expect(page.locator('#overview-tenant-body')).toContainText('Documents (пример)');
+ await page.locator('#overview-tenant-select').selectOption({label:'Blue Logistics (demo) · BLUE'});
+ await expect(page.locator('#overview-tenant-kpis')).toContainText('Модулей в фикстуре: 2');
+ await page.locator('#overview-tenant-select').selectOption({label:'East Maritime (demo) · EAST'});
+ await expect(page.locator('#overview-tenant-kpis')).toContainText('нет Tenant-фикстур');
+ await expect(page.locator('#overview-databases-body')).toContainText('Не проверено');
+ await expect(page.locator('#overview-databases-body')).toContainText('Требуется C01 проверка');
+ expect(errors).toEqual([]);
+});
+test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'reviewer');await page.locator('#open-platform').click();
+ await page.locator('a[data-page="overview"]').click();
+ await expect(page.locator('#overview-kpis')).toContainText('403');
+ await expect(page.locator('#overview-tenant-select')).toBeDisabled();
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reader');
+ await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await page.locator('a[data-page="overview"]').click();
+ await expect(page.locator('#overview-companies-body tr')).toHaveCount(5);
+ await expect(page.locator('#overview-open-provisioning')).toBeDisabled();
+ await page.setViewportSize({width:390,height:844});
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
+ expect(overflow).toBe(false);
+ await expect(page.locator('#overview-tenant-body tr:first-child td[data-label="Логин"]')).toBeVisible();
+ expect(errors).toEqual([]);
+});
