@@ -70,3 +70,24 @@ test('mobile navigation remains reachable',async ({page})=>{
  await expect(page.locator('#screen-contract')).toBeVisible();
  await expect(page.locator('#concept-sidebar')).not.toHaveClass(/is-open/);
 });
+
+
+test('Reviewer invitation state and owner audit journal',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await signIn(page,'owner');
+ await page.locator('a[data-page="reviewer"]').click();
+ await page.locator('#reviewer-email').fill('reviewer@example.test');
+ await page.locator('#reviewer-login').fill('reviewer-demo');
+ await page.locator('#invite-reviewer').click();
+ await expect(page.locator('#reviewer-invitations')).toContainText('requested');
+ await page.getByRole('button',{name:'Следующий mock-статус'}).click();
+ await expect(page.locator('#reviewer-invitations')).toContainText('queued');
+ await page.locator('a[data-page="logs"]').click();
+ await expect(page.locator('#log-body')).toContainText('company.created');
+ await page.locator('a[data-page="login"]').click();
+ await page.locator('#demo-actor').selectOption('reader');
+ await page.locator('#mock-login').click();
+ await page.locator('a[data-page="logs"]').click();
+ await expect(page.locator('#log-body')).toContainText('403');
+ expect(errors).toEqual([]);
+});
