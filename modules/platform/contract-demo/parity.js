@@ -28,11 +28,23 @@ function kpi(label,value){
  card.append(element("span",label,"mp-eyebrow"),element("strong",value,"mp-section-title"));return card;
 }
 // Independent, explicitly fictional Tenant fixture data; not derived from Platform API.
+// Every company has an independent, fictional Tenant fixture. This is NEVER a Platform API result.
 const tenantDemo={
  NORTH:{users:[{login:"captain.demo",displayName:"Капитан (demo)",active:true},{login:"operator.demo",displayName:"Оператор (demo)",active:true},{login:"auditor.demo",displayName:"Аудитор (demo)",active:false}],
  modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"documents",name:"Documents (пример)",status:"demo",enabled:true},{code:"monitoring",name:"Monitoring (пример)",status:"demo",enabled:false}]},
  BLUE:{users:[{login:"manager.demo",displayName:"Менеджер (demo)",active:true},{login:"reader.demo",displayName:"Читатель (demo)",active:true}],
- modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"documents",name:"Documents (пример)",status:"demo",enabled:false}]}
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"documents",name:"Documents (пример)",status:"demo",enabled:false}]},
+ EAST:{users:[{login:"provisioning.demo",displayName:"Пользователь подготовки (demo)",active:false}],
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:false}]},
+ WEST:{users:[{login:"admin.demo",displayName:"Администратор (demo)",active:false},{login:"inspector.demo",displayName:"Инспектор (demo)",active:false}],
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:false},{code:"audit",name:"Audit (пример)",status:"demo",enabled:false}]},
+ SOUTH:{users:[],modules:[]},
+ HARBOR:{users:[{login:"engineer.demo",displayName:"Инженер (demo)",active:true},{login:"lead.demo",displayName:"Руководитель (demo)",active:true},{login:"quality.demo",displayName:"Контроль качества (demo)",active:true},{login:"retired.demo",displayName:"Бывший сотрудник (demo)",active:false}],
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"maintenance",name:"Maintenance (пример)",status:"demo",enabled:true},{code:"documents",name:"Documents (пример)",status:"demo",enabled:true}]},
+ DELTA:{users:[{login:"draft-owner.demo",displayName:"Владелец черновика (demo)",active:false}],
+ modules:[]},
+ POLAR:{users:[{login:"research.demo",displayName:"Исследователь (demo)",active:true},{login:"coordinator.demo",displayName:"Координатор (demo)",active:true}],
+ modules:[{code:"core",name:"Core (пример)",status:"demo",enabled:true},{code:"objects",name:"Objects (пример)",status:"demo",enabled:true},{code:"analytics",name:"Analytics (пример)",status:"demo",enabled:false}]}
 };
 let overviewTenantID="";
 function fixtureFor(company){return tenantDemo[company?.code]||null;}
@@ -40,6 +52,9 @@ function tableCell(value,label){
  const td=element("td",value);td.dataset.label=label;return td;
 }
 function overview(){
+ $("overview-data-mode").value=ctx.dataMode;
+ $("overview-mode-label").textContent=ctx.dataMode==="empty"?"Пустое состояние":"Демонстрационные данные";
+ $("overview-kpi-source").textContent=ctx.dataMode==="empty"?"Источник: пустой mock-набор":"Источник: 8 демонстрационных компаний";
  const root=$("overview-kpis"),companyBody=$("overview-companies-body"),statuses=$("overview-company-statuses"),dbBody=$("overview-databases-body");
  for(const el of [root,companyBody,statuses,dbBody])empty(el);
  const allowed=canCompanies();
@@ -66,8 +81,8 @@ function overview(){
  );
  const fixture=fixtureFor(chosen);
  root.append(
-  kpi("Пользователи · Tenant demo",fixture?fixture.users.length+" mock":"Нет данных"),
-  kpi("Модули · Tenant demo",fixture?fixture.modules.length+" mock":"Нет данных"),
+  kpi("Пользователи · Tenant demo",fixture?fixture.users.length+" mock":ctx.dataMode==="empty"?"0":"Нет данных"),
+  kpi("Модули · Tenant demo",fixture?fixture.modules.length+" mock":ctx.dataMode==="empty"?"0":"Нет данных"),
   kpi("Tenant DB · общий инвентарь","Не доступен")
  );
  const order=["draft","provisioning","active","suspended","disabled"];
@@ -75,7 +90,10 @@ function overview(){
   const count=companies.filter(c=>c.status===status).length;
   statuses.append(element("span",status+" · "+count,"mp-badge"));
  }
- if(!companies.length){const tr=element("tr");const td=tableCell("Нет загруженных компаний","Компании");td.colSpan=5;tr.append(td);companyBody.append(tr);}
+ if(!companies.length){
+  const tr=element("tr"),td=tableCell("Компаний пока нет. Переключитесь на демо-данные или создайте черновик.","Компании");
+  td.colSpan=5;tr.append(td);companyBody.append(tr);
+ }
  for(const company of companies){
   const tr=element("tr");
   tr.append(tableCell(company.name,"Компания"),tableCell(company.code,"Код"),tableCell(company.status,"Статус Platform"),tableCell(company.revision,"Ревизия"));
@@ -90,6 +108,10 @@ function overview(){
  for(const c of companies)select.add(new Option(c.name+" · "+c.code,c.tenantId));
  select.value=overviewTenantID;
  overviewTenant();
+ if(!companies.length){
+  const tr=element("tr"),td=tableCell("Нет записей Tenant DB для просмотра.","Базы данных");
+  td.colSpan=5;tr.append(td);dbBody.append(tr);
+ }
  for(const c of companies){
   const tr=element("tr");
   const dbState=c.status==="provisioning"?"Требуется C01 проверка":"Не проверено";
@@ -106,14 +128,18 @@ function overviewTenant(){
  const fixture=fixtureFor(c);
  const kind=$("overview-tenant-kind").value;
  if(!fixture){
-  kpis.append(element("p","Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-help"));
+  kpis.append(element("p",ctx.dataMode==="empty"?
+   "Компаний пока нет — пользователи и модули не загружены.":
+   "Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-help"));
   return;
  }
  if(kind==="users"){
+  if(!fixture.users.length){kpis.append(element("p","Пользователей в этой тестовой компании нет.","mp-help"));}
   kpis.append(element("span","Всего (демо): "+fixture.users.length,"mp-badge"),element("span","Активных (демо): "+fixture.users.filter(u=>u.active).length,"mp-badge"));
   const row=element("tr");for(const heading of ["Логин","Имя","Состояние"])row.append(element("th",heading));thead.append(row);
   for(const user of fixture.users){const tr=element("tr");tr.append(tableCell(user.login,"Логин"),tableCell(user.displayName,"Имя"),tableCell(user.active?"active (demo)":"disabled (demo)","Состояние"));body.append(tr);}
  }else{
+  if(!fixture.modules.length){kpis.append(element("p","В этой тестовой компании не назначено модулей.","mp-help"));}
   kpis.append(element("span","Модулей в фикстуре: "+fixture.modules.length,"mp-badge"),element("span","Enabled (демо): "+fixture.modules.filter(m=>m.enabled).length,"mp-badge"));
   const row=element("tr");for(const heading of ["Код","Название","Состояние"])row.append(element("th",heading));thead.append(row);
   for(const module of fixture.modules){const tr=element("tr");tr.append(tableCell(module.code,"Код"),tableCell(module.name,"Название"),tableCell(module.enabled?"enabled (demo)":"disabled (demo)","Состояние"));body.append(tr);}
@@ -226,5 +252,10 @@ $("monitor-refresh").addEventListener("click",()=>{
  $("monitor-last").textContent=new Date().toLocaleString("ru-RU")+" · mock";
  monitor();ctx.feedback("Mock GET /system/services → 200. Это не реальный health-check.");
 });
-window.MPPlatformParity={render};
+function resetFixtures(){overviewTenantID="";chosenProvisioningId=null;monitorState=null;mailLab=false;mailAttempt=0;mailRevision=1;
+ $("monitor-last").textContent="Не выполнялась";
+ $("mail-result").textContent="Проверка не выполнялась";
+ $("mail-lab").value="off";
+}
+window.MPPlatformParity={render,resetFixtures};
 })();
