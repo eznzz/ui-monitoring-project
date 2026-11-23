@@ -28,5 +28,5 @@
 .concept-page button:disabled{opacity:.5;cursor:not-allowed}
 .concept-page ul{padding-left:20px;display:grid;gap:10px;font-size:14px}
 .concept-status[data-error="true"]{border-color:var(--vms-color-error,#b42330)}
-@media(max-width:950px){.concept-menu{display:inline-block}.sidebar:not(.is-open){display:none}.sidebar.is-open{display:flex;position:fixed;top:0;bottom:0;left:0;z-index:1100;width:min(290px,85vw)}.concept-top-actions{margin-left:auto}}
+@media(max-width:950px){.concept-menu{display:inline-block}.sidebar:not(.is-open){display:none}.sidebar.is-open{display:flex;position:fixed;top:0;bottom:0;left:0;z-index:1100;width:min(290px,85vw);transform:translateX(0)}.concept-top-actions{margin-left:auto}}
 @media(max-width:600px){.concept-chip{font-size:10px}.concept-detail dl{grid-template-columns:1fr;gap:4px}.concept-page{gap:14px}.concept-header .mp-btn{width:100%}}
