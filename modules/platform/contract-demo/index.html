@@ -133,11 +133,18 @@
 <section class="mp-card mp-stack" data-screen="reviewer" id="screen-reviewer" hidden aria-labelledby="reviewer-heading">
  <h2 class="mp-section-title" id="reviewer-heading">Reviewer · приглашения и подтверждение</h2>
  <p class="mp-help">Контракт: GET /reviewers/status, GET/POST /reviewers/invitations, GET /reviewers/invitations/{requestID}/status и /owner-confirm. Все операции ниже — mock, без секретов и отправки e-mail.</p>
+ <div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="reviewer-check-status">Проверить состояние Reviewer</button><span class="mp-badge" id="reviewer-status-summary">Не проверено</span></div>
+ <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-existing">Существующее приглашение</label><select id="reviewer-existing"><option value="">Выберите запрос</option></select></div><div class="mp-field"><label for="reviewer-existing-check">Просмотр</label><button type="button" class="mp-btn mp-btn--secondary" id="reviewer-existing-check">Проверить запрос</button></div></div>
+ <p class="mp-help">Перед повторной отправкой приглашения проверяйте состояние запроса и почтовый ящик. Не создавайте новый запрос, пока не выяснено состояние прежней попытки.</p>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-operator">Состояние Reviewer Operator (fixture)</label><select id="reviewer-operator"><option value="enabled">configured / enabled</option><option value="disabled">not configured / 503</option></select></div><div class="mp-field"><label for="reviewer-email">E-mail получателя (только example.test)</label><input id="reviewer-email" type="email" placeholder="reviewer@example.test"></div></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-login">Логин Reviewer</label><input id="reviewer-login" placeholder="reviewer-demo"></div><div class="mp-field"><label for="reviewer-status-filter">Просмотр</label><select id="reviewer-status-filter"><option value="all">Все приглашения</option><option value="requested">requested</option><option value="queued">queued</option><option value="sent">sent</option><option value="claimed">claimed</option></select></div></div>
  <div class="mp-row"><button class="mp-btn mp-btn--primary" id="invite-reviewer" type="button">Создать mock-приглашение</button><button class="mp-btn mp-btn--secondary" id="reviewer-history" type="button">Показать историю решений</button></div>
  <p class="mp-help">Реальный POST требует пароль Owner и свежий TOTP, которых публичный прототип не запрашивает. Запрос приглашения сам по себе не отправляет письмо.</p>
  <div id="reviewer-invitations" class="mp-stack" aria-live="polite"></div>
+ <section id="reviewer-selected-detail" class="mp-subtle mp-stack" aria-live="polite">
+  <h3 class="mp-section-title">Состояние существующего приглашения</h3>
+  <p class="mp-help">Выберите запрос и нажмите «Проверить запрос», чтобы увидеть доступные действия.</p>
+ </section>
  <div id="reviewer-history-panel" class="mp-subtle mp-stack" hidden aria-live="polite"></div>
 </section>
 <section class="mp-card mp-stack" data-screen="email-operator" id="screen-email-operator" hidden aria-labelledby="email-operator-heading">
