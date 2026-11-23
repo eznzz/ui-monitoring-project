@@ -125,7 +125,7 @@ function renderCompanies(){
  const filter=$("company-status").value,query=$("company-search").value.trim().toLowerCase();
  if(!permitted("tenant.read")){
   const tr=document.createElement("tr"),td=textNode("td","403 · нет tenant.read. Войдите через тестовую фикстуру с правом чтения.");td.colSpan=5;tr.append(td);tbody.append(tr);
-  $("next-page").disabled=$("prev-page").disabled=true;$("page-indicator").textContent="Нет доступа";$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
+  $("next-page").disabled=$("prev-page").disabled=true;$("page-indicator").textContent="—";$("page-range").textContent="Нет доступа";$("page-indicator").removeAttribute("title");$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
  }
  const filtered=companies.filter(c=>filter==="all"||c.status===filter);
  const pages=Math.max(1,Math.ceil(filtered.length/2));pageNo=Math.min(pageNo,pages-1);
@@ -138,7 +138,9 @@ function renderCompanies(){
   const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
  }
  $("prev-page").disabled=pageNo===0;$("next-page").disabled=pageNo>=pages-1;
- $("page-indicator").textContent=(companies.length?"Страница "+(pageNo+1)+" / "+pages:"Компаний: 0")+" · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
+ $("page-indicator").textContent=(pageNo+1)+" / "+pages;
+ $("page-range").textContent=filtered.length?"Показано "+(pageNo*2+1)+"–"+Math.min((pageNo+1)*2,filtered.length)+" из "+filtered.length:"Компаний: 0";
+ $("page-indicator").title="Демо cursor pagination · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
  renderDetail();
 }
 function renderDetail(){
