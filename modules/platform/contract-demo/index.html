@@ -193,6 +193,19 @@
  <p id="record-error" class="mp-error" role="alert"></p>
  <div class="mp-form-actions"><button class="mp-btn mp-btn--secondary" id="cancel-record" type="button">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Сохранить фикстуру</button></div>
 </form></dialog>
+
+<dialog class="mp-dialog" id="review-decision-dialog" aria-labelledby="review-decision-heading">
+ <form id="review-decision-form" novalidate>
+  <header class="mp-dialog-heading"><div><span class="mp-eyebrow">Reviewer / независимое решение</span><h2 id="review-decision-heading">Рассмотрение заявки</h2><p class="mp-help" id="review-decision-note"></p></div><button class="mp-modal-close" type="button" id="review-close" aria-label="Закрыть">✕</button></header>
+  <div class="mp-stack">
+   <div class="mp-field" id="review-reason-field" hidden><label for="review-reason">Причина отказа *</label><textarea id="review-reason" rows="4" maxlength="8000"></textarea><p class="mp-help">Не более 2000 Unicode-символов (ограничение UI VDMS).</p></div>
+   <div class="mp-info-strip"><i class="fa-solid fa-shield-halved"></i><div><strong>Подтверждение MFA на реальном сервере</strong><p>VDMS требует пароль Reviewer и свежий 6-значный код TOTP. Публичный макет не принимает и не проверяет секреты, решение остаётся только mock.</p></div></div>
+   <label class="mp-role-option"><input type="checkbox" id="review-decision-consent"><span>Понимаю, что это демонстрационное решение без реальной авторизации и provisioning.</span></label>
+   <p id="review-decision-error" class="mp-error" role="alert"></p>
+  </div>
+  <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="review-cancel">Отмена</button><button type="submit" class="mp-btn mp-btn--primary" id="review-submit">Подтвердить (mock)</button></div>
+ </form>
+</dialog>
 <script src="parity.js"></script>
 <script src="concept.js"></script>
 <script src="../../../script.js"></script>
