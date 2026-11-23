@@ -4,6 +4,7 @@ test('capture design-system layouts for visual review', async ({page})=>{
  await page.setViewportSize({width:1440,height:900});
  await page.goto(url+'#login');
  await expect(page.locator('#screen-login')).toBeVisible();
+ await page.locator('.mp-login-form-card').evaluate(el=>Promise.all(el.getAnimations().map(animation=>animation.finished)));
  await page.screenshot({path:'test-results/visual-login-desktop.png',fullPage:true});
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();
@@ -12,6 +13,8 @@ test('capture design-system layouts for visual review', async ({page})=>{
  await page.screenshot({path:'test-results/visual-platform-desktop.png',fullPage:true});
  await page.locator('#userTrigger').click();
  await page.locator('#themeToggle').click();
+ await page.locator('#userTrigger').click();
+ await page.waitForTimeout(450);
  await page.screenshot({path:'test-results/visual-platform-dark.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:'test-results/visual-platform-mobile.png',fullPage:true});
