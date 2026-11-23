@@ -11,11 +11,11 @@ test('preview landing links and theme work', async ({page})=>{
  await page.locator('[data-preview="reviewer"]').click();
  await expect(page).toHaveURL(/\/modules\/platform\/contract-demo\/index\.html#login$/);
  await expect(page.locator('#screen-login')).toBeVisible();
- await expect(page.locator('#session-panel')).toContainText('Reviewer');
- await page.locator('#demo-actor').selectOption('owner');
+ await expect(page.locator('#session-panel')).toContainText('Активация');
+ await page.locator('#demo-actor').selectOption('reviewer');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
- await expect(page.locator('#screen-reviewer')).toBeVisible();
+ await expect(page.locator('#screen-activation')).toBeVisible();
  expect(errors).toEqual([]);
 });
 
@@ -98,4 +98,12 @@ test('direct overview link never implies authorization before demo login', async
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
  await page.locator('#overview-load-demo').click();
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+});
+
+test('Preview has only the VDMS Owner and independent Reviewer entry points',async ({page})=>{
+ await page.goto('http://127.0.0.1:8765/preview/');
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(4);
+ await expect(page.locator('[data-preview="reviewer"]')).toHaveAttribute('href','../modules/platform/contract-demo/index.html#activation');
+ await expect(page.getByRole('link',{name:/Обзор Owner/})).toHaveCount(1);
+ await expect(page.getByText('Platform Reader',{exact:true})).toHaveCount(0);
 });
