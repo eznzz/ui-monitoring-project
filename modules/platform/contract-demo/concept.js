@@ -75,8 +75,8 @@ function renderCompanies(){
  if(!view.length){const tr=document.createElement("tr");const td=textNode("td","Нет записей на этой странице.");td.colSpan=5;tr.append(td);tbody.append(tr);}
  for(const c of view){
   const tr=document.createElement("tr");
-  for(const s of [c.code,c.name,c.status,c.revision])tr.append(textNode("td",s));
-  const td=document.createElement("td"),btn=textNode("button","Открыть");btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
+  for(const [i,value] of [c.code,c.name,c.status,c.revision].entries()){const cell=textNode("td",value);cell.dataset.label=["Код","Компания","Статус","Revision"][i];tr.append(cell);}
+  const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="mp-btn mp-btn--secondary";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
  }
  $("prev-page").disabled=pageNo===0;$("next-page").disabled=pageNo>=pages-1;
  $("page-indicator").textContent="Страница "+(pageNo+1)+" / "+pages+" · nextCursor: "+(pageNo<pages-1?"mock:"+String(pageNo+1):"пустой");
@@ -224,7 +224,7 @@ function renderLogs(){
  const values=baseLogs.filter(x=>cat==="all"||x.category===cat);
  logOffset=Math.min(logOffset,Math.max(0,Math.ceil(values.length/limit)-1)*limit);
  const shown=values.slice(logOffset,logOffset+limit);
- for(const item of shown){const row=document.createElement("tr");for(const key of ["at","category","eventType","outcome","subject"])row.append(textNode("td",item[key]));tbody.append(row);}
+ for(const item of shown){const row=document.createElement("tr");for(const [i,key] of ["at","category","eventType","outcome","subject"].entries()){const cell=textNode("td",item[key]);cell.dataset.label=["Дата","Категория","Событие","Результат","Объект"][i];row.append(cell);}tbody.append(row);}
  if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Журнал пуст.");td.colSpan=5;tr.append(td);tbody.append(tr);}
  $("log-offset").textContent="offset: "+logOffset+" · nextOffset: "+(logOffset+limit<values.length?logOffset+limit:"null")+" (mock)";
  $("log-prev").disabled=logOffset===0;$("log-next").disabled=logOffset+limit>=values.length;
