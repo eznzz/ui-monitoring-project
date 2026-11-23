@@ -29,18 +29,18 @@ function feedback(message,error=false){
  if(page==="login")$("session-panel").setAttribute("aria-label",message);
 }
 function navigate(next){
- if(!["login","companies","activation","reviewer","logs","contract"].includes(next))next="login";
+ if(!["login","overview","companies","provisioning","activation","reviewer","email-operator","mail","monitor","logs","contract"].includes(next))next="login";
  page=next;
  document.querySelectorAll("[data-screen]").forEach(el=>{el.hidden=el.dataset.screen!==next;});
  document.querySelector(".app.mp-template-app").hidden=next==="login";
  document.body.classList.toggle("mp-login-page",next==="login");
  document.querySelectorAll("[data-page]").forEach(el=>{if(el.dataset.page===next){el.setAttribute("aria-current","page");el.classList.add("active");}else{el.removeAttribute("aria-current");el.classList.remove("active");}});
- $("page-heading").textContent={login:"Вход / MFA",companies:"Компании",activation:"Активация",reviewer:"Reviewer",logs:"Журнал",contract:"Контракт и ограничения"}[next];
- $("platform-topbar-title").textContent="Platform / "+({login:"Вход",companies:"Компании",activation:"Активация",reviewer:"Reviewer",logs:"Журнал",contract:"Правила API"}[next]);
+ $("page-heading").textContent={login:"Вход / MFA",overview:"Обзор платформы",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer", "email-operator":"Email Operator",mail:"Почтовый сервер · LAB",monitor:"Мониторинг служб",logs:"Журнал",contract:"Контракт и ограничения"}[next];
+ $("platform-topbar-title").textContent="Platform / "+({login:"Вход",overview:"Главная",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer","email-operator":"Email Operator",mail:"Почта · LAB",monitor:"Мониторинг",logs:"Журнал",contract:"Правила API"}[next]);
  $("sidebar").classList.remove("open");$("overlay").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
  if(location.hash.slice(1)!==next)history.replaceState(null,"","#"+next);
  if(next==="companies")renderCompanies();
- if(next==="activation")renderReviews();if(next==="reviewer")renderReviewer();if(next==="logs")renderLogs();
+ if(next==="activation")renderReviews();if(next==="reviewer")renderReviewer();if(next==="logs")renderLogs();if(window.MPPlatformParity)window.MPPlatformParity.render(next,parityContext());
 }
 function login(){
  const type=$("demo-actor").value, status=$("demo-login-status").value;
@@ -59,7 +59,7 @@ function logout(){session=null;$("session-panel").textContent="Mock POST /logout
 function updateActions(){
  $("new-company").disabled=!permitted("tenant.create");
  $("new-company").title=permitted("tenant.create")?"POST /companies":"Нет tenant.create в mock GET /me";
- renderCompanies();renderReviews();renderReviewer();renderLogs();
+ renderCompanies();renderReviews();renderReviewer();renderLogs();if(window.MPPlatformParity)window.MPPlatformParity.render(page,parityContext());
 }
 function renderCompanies(){
  const tbody=$("companies-body");tbody.replaceChildren();
@@ -136,24 +136,29 @@ function requestActivation(c){
  feedback("Mock POST /companies/{tenantID}/activation-requests → 201 requested. Компания остаётся draft.");
  renderDetail();renderReviews();
 }
+let reviewMode="pending";
 function renderReviews(){
  const root=$("activation-queue");root.replaceChildren();
  if(!permitted("tenant.provision.approve")){root.append(textNode("p","403 · требуется tenant.provision.approve. Выберите Reviewer в разделе входа."));return;}
- if(!reviews.length){root.append(textNode("p","Очередь пуста. Для демонстрации создайте заявку под фикстурой Owner, затем войдите как Reviewer."));return;}
- for(const r of reviews){
+ const mode=reviewMode;
+ const items=reviews.filter(r=>mode==="pending"?r.state==="requested":r.state===mode);
+ $("review-count").textContent=String(items.length);
+ if(!items.length){root.append(textNode("p",mode==="pending"?"Нет ожидающих заявок. Создайте заявку под Owner, затем войдите Reviewer.":"В этой mock-истории пока нет решений."));return;}
+ for(const r of items){
   const div=document.createElement("article");div.className="mp-record";
-  const info=document.createElement("div");info.append(textNode("strong",r.tenantName+" · "+r.state),textNode("small","Request "+r.requestId+" · "+r.requesterLogin));
+  const info=document.createElement("div");info.append(textNode("strong",r.tenantName+" · "+r.state),textNode("small","Request "+r.requestId+" · "+r.requesterLogin+" · revision "+r.expectedRevision+" · "+r.createdAt));
   div.append(info);
   const actions=document.createElement("div");actions.className="mp-row";
+  if(r.state!=="requested"){actions.append(textNode("span","Решение Reviewer: "+r.state,"mp-badge"));div.append(actions);root.append(div);continue;}
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
    b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
-   b.addEventListener("click",()=>{if(r.requesterActorId===session.actorId){feedback("Self-approval запрещён.",true);return;}r.state=decision;reviewDecisions.unshift({requestId:r.requestId,decision});feedback("Mock Reviewer "+decision+" → 200. Повторный пароль и TOTP НЕ вводятся, реальной активации нет.");renderReviews();});
+   b.addEventListener("click",()=>{if(r.requesterActorId===session.actorId){feedback("Self-approval запрещён.",true);return;}r.state=decision;reviewDecisions.unshift({requestId:r.requestId,decision,tenantId:r.tenantId,reviewerActorId:session.actorId,decidedAt:new Date().toISOString()});feedback("Mock Reviewer "+decision+" → 200. Повторный пароль и TOTP НЕ вводятся, реальной активации нет.");renderReviews();});
    actions.append(b);
   }
   div.append(actions);root.append(div);
  }
- if(reviewDecisions.length)root.append(textNode("p","История фикстуры: "+reviewDecisions.map(h=>h.requestId.slice(0,8)+" — "+h.decision).join("; ")));
+ 
 }
 $("mock-login").addEventListener("click",login);$("mock-logout").addEventListener("click",logout);
 $("company-status").addEventListener("change",()=>{pageNo=0;renderCompanies();});
@@ -229,6 +234,12 @@ function renderLogs(){
  $("log-offset").textContent="offset: "+logOffset+" · nextOffset: "+(logOffset+limit<values.length?logOffset+limit:"null")+" (mock)";
  $("log-prev").disabled=logOffset===0;$("log-next").disabled=logOffset+limit>=values.length;
 }
+document.querySelectorAll("[data-review-mode]").forEach(btn=>btn.addEventListener("click",()=>{
+ reviewMode=btn.dataset.reviewMode;
+ document.querySelectorAll("[data-review-mode]").forEach(tab=>{const active=tab===btn;tab.setAttribute("aria-selected",String(active));tab.tabIndex=active?0:-1;});
+ renderReviews();
+}));
+$("review-refresh").addEventListener("click",()=>{renderReviews();feedback("Mock GET /activation-reviews · обновлено без сетевого запроса.");});
 $("reviewer-operator").addEventListener("change",renderReviewer);
 $("reviewer-status-filter").addEventListener("change",renderReviewer);
 $("invite-reviewer").addEventListener("click",createInvitation);
@@ -240,5 +251,6 @@ $("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").val
 
 $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  $("open-platform").addEventListener("click",()=>navigate("companies"));
+ function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate};}
  navigate(location.hash.slice(1)||"login");updateActions();
 })();
