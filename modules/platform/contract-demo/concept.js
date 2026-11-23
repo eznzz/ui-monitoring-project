@@ -295,7 +295,17 @@ const baseLogs=[
  {at:"2026-11-23T08:50:00Z",category:"review",eventType:"activation.requested",outcome:"success",subject:"NORTH"},
  {at:"2026-11-22T15:00:00Z",category:"tenant",eventType:"company.updated",outcome:"success",subject:"EAST"},
  {at:"2026-11-22T14:00:00Z",category:"auth",eventType:"platform.login",outcome:"denied",subject:"demo"},
- {at:"2026-11-22T13:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"BLUE"}
+ {at:"2026-11-22T13:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"blue"},
+ {at:"2026-11-22T12:00:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"harbor"},
+ {at:"2026-11-22T11:30:00Z",category:"tenant",eventType:"company.updated",outcome:"success",subject:"polar"},
+ {at:"2026-11-22T11:00:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"},
+ {at:"2026-11-22T10:30:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"delta"},
+ {at:"2026-11-22T10:00:00Z",category:"review",eventType:"activation.requested",outcome:"success",subject:"north"},
+ {at:"2026-11-22T09:30:00Z",category:"tenant",eventType:"company.updated",outcome:"success",subject:"west"},
+ {at:"2026-11-22T09:00:00Z",category:"auth",eventType:"platform.login",outcome:"denied",subject:"fixture-reviewer"},
+ {at:"2026-11-22T08:30:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"south"},
+ {at:"2026-11-22T08:00:00Z",category:"review",eventType:"activation.reviewed",outcome:"success",subject:"blue"},
+ {at:"2026-11-22T07:30:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"}
 ];
 function canInvite(){return permitted("platform.reviewer.bootstrap")&&permitted("tenant.create")&&permitted("tenant.activate");}
 let reviewerChecked=false,selectedInvitationId="",reviewerDetailLoaded=false;
