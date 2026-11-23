@@ -78,7 +78,7 @@ test('Preview deep link to overview opens contextual login and visible companies
  await page.locator('#open-platform').click();
  await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await expect(page.locator('#overview-companies-body')).toContainText('North Shipping');
  await expect(page.locator('#overview-companies-body')).toContainText('Polar Research');
  await expect(page.locator('#overview-tenant-body tr:visible')).toHaveCount(3);
@@ -92,14 +92,14 @@ test('direct overview link never implies authorization before demo login', async
  await expect(page.locator('#feedback')).toContainText('Сначала выполните демонстрационный вход');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await page.locator('#overview-data-mode').selectOption('empty');
  await expect(page.locator('#overview-companies-body')).toContainText('Компаний пока нет');
  await page.locator('#overview-load-demo').click();
  await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await page.locator('#overview-load-demo').click();
- await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
 });
 
 test('Preview has only the VDMS Owner and independent Reviewer entry points',async ({page})=>{
