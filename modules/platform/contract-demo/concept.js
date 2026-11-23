@@ -17,7 +17,7 @@ const seed=[
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c806",code:"HARBOR",name:"Harbor Engineering (demo)",status:"active",revision:4,profile:{legalName:"Harbor Engineering Ltd.",tradeName:"Harbor Tech",description:"Сервисная компания · демонстрация",registrationNumber:"HE-DEMO",taxNumber:"",countryCode:"DE",contactEmail:"contact@example.test",website:""}},
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c807",code:"DELTA",name:"Delta Offshore (demo)",status:"draft",revision:1,profile:{legalName:"Delta Offshore Demo GmbH",tradeName:"Delta",description:"Черновик компании · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"DE",contactEmail:"",website:""}},
  {tenantId:"8e185467-876c-4c7d-8f6e-d9dd7b29c808",code:"POLAR",name:"Polar Research (demo)",status:"active",revision:6,profile:{legalName:"Polar Research Inc.",tradeName:"Polar",description:"Научная организация · демонстрация",registrationNumber:"",taxNumber:"",countryCode:"NO",contactEmail:"research@example.test",website:""}}];
-let companies=structuredClone(seed), dataMode="demo", session=null, page="login", pageNo=0, selectedId=null, editingId=null;
+let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, pageNo=0, selectedId=null, editingId=null;
 let reviews=[], reviewDecisions=[], forcedConflict=false;
 const $=id=>document.getElementById(id);
 const profile=()=>({legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""});
@@ -33,6 +33,12 @@ function feedback(message,error=false){
 }
 function navigate(next){
  if(!["login","overview","companies","provisioning","activation","reviewer","email-operator","mail","monitor","logs","contract"].includes(next))next="login";
+ if(!session&&next!=="login"){
+  requestedPage=next;
+  next="login";
+  $("open-platform").textContent="Открыть "+({overview:"Обзор платформы",companies:"Реестр компаний",provisioning:"Provisioning",activation:"Активацию",reviewer:"Reviewer",logs:"Журнал",monitor:"Мониторинг служб",mail:"Почтовый сервер",contract:"Правила API","email-operator":"Email Operator"}[requestedPage]||"Platform Admin")+" →";
+  $("session-panel").textContent="Для открытия раздела «"+({overview:"Обзор платформы",companies:"Компании",provisioning:"Provisioning",activation:"Активация",reviewer:"Reviewer",logs:"Журнал",monitor:"Мониторинг",mail:"Почта",contract:"Правила API","email-operator":"Email Operator"}[requestedPage]||requestedPage)+"» выберите тестовый субъект, выполните mock-вход и нажмите кнопку перехода. Это не настоящая авторизация.";
+ }
  page=next;
  document.querySelectorAll("[data-screen]").forEach(el=>{el.hidden=el.dataset.screen!==next;});
  document.querySelector(".app.mp-template-app").hidden=next==="login";
@@ -58,15 +64,15 @@ function login(){
  feedback("Демо-сессия создана только в памяти вкладки. Нет настоящего Platform JWT.");
  updateActions();
 }
-function logout(){session=null;$("session-panel").textContent="Mock POST /logout → 204. Сессия прототипа очищена.";feedback("Выход из демонстрационного сценария.");updateActions();navigate("login");}
+function logout(){session=null;requestedPage=null;$("session-panel").textContent="Mock POST /logout → 204. Сессия прототипа очищена.";feedback("Выход из демонстрационного сценария.");updateActions();navigate("login");}
 function updateActions(){
  $("new-company").disabled=!permitted("tenant.create");
  $("new-company").title=permitted("tenant.create")?"POST /companies":"Нет tenant.create в mock GET /me";
  renderCompanies();renderReviews();renderReviewer();renderLogs();if(window.MPPlatformParity)window.MPPlatformParity.render(page,parityContext());
 }
 
-function changeDataMode(next){
- if(!["demo","empty"].includes(next)||next===dataMode)return;
+function changeDataMode(next,force=false){
+ if(!["demo","empty"].includes(next)||(next===dataMode&&!force))return;
  dataMode=next;
  companies=next==="demo"?structuredClone(seed):[];
  reviews=[];reviewDecisions=[];invitations.length=0;
@@ -374,8 +380,15 @@ $("log-prev").addEventListener("click",()=>{logOffset=Math.max(0,logOffset-Numbe
 $("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").value);renderLogs();});
 
 $("overview-data-mode").addEventListener("change",()=>changeDataMode($("overview-data-mode").value));
+$("overview-load-demo").addEventListener("click",()=>changeDataMode("demo",true));
 $("login-theme").addEventListener("click",()=>$("themeToggle").click());
- $("open-platform").addEventListener("click",()=>navigate("companies"));
+ $("open-platform").addEventListener("click",()=>{
+ if(!session){feedback("Сначала выполните демонстрационный вход; реальные пароли и TOTP вводить не требуется.",true);return;}
+ const destination=requestedPage||"companies";
+ requestedPage=null;
+ $("open-platform").textContent="Открыть Platform Admin →";
+ navigate(destination);
+});
  function openOverviewCompany(tenantId){
  if(!permitted("tenant.read")&&!permitted("tenant.create"))return;
  const index=companies.findIndex(c=>c.tenantId===tenantId);
