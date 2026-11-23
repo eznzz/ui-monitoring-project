@@ -152,7 +152,14 @@
    <div class="mp-field"><label for="company-search">Поиск на текущей странице (демо)</label><input id="company-search" type="search" placeholder="Название или код"></div>
   </div>
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Код</th><th>Компания</th><th>Статус</th><th>Revision</th><th></th></tr></thead><tbody id="companies-body"></tbody></table></div>
-  <div class="mp-page-tools"><span id="page-indicator">Страница 1</span><button class="mp-btn mp-btn--secondary" id="prev-page" type="button">Назад</button><button class="mp-btn mp-btn--secondary" id="next-page" type="button">Вперёд</button></div>
+  <nav class="mp-page-tools" aria-label="Страницы списка компаний">
+   <span class="mp-help" id="page-range" aria-live="polite">Показано 1–2 из 8</span>
+   <div class="mp-row" role="group" aria-label="Переключение страниц">
+    <button class="mp-btn mp-btn--secondary" id="prev-page" type="button" aria-label="Предыдущая страница" title="Предыдущая страница"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+    <span class="mp-pill" id="page-indicator" aria-live="polite">1 / 4</span>
+    <button class="mp-btn mp-btn--secondary" id="next-page" type="button" aria-label="Следующая страница" title="Следующая страница"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+   </div>
+  </nav>
   <section class="mp-subtle mp-stack" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
 </section>
 
