@@ -24,7 +24,7 @@ test('reader denied writes and owner can create and edit draft',async ({page})=>
  await page.locator('#open-platform').click();
  await expect(page.locator('#new-company')).toBeDisabled();
  await expect(page.locator('#companies-body')).toContainText('North Shipping');
- await page.locator('a[data-page="login"]').click();
+ await page.locator('#concept-nav a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('owner');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
@@ -52,9 +52,10 @@ test('409 and reviewer activation flow',async ({page})=>{
  await page.locator('#cancel-record').click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await expect(page.locator('#feedback')).toContainText('requested');
- await page.locator('a[data-page="login"]').click();
+ await page.locator('#concept-nav a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('reviewer');
  await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
  await page.locator('a[data-page="activation"]').click();
  await expect(page.locator('#activation-queue')).toContainText('North Shipping');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
@@ -87,7 +88,7 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
  await expect(page.locator('#reviewer-invitations')).toContainText('queued');
  await page.locator('a[data-page="logs"]').click();
  await expect(page.locator('#log-body')).toContainText('company.created');
- await page.locator('a[data-page="login"]').click();
+ await page.locator('#concept-nav a[data-page="login"]').click();
  await page.locator('#demo-actor').selectOption('reader');
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
