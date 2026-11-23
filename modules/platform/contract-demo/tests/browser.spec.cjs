@@ -112,7 +112,7 @@ test('VDMS Owner overview, C01 provisioning evidence and service monitor',async 
  await signIn(page,'owner');
  await page.locator('#open-platform').click();
  await page.locator('a[data-page="overview"]').click();
- await expect(page.locator('#overview-kpis')).toContainText('Загружено компаний');
+ await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено');
  await expect(page.locator('#overview-kpis')).toContainText('5');
  await page.locator('#overview-open-provisioning').click();
  await expect(page.locator('#screen-provisioning')).toBeVisible();
