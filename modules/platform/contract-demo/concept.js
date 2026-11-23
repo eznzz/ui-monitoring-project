@@ -22,21 +22,22 @@ const permitted=right=>Boolean(session?.permissions.includes(right));
 const selected=()=>companies.find(c=>c.tenantId===selectedId);
 const requestId=()=>crypto.randomUUID();
 const textNode=(tag,value,className)=>{const node=document.createElement(tag);node.textContent=String(value??"");if(className)node.className=className;return node;};
-function feedback(message,error=false){$("feedback").textContent=message;$("feedback").dataset.error=String(error);}
-function setupTheme(){
- const key="vms-theme";
- let stored=null;try{stored=localStorage.getItem(key);}catch(_){}
- const apply=dark=>{document.body.classList.toggle("dark",dark);$("theme-toggle").textContent=dark?"☀ Светлая тема":"◐ Тёмная тема";};
- apply(stored==="dark"||(stored!== "light"&&window.matchMedia("(prefers-color-scheme: dark)").matches));
- $("theme-toggle").addEventListener("click",()=>{const dark=!document.body.classList.contains("dark");apply(dark);try{localStorage.setItem(key,dark?"dark":"light");}catch(_){}});
+function feedback(message,error=false){
+ $("feedback").textContent=message;
+ $("feedback").setAttribute("role",error?"alert":"status");
+ // The Login layout uses the canonical card and its own accessible status.
+ if(page==="login")$("session-panel").setAttribute("aria-label",message);
 }
 function navigate(next){
  if(!["login","companies","activation","reviewer","logs","contract"].includes(next))next="login";
  page=next;
  document.querySelectorAll("[data-screen]").forEach(el=>{el.hidden=el.dataset.screen!==next;});
- document.querySelectorAll("[data-page]").forEach(el=>{if(el.dataset.page===next)el.setAttribute("aria-current","page");else el.removeAttribute("aria-current");});
+ document.querySelector(".app.mp-template-app").hidden=next==="login";
+ document.body.classList.toggle("mp-login-page",next==="login");
+ document.querySelectorAll("[data-page]").forEach(el=>{if(el.dataset.page===next){el.setAttribute("aria-current","page");el.classList.add("active");}else{el.removeAttribute("aria-current");el.classList.remove("active");}});
  $("page-heading").textContent={login:"Вход / MFA",companies:"Компании",activation:"Активация",reviewer:"Reviewer",logs:"Журнал",contract:"Контракт и ограничения"}[next];
- $("concept-sidebar").classList.remove("is-open");$("menu-toggle").setAttribute("aria-expanded","false");
+ $("platform-topbar-title").textContent="Platform / "+({login:"Вход",companies:"Компании",activation:"Активация",reviewer:"Reviewer",logs:"Журнал",contract:"Правила API"}[next]);
+ $("sidebar").classList.remove("open");$("overlay").classList.remove("open");$("burger").setAttribute("aria-expanded","false");
  if(location.hash.slice(1)!==next)history.replaceState(null,"","#"+next);
  if(next==="companies")renderCompanies();
  if(next==="activation")renderReviews();if(next==="reviewer")renderReviewer();if(next==="logs")renderLogs();
@@ -89,7 +90,7 @@ function renderDetail(){
  const pairs=[["Tenant UUID",c.tenantId],["Код",c.code],["Статус",c.status],["Revision",c.revision],["Legal name",c.profile.legalName||"—"],["Contact email",c.profile.contactEmail||"—"]];
  for(const [name,value] of pairs)dl.append(textNode("dt",name),textNode("dd",value));
  panel.append(dl);
- const actions=document.createElement("div");actions.className="concept-actions";
+ const actions=document.createElement("div");actions.className="mp-row";
  const edit=textNode("button","Редактировать draft");edit.type="button";edit.className="mp-btn mp-btn--secondary";edit.disabled=!permitted("tenant.draft.update")||c.status!=="draft";edit.addEventListener("click",()=>openRecord(c.tenantId));actions.append(edit);
  const conflict=textNode("button","Имитировать 409 при сохранении");conflict.type="button";conflict.className="mp-btn mp-btn--secondary";conflict.disabled=edit.disabled;conflict.addEventListener("click",()=>{forcedConflict=true;openRecord(c.tenantId);feedback("Следующее PATCH вернёт 409 (симуляция).");});actions.append(conflict);
  const activate=textNode("button","Запросить активацию");activate.type="button";activate.className="mp-btn mp-btn--primary";activate.disabled=!permitted("tenant.activate")||c.status!=="draft"||reviews.some(r=>r.tenantId===c.tenantId&&r.state==="requested");
@@ -140,10 +141,10 @@ function renderReviews(){
  if(!permitted("tenant.provision.approve")){root.append(textNode("p","403 · требуется tenant.provision.approve. Выберите Reviewer в разделе входа."));return;}
  if(!reviews.length){root.append(textNode("p","Очередь пуста. Для демонстрации создайте заявку под фикстурой Owner, затем войдите как Reviewer."));return;}
  for(const r of reviews){
-  const div=document.createElement("article");div.className="concept-record";
+  const div=document.createElement("article");div.className="mp-record";
   const info=document.createElement("div");info.append(textNode("strong",r.tenantName+" · "+r.state),textNode("small","Request "+r.requestId+" · "+r.requesterLogin));
   div.append(info);
-  const actions=document.createElement("div");actions.className="concept-actions";
+  const actions=document.createElement("div");actions.className="mp-row";
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
    b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
@@ -163,7 +164,7 @@ $("new-company").addEventListener("click",()=>openRecord(null));
 $("record-form").addEventListener("submit",saveRecord);
 $("close-record").addEventListener("click",()=>$("record-dialog").close());
 $("cancel-record").addEventListener("click",()=>$("record-dialog").close());
-$("menu-toggle").addEventListener("click",()=>{const open=$("concept-sidebar").classList.toggle("is-open");$("menu-toggle").setAttribute("aria-expanded",String(open));});
+
 window.addEventListener("hashchange",()=>navigate(location.hash.slice(1)));
 document.querySelectorAll("[data-page]").forEach(el=>el.addEventListener("click",ev=>{ev.preventDefault();navigate(el.dataset.page);}));
 
@@ -187,9 +188,9 @@ function renderReviewer(){
  if(!canInvite()){root.append(textNode("p","403 · приглашения требуют platform.reviewer.bootstrap, tenant.create и tenant.activate."));return;}
  if(!invitations.length){root.append(textNode("p","У текущего тестового Owner нет приглашений."));}
  for(const item of invitations.filter(x=>$("reviewer-status-filter").value==="all"||x.state===$("reviewer-status-filter").value)){
-  const row=document.createElement("article");row.className="concept-record";
+  const row=document.createElement("article");row.className="mp-record";
   const info=document.createElement("div");info.append(textNode("strong",item.reviewerLogin+" · "+item.state),textNode("small",item.recipientEmail+" · "+item.requestId));row.append(info);
-  const controls=document.createElement("div");controls.className="concept-actions";
+  const controls=document.createElement("div");controls.className="mp-row";
   const advance=textNode("button","Следующий mock-статус");
   advance.type="button";advance.className="mp-btn mp-btn--secondary";advance.disabled=item.state==="claimed";
   advance.addEventListener("click",()=>{const flow=["requested","queued","sent","claimed"];item.state=flow[Math.min(flow.length-1,flow.indexOf(item.state)+1)];feedback("Mock GET /reviewers/invitations/{requestID}/status → "+item.state+". Отправка письма и Claim не выполнялись.");renderReviewer();});controls.append(advance);
@@ -237,5 +238,7 @@ $("log-limit").addEventListener("change",()=>{logOffset=0;renderLogs();});
 $("log-prev").addEventListener("click",()=>{logOffset=Math.max(0,logOffset-Number($("log-limit").value));renderLogs();});
 $("log-next").addEventListener("click",()=>{logOffset+=Number($("log-limit").value);renderLogs();});
 
-setupTheme();navigate(location.hash.slice(1)||"login");updateActions();
+$("login-theme").addEventListener("click",()=>$("themeToggle").click());
+ $("open-platform").addEventListener("click",()=>navigate("companies"));
+ navigate(location.hash.slice(1)||"login");updateActions();
 })();
