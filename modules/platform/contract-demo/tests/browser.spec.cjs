@@ -29,15 +29,17 @@ test('reader denied writes and owner can create and edit draft',async ({page})=>
  await page.locator('#mock-login').click();
  await page.locator('#open-platform').click();
  await page.locator('#new-company').click();
- await page.locator('#record-code').fill('SMOKE');
+ await page.locator('#record-code').fill('smoke');
  await page.locator('#record-name').fill('Smoke Test');
  await page.locator('#record-form button[type="submit"]').click();
  await expect(page.locator('#companies-body')).toContainText('Smoke Test');
  await expect(page.locator('#company-detail')).toContainText('draft');
  await page.getByRole('button',{name:'Редактировать draft'}).click();
  await page.locator('#record-name').fill('Smoke Revised');
+ await page.locator('#profile-legalName').fill('Smoke Revised Ltd.');
+ await page.locator('#profile-countryCode').fill('GB');
  await page.locator('#record-form button[type="submit"]').click();
- await expect(page.locator('#company-detail')).toContainText('Smoke Revised');
+ await expect(page.locator('#company-detail')).toContainText('Smoke Revised Ltd.');
  expect(errors).toEqual([]);
 });
 test('409 and reviewer activation flow',async ({page})=>{
