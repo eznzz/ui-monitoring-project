@@ -132,6 +132,7 @@ test('VDMS Owner overview, C01 provisioning evidence and service monitor',async 
  expect(errors).toEqual([]);
 });
 test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({page})=>{
+ page.setDefaultTimeout(4500);
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner','success','lab');await page.locator('#open-platform').click();
  await page.locator('a[data-page="email-operator"]').click();
