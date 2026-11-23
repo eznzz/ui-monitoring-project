@@ -207,7 +207,7 @@ function createInvitation(){
  if(!canInvite()){feedback("403 · недостаточно разрешений.",true);return;}
  if($("reviewer-operator").value!=="enabled"){feedback("503 · Reviewer Operator отсутствует.",true);return;}
  const email=$("reviewer-email").value.trim(),loginName=$("reviewer-login").value.trim();
- if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||!email.endsWith("@example.test")||!loginName){feedback("Введите демонстрационный login и e-mail на example.test.",true);return;}
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!email.endsWith("@example.test")||!loginName){feedback("Введите демонстрационный login и e-mail на example.test.",true);return;}
  invitations.unshift({requestId:requestId(),reviewerLogin:loginName,recipientEmail:email,state:"requested",confirmed:false});
  feedback("Mock POST /reviewers/invitations → 201 requested. Письмо НЕ отправлено.");
  $("reviewer-email").value="";$("reviewer-login").value="";renderReviewer();
