@@ -9,7 +9,12 @@ test('preview landing links and theme work', async ({page})=>{
  await page.locator('#themeToggle').click();
  await expect(page.locator('body')).toHaveClass(/dark/);
  await page.locator('[data-preview="reviewer"]').click();
- await expect(page).toHaveURL(/\/modules\/platform\/contract-demo\/index\.html#reviewer$/);
+ await expect(page).toHaveURL(/\/modules\/platform\/contract-demo\/index\.html#login$/);
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await expect(page.locator('#session-panel')).toContainText('Reviewer');
+ await page.locator('#demo-actor').selectOption('owner');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
  await expect(page.locator('#screen-reviewer')).toBeVisible();
  expect(errors).toEqual([]);
 });
@@ -57,4 +62,40 @@ test('API rules have canonical inset on desktop and mobile',async ({page})=>{
  await page.setViewportSize({width:390,height:844});
  await assertInset();
  expect(errors).toEqual([]);
+});
+
+test('Preview deep link to overview opens contextual login and visible companies', async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.goto('http://127.0.0.1:8765/preview/');
+ await page.getByRole('link',{name:/Обзор Owner/}).click();
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await expect(page.locator('#session-panel')).toContainText('Обзор платформы');
+ await expect(page.locator('#open-platform')).toContainText('Обзор платформы');
+ await page.locator('#demo-actor').selectOption('owner');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#screen-overview')).toBeVisible();
+ await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await expect(page.locator('#overview-companies-body')).toContainText('North Shipping');
+ await expect(page.locator('#overview-companies-body')).toContainText('Polar Research');
+ await expect(page.locator('#overview-tenant-body tr:visible')).toHaveCount(3);
+ expect(errors).toEqual([]);
+});
+test('direct overview link never implies authorization before demo login', async ({page})=>{
+ await page.goto('http://127.0.0.1:8765/modules/platform/contract-demo/index.html#overview');
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await expect(page.locator('#screen-overview')).toBeHidden();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#feedback')).toContainText('Сначала выполните демонстрационный вход');
+ await page.locator('#mock-login').click();
+ await page.locator('#open-platform').click();
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await page.locator('#overview-data-mode').selectOption('empty');
+ await expect(page.locator('#overview-companies-body')).toContainText('Компаний пока нет');
+ await page.locator('#overview-load-demo').click();
+ await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
+ await page.locator('#overview-load-demo').click();
+ await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(8);
 });
