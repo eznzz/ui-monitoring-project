@@ -1,36 +1,55 @@
 const { test, expect } = require('@playwright/test');
 const url = 'http://127.0.0.1:8765/modules/platform/contract-demo/index.html';
+async function fillIdentity(page,actor='owner',mode='restricted'){
+ const login=actor==='reviewer'?(mode==='standard'?'readonly.reviewer.demo':'reviewer.demo'):(mode==='lab'?'lab.owner.demo':'owner.demo');
+ await page.locator('#platform-login-name').fill(login);
+ await page.locator('#platform-login-password').fill('demo-only');
+ await page.locator('#platform-login-totp').fill('000000');
+}
 async function signIn(page,actor='owner',status='success',mode='restricted'){
  await page.goto(url);
- await page.locator('#demo-actor').selectOption(actor);
- await page.locator('#demo-server-mode').selectOption(mode);
- await page.locator('#demo-login-status').selectOption(status);
+ await fillIdentity(page,actor,mode);
+ if(status==='401')await page.locator('#platform-login-password').fill('invalid');
  await page.locator('#mock-login').click();
 }
-test('login error and mock session',async ({page})=>{
+test('sign in fields mirror VDMS and open scenarios directly without credentials transmission',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner','401');
- await expect(page.locator('#feedback')).toContainText('401');
- await expect(page.locator('#session-panel')).toContainText('вход не выполнен');
- await page.locator('#demo-login-status').selectOption('success');
+ const requests=[];page.on('request',req=>{if(req.method()!=='GET')requests.push(req.method()+' '+req.url());});
+ await page.goto(url);
+ await expect(page.getByLabel('Platform login')).toBeVisible();
+ await expect(page.getByLabel('Password')).toHaveAttribute('type','password');
+ await expect(page.getByLabel('Authenticator code')).toHaveAttribute('pattern','[0-9]{6}');
+ await expect(page.locator('#demo-server-mode')).toHaveCount(0);
+ await expect(page.locator('#demo-login-status')).toHaveCount(0);
+ await expect(page.locator('#open-platform')).toHaveCount(0);
+ await page.locator('#platform-login-name').fill('owner.demo');
+ await page.locator('#platform-login-password').fill('invalid');
+ await page.locator('#platform-login-totp').fill('000000');
  await page.locator('#mock-login').click();
- await expect(page.locator('#session-panel')).toContainText('GET /me 200');
- await page.locator('#mock-logout').click();
- await expect(page.locator('#session-panel')).toContainText('очищена');
+ await expect(page.locator('#platform-login-error')).toContainText('демонстрационные');
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await expect(page.locator('#platform-login-password')).toHaveValue('');
+ await fillIdentity(page,'owner');
+ await page.locator('#mock-login').click();
+ await expect(page.locator('#screen-overview')).toBeVisible();
+ await page.locator('#concept-nav a[data-page="login"]').click();
+ await expect(page.locator('#screen-login')).toBeVisible();
+ await expect(page.locator('#platform-login-password')).toHaveValue('');
+ expect(requests).toEqual([]);
  expect(errors).toEqual([]);
 });
 test('only actual Owner and Reviewer fixtures exist; Owner can create and edit draft',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'reviewer');
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#screen-activation')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="companies"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="reviewer"]')).toBeHidden();
- await expect(page.locator('#demo-actor option')).toHaveCount(2);
+ await expect(page.locator('#demo-actor')).toHaveCount(0);
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('owner');
+ await fillIdentity(page,'owner');
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ 
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await page.locator('#new-company').click();
@@ -50,7 +69,7 @@ test('only actual Owner and Reviewer fixtures exist; Owner can create and edit d
 test('409 and reviewer activation flow',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page);
- await page.locator('#open-platform').click();
+ 
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Имитировать 409 при сохранении'}).click();
@@ -61,9 +80,9 @@ test('409 and reviewer activation flow',async ({page})=>{
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await expect(page.locator('#feedback')).toContainText('requested');
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
+ await fillIdentity(page,'reviewer');
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ 
  await page.locator('a[data-page="activation"]').click();
  await expect(page.locator('#activation-queue')).toContainText('North Shipping');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
@@ -78,7 +97,7 @@ test('mobile navigation remains reachable',async ({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto(url);
  await signIn(page);
- await page.locator('#open-platform').click();
+ 
  await page.locator('#burger').click();
  await expect(page.locator('#sidebar')).toHaveClass(/open/);
  await page.locator('a[data-page="contract"]').click();
@@ -90,7 +109,7 @@ test('mobile navigation remains reachable',async ({page})=>{
 test('Reviewer invitation state and owner audit journal',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
- await page.locator('#open-platform').click();
+ 
  await page.locator('a[data-page="reviewer"]').click();
  await page.locator('#reviewer-email').fill('reviewer@example.test');
  await page.locator('#reviewer-login').fill('reviewer-demo');
@@ -104,9 +123,9 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
  await page.locator('a[data-page="logs"]').click();
  await expect(page.locator('#log-body')).toContainText('company.created');
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
+ await fillIdentity(page,'reviewer');
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#screen-activation')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="logs"]')).toBeHidden();
  expect(errors).toEqual([]);
@@ -116,7 +135,7 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
 test('VDMS Owner overview, C01 provisioning evidence and service monitor',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
- await page.locator('#open-platform').click();
+ 
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено');
  await expect(page.locator('#overview-kpis')).toContainText('18');
@@ -136,7 +155,7 @@ test('VDMS Owner overview, C01 provisioning evidence and service monitor',async 
 test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({page})=>{
  page.setDefaultTimeout(4500);
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner','success','lab');await page.locator('#open-platform').click();
+ await signIn(page,'owner','success','lab');
  await page.locator('a[data-page="email-operator"]').click();
  await expect(page.locator('#email-operator-status')).toContainText('configured');
  await page.locator('#email-template-subject').fill('Test email template');
@@ -150,30 +169,30 @@ test('VDMS Owner email operator, lab-only SMTP and Reviewer separation',async ({
  await page.locator('#mail-check').click();
  await expect(page.locator('#mail-result')).toContainText('status: failed');
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'reviewer');
+ await page.locator('#mock-login').click();
  await expect(page.locator('#screen-activation')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="overview"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="email-operator"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="monitor"]')).toBeHidden();
  await page.goto(url+'?fresh=1#overview');
  await expect(page.locator('#screen-login')).toBeVisible();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#demo-server-mode').selectOption('lab');
+ await fillIdentity(page,'reviewer');
+ await fillIdentity(page,(await page.locator('#platform-login-name').inputValue()).includes('reviewer')?'reviewer':'owner','lab');
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#screen-activation')).toBeVisible();
  expect(errors).toEqual([]);
 });
 test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'reviewer');
+ await page.locator('#mock-login').click();
  await page.locator('a[data-page="activation"]').click();
  await expect(page.locator('#review-count')).toHaveText('1');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
@@ -191,7 +210,7 @@ test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
 
 test('Reviewer invitation existing request, SMTP uncertainty and owner confirmation',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('a[data-page="reviewer"]').click();
  await page.locator('#reviewer-check-status').click();
  await expect(page.locator('#reviewer-status-summary')).toContainText('activeReviewers: 0');
@@ -219,13 +238,13 @@ test('Reviewer invitation existing request, SMTP uncertainty and owner confirmat
 
 test('VDMS Reviewer rejection requires reason and records own rejection',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'reviewer');
+ await page.locator('#mock-login').click();
  await page.locator('a[data-page="activation"]').click();
  await page.getByRole('button',{name:'Отклонить (mock)'}).click();
  await expect(page.locator('#review-decision-dialog')).toBeVisible();
@@ -242,7 +261,7 @@ test('VDMS Reviewer rejection requires reason and records own rejection',async (
 
 test('full overview separates Platform company counts and demo Tenant users/modules',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#overview-kpis .mp-card')).toHaveCount(6);
@@ -272,12 +291,12 @@ test('full overview separates Platform company counts and demo Tenant users/modu
 });
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'reviewer');await page.locator('#open-platform').click();
+ await signIn(page,'reviewer');
  await expect(page.locator('#screen-activation')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="overview"]')).toBeHidden();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('owner');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'owner');
+ await page.locator('#mock-login').click();
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
  await expect(page.locator('#overview-open-provisioning')).toBeEnabled();
@@ -292,7 +311,7 @@ test('overview protects tenant preview and remains accessible on mobile',async (
 test('overview toggles empty and demo fixtures across linked screens',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
- await page.locator('#open-platform').click();
+ 
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
  await expect(page.locator('#overview-tenant-body')).toContainText('captain.demo');
@@ -317,7 +336,7 @@ test('overview toggles empty and demo fixtures across linked screens',async ({pa
 test('empty overview supports creating a draft and resets it on fixture mode switch',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
- await page.locator('#open-platform').click();
+ 
  await page.locator('a[data-page="overview"]').click();
  await page.locator('#overview-data-mode').selectOption('empty');
  await page.locator('#overview-open-companies').click();
@@ -338,7 +357,7 @@ test('empty overview supports creating a draft and resets it on fixture mode swi
 });
 test('demo tenant company selection covers varied user and module empty states',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('a[data-page="overview"]').click();
  await page.locator('#overview-tenant-select').selectOption({label:'Harbor Engineering (demo) · harbor'});
  await expect(page.locator('#overview-tenant-body')).toContainText('engineer.demo');
@@ -356,7 +375,7 @@ test('demo tenant company selection covers varied user and module empty states',
 test('VDMS role navigation and feature flags are enforced on real routes',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner','success','standard');
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="activation"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
@@ -364,9 +383,9 @@ test('VDMS role navigation and feature flags are enforced on real routes',async 
  await page.locator('#concept-nav a[data-page="reviewer"]').click();
  await expect(page.locator('#screen-reviewer')).toBeVisible();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#demo-server-mode').selectOption('standard');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'reviewer');
+ await fillIdentity(page,(await page.locator('#platform-login-name').inputValue()).includes('reviewer')?'reviewer':'owner','standard');
+ await page.locator('#mock-login').click();
  await expect(page.locator('#screen-activation')).toBeVisible();
  await expect(page.locator('#concept-nav a[data-page="companies"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="logs"]')).toBeHidden();
@@ -379,13 +398,13 @@ test('VDMS role navigation and feature flags are enforced on real routes',async 
 });
 test('linked Owner draft requests are visible to Reviewer and history stays personal',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner','success','restricted');await page.locator('#open-platform').click();
+ await signIn(page,'owner','success','restricted');
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'reviewer');
+ await page.locator('#mock-login').click();
  await expect(page.locator('#screen-activation')).toBeVisible();
  await expect(page.locator('#review-count')).toHaveText('1');
  await page.getByRole('button',{name:'Одобрить (mock)'}).click();
@@ -396,8 +415,8 @@ test('linked Owner draft requests are visible to Reviewer and history stays pers
  await expect(page.locator('#review-count')).toHaveText('1');
  await expect(page.locator('#activation-queue')).toContainText('North Shipping');
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('owner');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'owner');
+ await page.locator('#mock-login').click();
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await expect(page.locator('#company-detail')).toContainText('draft');
@@ -406,24 +425,24 @@ test('linked Owner draft requests are visible to Reviewer and history stays pers
 });
 test('LAB-only route toggles and active Reviewer permissions are independent',async ({page})=>{
  await signIn(page,'owner','success','lab');
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeVisible();
- await expect(page.locator('#session-panel')).toContainText('platform.mail.diagnose');
- await expect(page.locator('#session-panel')).toContainText('platform.mail.test_send');
+ await expect(page.locator('#screen-companies')).toBeHidden();
+ 
  await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeVisible();
  await page.locator('#concept-nav a[data-page="p4"]').click();
  await expect(page.locator('#screen-p4')).toBeVisible();
  await expect(page.locator('#screen-p4')).toContainText('Не проверено');
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#mock-login').click();await page.locator('#open-platform').click();
+ await fillIdentity(page,'reviewer');
+ await page.locator('#mock-login').click();
  await expect(page.locator('#concept-nav a[data-page="p4"]')).toBeHidden();
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
 });
 
 test('company list progressively appends 5 entries and supports 10-entry batch',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await expect(page.locator('#screen-overview')).toBeVisible();
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#company-range')).toHaveText('Показано 5 из 18');
@@ -458,7 +477,7 @@ test('company list progressively appends 5 entries and supports 10-entry batch',
  expect(errors).toEqual([]);
 });
 test('company list empty state does not offer additional entries',async ({page})=>{
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('#overview-data-mode').selectOption('empty');
  await page.locator('#overview-open-companies').click();
  await expect(page.locator('#company-range')).toHaveText('Компаний: 0');
@@ -467,7 +486,7 @@ test('company list empty state does not offer additional entries',async ({page})
 });
 test('audit log appends further events using 5 or 10, resets after filtering',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="logs"]').click();
  await expect(page.locator('#log-body tr')).toHaveCount(5);
  await expect(page.locator('#log-range')).toHaveText('Показано 5 из 16');
@@ -496,16 +515,16 @@ test('audit log appends further events using 5 or 10, resets after filtering',as
 });
 test('Owner home is overview, Reviewer home is activation, explicit Company deep links remain intact',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
  await expect(page.locator('#concept-nav a[data-page="overview"]')).toHaveAttribute('aria-current','page');
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await page.locator('#concept-nav a[data-page="login"]').click();
- await page.locator('#demo-actor').selectOption('reviewer');
+ await fillIdentity(page,'reviewer');
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#screen-activation')).toBeVisible();
  expect(errors).toEqual([]);
 });
@@ -513,14 +532,14 @@ test('direct Company route still opens Companies after Owner mock login',async (
  await page.goto(url+'#companies');
  await expect(page.locator('#screen-login')).toBeVisible();
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ 
  await expect(page.locator('#screen-companies')).toBeVisible();
  await expect(page.locator('#company-range')).toHaveText('Показано 5 из 18');
 });
 
 test('company search finds unloaded rows by name, code, UUID and profile and resets',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#companies-body tr')).toHaveCount(5);
  await page.locator('#company-search').fill('polar');
@@ -547,7 +566,7 @@ test('company search finds unloaded rows by name, code, UUID and profile and res
 });
 test('audit date range, hours, search and load-more interact without duplicates',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="logs"]').click();
  await page.locator('#log-date-from').fill('2026-11-22');
  await page.locator('#log-date-to').fill('2026-11-22');
@@ -575,7 +594,7 @@ test('audit date range, hours, search and load-more interact without duplicates'
  expect(errors).toEqual([]);
 });
 test('audit invalid UTC date/time ranges are explicit and recoverable',async ({page})=>{
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="logs"]').click();
  await page.locator('#log-date-from').fill('2026-11-23');
  await page.locator('#log-date-to').fill('2026-11-22');
@@ -593,7 +612,7 @@ test('audit invalid UTC date/time ranges are explicit and recoverable',async ({p
 
 test('18 demo companies have unique VDMS codes, lifecycle variety and linked Tenant fixtures',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
  await expect(page.locator('#overview-company-statuses')).toContainText('active · 7');
  await expect(page.locator('#overview-company-statuses')).toContainText('draft · 5');
@@ -620,7 +639,7 @@ test('18 demo companies have unique VDMS codes, lifecycle variety and linked Ten
  expect(errors).toEqual([]);
 });
 test('audit footer controls match companies position under their tables and mobile behavior',async ({page})=>{
- await signIn(page,'owner');await page.locator('#open-platform').click();
+ await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
  const companyFooter=page.locator('#screen-companies .mp-page-tools');
  await expect(companyFooter.locator('#company-range')).toBeVisible();
