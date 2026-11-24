@@ -90,7 +90,7 @@ test('direct overview link never implies authorization before demo login', async
  await expect(page.locator('#screen-login')).toBeVisible();
  await expect(page.locator('#screen-overview')).toBeHidden();
 
- await page.locator('#mock-login').click();
+ await demoLogin(page,'owner');
 
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await page.locator('#overview-data-mode').selectOption('empty');
