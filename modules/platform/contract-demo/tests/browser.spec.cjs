@@ -78,6 +78,7 @@ test('409 and reviewer activation flow',async ({page})=>{
  await expect(page.locator('#record-error')).toContainText('409');
  await page.locator('#cancel-record').click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.locator('#company-dialog-close').click();
  await expect(page.locator('#feedback')).toContainText('requested');
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
@@ -190,6 +191,7 @@ test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
  await page.locator('a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.locator('#company-dialog-close').click();
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
  await page.locator('#mock-login').click();
@@ -242,6 +244,7 @@ test('VDMS Reviewer rejection requires reason and records own rejection',async (
  await page.locator('a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.locator('#company-dialog-close').click();
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
  await page.locator('#mock-login').click();
@@ -285,7 +288,9 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await expect(page.locator('#overview-databases-body')).toContainText('Требуется C01 проверка');
  await page.locator('#overview-companies-body tr').last().getByRole('button',{name:'Открыть'}).click();
  await expect(page.locator('#screen-companies')).toBeVisible();
- await expect(page.locator('#company-detail')).toContainText('Tidewater Solutions');
+ await expect(page.locator('#company-dialog')).toBeVisible();
+ await expect(page.locator('#company-dialog-title')).toContainText('Tidewater Solutions');
+ await page.locator('#company-dialog-close').click();
  await expect(page.locator('#company-range')).toHaveText('Показано 2 из 18');
  await expect(page.locator('#company-page')).toHaveText('5 / 5');
  expect(errors).toEqual([]);
@@ -346,6 +351,7 @@ test('empty overview supports creating a draft and resets it on fixture mode swi
  await page.locator('#record-name').fill('New Demo Company');
  await page.locator('#record-form button[type="submit"]').click();
  await expect(page.locator('#companies-body')).toContainText('New Demo Company');
+ await page.locator('#company-dialog-close').click();
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено1');
  await expect(page.locator('#overview-tenant-kpis')).toContainText('нет Tenant-фикстур');
@@ -403,6 +409,7 @@ test('linked Owner draft requests are visible to Reviewer and history stays pers
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.locator('#company-dialog-close').click();
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
  await page.locator('#mock-login').click();
@@ -696,8 +703,16 @@ test('Companies adopts catalog Data Table controls and responsive rows',async ({
  await page.locator('#company-search').fill('harbor');
  await expect(table.locator('tbody tr')).toHaveCount(1);
  await table.getByRole('button',{name:'Открыть'}).click();
- await expect(page.locator('#company-detail')).toContainText('Harbor Engineering');
+ await expect(page.locator('#company-dialog')).toBeVisible();
+ await expect(page.locator('#company-dialog-title')).toContainText('Harbor Engineering');
+ await expect(page.locator('#company-dialog')).toHaveClass(/vms-dialog/);
+ await page.keyboard.press('Escape');
+ await expect(page.locator('#company-dialog')).not.toBeVisible();
  await page.setViewportSize({width:390,height:844});
+ await table.getByRole('button',{name:'Открыть'}).click();
+ await expect(page.locator('#company-dialog')).toBeVisible();
+ expect(await page.locator('#company-dialog').evaluate(el=>el.getBoundingClientRect().width<=window.innerWidth)).toBe(true);
+ await page.locator('#company-dialog-close').click();
  await expect(page.locator('#company-mobile-sort')).toBeVisible();
  await expect(table.locator('thead')).toBeHidden();
 });

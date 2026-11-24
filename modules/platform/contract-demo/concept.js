@@ -77,6 +77,7 @@ function navigate(next){
   $("platform-login-error").textContent="";
   // Preserve a requested deep link until a demo subject is selected by login name.
  }
+ if(next!=="companies"&&$("company-dialog").open)$("company-dialog").close();
  page=next;
  renderNavigation();
  document.querySelectorAll("[data-screen]").forEach(el=>{el.hidden=el.dataset.screen!==next;});
@@ -123,6 +124,7 @@ function login(event){
  navigate(destination);
 }
 function logout(){
+ if($("company-dialog").open)$("company-dialog").close();selectedId=null;
  companySortKey="";companySortDir=1;companyPage=0;
  session=null;requestedPage=null;
  $("platform-login-form").reset();
@@ -138,6 +140,7 @@ function updateActions(){
 
 function changeDataMode(next,force=false){
  if(!["demo","empty"].includes(next)||(next===dataMode&&!force))return;
+ if($("company-dialog").open)$("company-dialog").close();
  dataMode=next;
  companies=next==="demo"?structuredClone(seed):[];
  companySortKey="";companySortDir=1;
@@ -177,7 +180,7 @@ function renderCompanies(){
   for(const key of ["name","code","status","revision"]){const cell=document.createElement("td");cell.dataset.label={name:"Компания",code:"Код",status:"Статус",revision:"Revision"}[key];
    if(key==="status"){const pill=textNode("span",c.status);pill.className="table-status-pill";pill.dataset.status=c.status;cell.append(pill);}else cell.textContent=c[key];tr.append(cell);
   }
-  const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="button secondary small";btn.addEventListener("click",()=>{selectedId=c.tenantId;renderDetail();});td.append(btn);tr.append(td);tbody.append(tr);
+  const td=document.createElement("td"),btn=textNode("button","Открыть");td.dataset.label="Действие";btn.type="button";btn.className="button secondary small";btn.setAttribute("aria-haspopup","dialog");btn.addEventListener("click",()=>openCompanyDetail(c.tenantId));td.append(btn);tr.append(td);tbody.append(tr);
  }
  $("company-filter-summary").textContent=(query||filter!=="all")?"Найдено: "+filtered.length+" · поиск только по загруженным демо-данным":"Все загруженные компании: "+companies.length;
  $("company-reset").disabled=!query&&filter==="all";
@@ -190,20 +193,23 @@ function renderCompanies(){
  // Client-side pages of the loaded mock records; real API cursor fetching is unchanged in scope.
  renderDetail();
 }
+function openCompanyDetail(id){
+ if(!permitted("tenant.read")||!companies.some(c=>c.tenantId===id))return;
+ selectedId=id;renderDetail();const dialog=$("company-dialog");if(!dialog.open)dialog.showModal();
+}
 function renderDetail(){
- const panel=$("company-detail");panel.replaceChildren();
- const c=selected();if(!c){panel.append(textNode("p","Выберите компанию для просмотра карточки."));return;}
- panel.append(textNode("h3",c.name),textNode("small","GET "+prefix+"/companies/{tenantID} · mock 200"));
+ const panel=$("company-detail"),actions=$("company-dialog-actions");panel.replaceChildren();actions.replaceChildren();
+ const c=selected();if(!c||!permitted("tenant.read"))return;
+ $("company-dialog-title").textContent=c.name;
+ $("company-dialog-description").textContent="GET "+prefix+"/companies/{tenantID} · mock 200";
  const dl=document.createElement("dl");
  const pairs=[["Tenant UUID",c.tenantId],["Код",c.code],["Статус",c.status],["Revision",c.revision],["Юридическое название",c.profile.legalName||"—"],["Торговое название",c.profile.tradeName||"—"],["Описание",c.profile.description||"—"],["Регистрационный номер",c.profile.registrationNumber||"—"],["Налоговый номер",c.profile.taxNumber||"—"],["Страна",c.profile.countryCode||"—"],["Контактный e-mail",c.profile.contactEmail||"—"],["Веб-сайт",c.profile.website||"—"]];
  for(const [name,value] of pairs)dl.append(textNode("dt",name),textNode("dd",value));
  panel.append(dl);
- const actions=document.createElement("div");actions.className="mp-row";
- const edit=textNode("button","Редактировать draft");edit.type="button";edit.className="mp-btn mp-btn--secondary";edit.disabled=!permitted("tenant.draft.update")||c.status!=="draft";edit.addEventListener("click",()=>openRecord(c.tenantId));actions.append(edit);
- const conflict=textNode("button","Имитировать 409 при сохранении");conflict.type="button";conflict.className="mp-btn mp-btn--secondary";conflict.disabled=edit.disabled;conflict.addEventListener("click",()=>{forcedConflict=true;openRecord(c.tenantId);feedback("Следующее PATCH вернёт 409 (симуляция).");});actions.append(conflict);
- const activate=textNode("button","Запросить активацию");activate.type="button";activate.className="mp-btn mp-btn--primary";activate.disabled=!permitted("tenant.activate")||c.status!=="draft"||reviews.some(r=>r.tenantId===c.tenantId&&r.state==="requested");
+ const edit=textNode("button","Редактировать draft");edit.type="button";edit.className="button secondary";edit.disabled=!permitted("tenant.draft.update")||c.status!=="draft";edit.addEventListener("click",()=>openRecord(c.tenantId));actions.append(edit);
+ const conflict=textNode("button","Имитировать 409 при сохранении");conflict.type="button";conflict.className="button secondary";conflict.disabled=edit.disabled;conflict.addEventListener("click",()=>{forcedConflict=true;openRecord(c.tenantId);feedback("Следующее PATCH вернёт 409 (симуляция).");});actions.append(conflict);
+ const activate=textNode("button","Запросить активацию");activate.type="button";activate.className="button primary";activate.disabled=!permitted("tenant.activate")||c.status!=="draft"||reviews.some(r=>r.tenantId===c.tenantId&&r.state==="requested");
  activate.addEventListener("click",()=>requestActivation(c));actions.append(activate);
- panel.append(actions);
 }
 function openRecord(id){
  const c=companies.find(x=>x.tenantId===id);editingId=c?.tenantId||null;
@@ -239,7 +245,7 @@ function saveRecord(ev){
   companies.unshift(c);selectedId=c.tenantId;
   feedback("Mock POST /companies → 201 draft · requestId="+id+". Ответ не сохраняется на сервере.");
  }
- $("record-dialog").close();companyPage=0;$("company-status").value="all";$("company-search").value="";renderCompanies();
+ $("record-dialog").close();companyPage=0;$("company-status").value="all";$("company-search").value="";renderCompanies();if(selectedId)openCompanyDetail(selectedId);
 }
 function requestActivation(c){
  if(!permitted("tenant.activate")||c.status!=="draft"){feedback("403: невозможно подать заявку.",true);return;}
@@ -333,6 +339,7 @@ $("company-reset").addEventListener("click",()=>{
 });
 $("new-company").addEventListener("click",()=>openRecord(null));
 $("record-form").addEventListener("submit",saveRecord);
+$("company-dialog").addEventListener("click",event=>{if(event.target===$("company-dialog"))$("company-dialog").close();});
 $("close-record").addEventListener("click",()=>$("record-dialog").close());
 $("cancel-record").addEventListener("click",()=>$("record-dialog").close());
 
@@ -543,7 +550,7 @@ $("login-theme").addEventListener("click",()=>$("themeToggle").click());
  if(index<0)return;
  companySortKey="";companySortDir=1;selectedId=tenantId;companyPage=Math.floor(index/companyPageSize);
  $("company-status").value="all";$("company-search").value="";
- navigate("companies");renderCompanies();
+ navigate("companies");openCompanyDetail(tenantId);
 }
 function parityContext(){return {session,companies,reviews,reviewDecisions,permitted,feedback,navigate,openOverviewCompany,dataMode,serverMode};}
  navigate(location.hash.slice(1)||"login");updateActions();

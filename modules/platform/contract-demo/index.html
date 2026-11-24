@@ -166,7 +166,7 @@
    </div>
    <p class="hint" id="company-filter-summary" aria-live="polite"></p>
   </div>
-  <section class="mp-subtle mp-stack" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
+  
 </section>
 
 <section class="mp-card mp-stack" data-screen="provisioning" id="screen-provisioning" hidden aria-labelledby="provisioning-heading">
@@ -279,6 +279,15 @@
  <p class="mp-help">Демо не вызывает API. Документация: <a href="https://github.com/developerpiter/vdms/blob/docs/central-platform-api/docs/api/central-platform.md">Central Platform API</a> · <a href="../../../docs/VDMS_UI_API_MAPPING.md">Матрица соответствия (если принята в main)</a>.</p>
 </section>
 </main></div></div>
+<dialog id="company-dialog" class="vms-dialog company-data-table" aria-labelledby="company-dialog-title" aria-describedby="company-dialog-description">
+ <form method="dialog"><div class="vms-dialog-content">
+  <h3 id="company-dialog-title">Карточка компании</h3>
+  <p id="company-dialog-description">Информация о компании · демонстрационные данные.</p>
+  <div id="company-detail" aria-live="polite"></div>
+  <div class="demo-row dialog-actions" id="company-dialog-actions"></div>
+  <div class="demo-row dialog-actions"><button class="button secondary" id="company-dialog-close" value="close" autofocus>Закрыть</button></div>
+ </div></form>
+</dialog>
 <dialog class="mp-dialog" id="record-dialog" aria-labelledby="record-dialog-title"><form id="record-form" novalidate>
  <header class="mp-dialog-heading"><div><span class="mp-eyebrow" id="record-mode"></span><h2 id="record-dialog-title">Компания</h2><p class="mp-help" id="record-note"></p></div><button class="mp-modal-close" aria-label="Закрыть" type="button" id="close-record">✕</button></header>
  <div class="mp-stack"><div class="mp-field" id="code-field"><label for="record-code">Код компании</label><input id="record-code" maxlength="63" pattern="[a-z][a-z0-9]*(?:-[a-z0-9]+)*" required></div><div class="mp-field"><label for="record-name">Название компании</label><input id="record-name" maxlength="200" required></div><div class="mp-form-grid" id="profile-fields" hidden><div class="mp-field"><label for="profile-legalName">Юридическое название</label><input id="profile-legalName" type="text" maxlength="300"></div><div class="mp-field"><label for="profile-tradeName">Торговое название</label><input id="profile-tradeName" type="text" maxlength="200"></div><div class="mp-field mp-wide"><label for="profile-description">Описание</label><textarea id="profile-description" maxlength="2000" rows="3"></textarea></div><div class="mp-field"><label for="profile-registrationNumber">Регистрационный номер</label><input id="profile-registrationNumber" type="text" maxlength="100"></div><div class="mp-field"><label for="profile-taxNumber">Налоговый номер</label><input id="profile-taxNumber" type="text" maxlength="100"></div><div class="mp-field"><label for="profile-countryCode">Код страны ISO (2 буквы)</label><input id="profile-countryCode" type="text" maxlength="2"></div><div class="mp-field"><label for="profile-contactEmail">Контактный e-mail</label><input id="profile-contactEmail" type="email" maxlength="254"></div><div class="mp-field"><label for="profile-website">Сайт</label><input id="profile-website" type="url" maxlength="300"></div></div></div>
