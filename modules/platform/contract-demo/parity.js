@@ -191,7 +191,7 @@ function provisioning(){
  if(!active.length){list.append(alert("Компаний в provisioning среди загруженных нет."));panel.append(element("p","Нет данных для просмотра.","mp-empty"));return;}
  if(!active.some(c=>c.tenantId===chosenProvisioningId))chosenProvisioningId=active[0].tenantId;
  for(const c of active){
-  const b=addButton(list,c.name+" · "+c.code,()=>{chosenProvisioningId=c.tenantId;provisioning();},"mp-record mp-record--button");
+  const b=addButton(list,c.name+" · "+c.code,()=>{chosenProvisioningId=c.tenantId;provisioning();},"button secondary mp-record--button");
   b.setAttribute("aria-pressed",String(c.tenantId===chosenProvisioningId));
  }
  const c=active.find(x=>x.tenantId===chosenProvisioningId);

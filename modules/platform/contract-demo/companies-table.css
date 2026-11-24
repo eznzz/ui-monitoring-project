@@ -148,3 +148,17 @@ body{--button-text:var(--vms-color-on-primary);--brand-hover:var(--vms-color-pri
 @media(pointer:coarse){.button{min-height:44px}}
 
 #overview-db-table .data-table td{overflow-wrap:anywhere}
+
+/* Components Tabs, exact canonical styles for Reviewer tabs. */
+.vms-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);overflow-x:auto}
+.vms-tab{font-weight:600;color:var(--muted);background:transparent;border:0;border-bottom:2px solid transparent;padding:12px 18px;white-space:nowrap}
+.vms-tab[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+
+#review-table .data-table{min-width:880px}
+#review-table .data-table td{overflow-wrap:anywhere}
+#review-table .review-row-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#review-table .review-row-actions .hint{margin:0}
+.company-data-table .table-status-pill[data-status="requested"]{color:var(--vms-color-primary)}
+.company-data-table .table-status-pill[data-status="approved"]{color:var(--vms-color-success)}
+.company-data-table .table-status-pill[data-status="rejected"]{color:var(--vms-color-error)}
+@media(max-width:600px){#review-table .data-table{min-width:0}#review-table .review-row-actions{min-width:0;justify-content:flex-end}#review-table .review-row-actions .button{max-width:100%}}

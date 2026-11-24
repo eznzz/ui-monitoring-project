@@ -714,3 +714,14 @@ test('Database and routing overview adopts canonical Data Table and preserves ev
  await page.locator('#overview-data-mode').selectOption('empty');await expect(table).toContainText('Нет записей Tenant DB');await expect(next).toBeDisabled();
  expect(errors).toEqual([]);
 });
+
+
+test('Reviewer requests and personal history use Data Table, catalog actions and filters',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));await signIn(page,'reviewer');await page.locator('#review-seed-demo').click();
+ const table=page.locator('#review-table .data-table');await expect(table).toBeVisible();await expect(table.locator('tbody tr')).toHaveCount(2);await expect(table.locator('.table-status-pill')).toHaveCount(2);await expect(table.locator('input[type=checkbox]')).toHaveCount(0);
+ await expect(page.locator('#review-page')).toHaveText('1 / 1');await page.locator('#review-search').fill('north');await expect(table.locator('tbody tr')).toHaveCount(1);await expect(table).toContainText('North Shipping');
+ await expect(table.getByRole('button',{name:'Одобрить (mock)'})).toHaveClass(/button primary/);await page.locator('#review-reset').click();await expect(table.locator('tbody tr')).toHaveCount(2);
+ await page.locator('[data-review-sort="tenantName"]').click();await expect(table.locator('tbody tr').first()).toContainText('Delta Offshore');
+ await page.setViewportSize({width:390,height:844});await expect(page.locator('#review-mobile-sort')).toBeVisible();await expect(table.locator('thead')).toBeHidden();expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
+ await page.locator('[data-review-mode="approved"]').click();await expect(table).toContainText('В личной истории Reviewer пока нет решений');expect(errors).toEqual([]);
+});

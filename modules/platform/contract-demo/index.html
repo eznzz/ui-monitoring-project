@@ -25,14 +25,14 @@
   <footer>Monitoring Project Design System · UI prototype</footer>
  </aside>
  <main class="mp-login-main"><div class="mp-login-box">
-  <div class="mp-login-toolbar"><span class="mp-demo-chip">UI prototype / mock</span><button type="button" class="button secondary" id="login-theme">◐ Тёмная тема</button></div>
+  <div class="mp-login-toolbar"><span class="mp-demo-chip">UI prototype / mock</span><button type="button" class="button ghost" id="login-theme">◐ Тёмная тема</button></div>
   <section class="content__card mp-login-form-card">
    <header class="mp-login-form-heading"><span class="mp-eyebrow">Platform / VDMS API · demo</span><h2 id="login-heading">Sign in</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>Экран повторяет поля VDMS Central Workspace. Это публичный UI-макет без подключения к API.</span></div></header>
    <form class="mp-stack" id="platform-login-form" autocomplete="off">
     <div class="form-row mp-field"><label for="platform-login-name">Platform login</label><input id="platform-login-name" name="mock-login-name" type="text" maxlength="128" autocomplete="off" spellcheck="false" autocapitalize="none" placeholder="owner.demo или reviewer.demo" required></div>
     <div class="form-row mp-field"><label for="platform-login-password">Password</label><input id="platform-login-password" name="mock-password" type="password" autocomplete="new-password" placeholder="demo-only" required></div>
     <div class="form-row mp-field"><label for="platform-login-totp">Authenticator code</label><input id="platform-login-totp" name="mock-totp" type="text" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required></div>
-    <div class="mp-login-actions"><button class="btn button primary" id="mock-login" type="submit">Sign in</button>
+    <div class="mp-login-actions"><button class="button primary" id="mock-login" type="submit">Sign in</button>
      <div class="vms-alert vms-alert-warning" role="status"><strong>Информация</strong><span>Только демонстрационные значения: <strong>owner.demo</strong> или <strong>reviewer.demo</strong>, пароль <strong>demo-only</strong>, код <strong>000000</strong>. Не вводите реальные пароли или коды из приложения-аутентификатора. Значения не передаются и не сохраняются.</span></div>
      <p class="mp-error" id="platform-login-error" role="alert" aria-live="polite"></p>
     </div>
@@ -110,7 +110,7 @@
     </select>
    </div>
    <div class="mp-field"><label for="overview-load-demo">Восстановить демонстрационный набор</label>
-     <button type="button" class="button secondary" id="overview-load-demo">Загрузить демо-компании</button>
+     <button type="button" class="button primary" id="overview-load-demo">Загрузить демо-компании</button>
    </div>
   </div>
   <div class="vms-alert vms-alert-warning" id="overview-mode-hint" role="status"><strong>Информация</strong><span>При смене режима или повторной загрузке демо-набора созданные в этом сеансе mock-записи, заявки и приглашения сбрасываются. Данные не сохраняются между обновлениями страницы.</span></div>
@@ -196,22 +196,27 @@
 <section class="mp-card mp-stack" data-screen="activation" id="screen-activation" hidden aria-labelledby="activation-heading">
   <h2 class="mp-section-title" id="activation-heading">Заявки на активацию</h2>
   <div class="vms-alert" role="status"><strong>Информация</strong><span>GET /activation-reviews · отдельное право tenant.provision.approve. Одобрение требует другого Reviewer, свежих пароля и TOTP на реальном сервере.</span></div>
-  <div role="tablist" class="mp-tabs--buttons" aria-label="Решения Reviewer" id="review-mode">
-  <button type="button" role="tab" aria-selected="true" data-review-mode="pending">Ожидают</button>
-  <button type="button" role="tab" aria-selected="false" data-review-mode="approved">Мои одобрения</button>
-  <button type="button" role="tab" aria-selected="false" data-review-mode="rejected">Мои отказы</button>
+  <div role="tablist" class="vms-tabs" aria-label="Решения Reviewer" id="review-mode">
+  <button type="button" class="vms-tab" role="tab" aria-selected="true" data-review-mode="pending">Ожидают</button>
+  <button type="button" class="vms-tab" role="tab" aria-selected="false" data-review-mode="approved">Мои одобрения</button>
+  <button type="button" class="vms-tab" role="tab" aria-selected="false" data-review-mode="rejected">Мои отказы</button>
   </div>
-  <div class="mp-row"><button type="button" class="button secondary" id="review-seed-demo">Загрузить 2 демо-заявки</button><span class="mp-help">Заявки от отдельного Owner; доступны только в демо-режиме.</span></div>
+  <div class="mp-row"><button type="button" class="button primary" id="review-seed-demo">Загрузить 2 демо-заявки</button><span class="mp-help">Заявки от отдельного Owner; доступны только в демо-режиме.</span></div>
 <div class="vms-alert vms-alert-warning" id="review-approval-status" role="status"><strong>Серверное подтверждение</strong><span id="review-approval-text">Для принятия решений требуется включённый серверный режим и свежий Reviewer MFA. В демо MFA не обрабатывается.</span></div>
 <div class="mp-row"><button type="button" class="button secondary" id="review-refresh">Обновить заявки</button><span id="review-count" class="mp-pill">0</span></div>
-  <div id="activation-queue" class="mp-stack"></div>
+  <div class="company-data-table" id="review-table">
+ <div class="table-toolbar"><div class="field table-search"><label for="review-search">Поиск заявки</label><input id="review-search" type="search" placeholder="Компания, Request ID, Owner" autocomplete="off"></div><button class="button secondary" id="review-reset" type="button">Сбросить поиск</button></div>
+ <label class="mobile-sort field" for="review-mobile-sort"><span>Сортировка карточек</span><select id="review-mobile-sort"><option value="">Порядок загрузки</option><option value="tenantName:1">Компания: по возрастанию</option><option value="tenantName:-1">Компания: по убыванию</option><option value="state:1">Статус: по возрастанию</option><option value="state:-1">Статус: по убыванию</option><option value="requestId:1">Request ID: по возрастанию</option><option value="requestId:-1">Request ID: по убыванию</option><option value="requesterLogin:1">Owner: по возрастанию</option><option value="requesterLogin:-1">Owner: по убыванию</option><option value="expectedRevision:1">Revision: по возрастанию</option><option value="expectedRevision:-1">Revision: по убыванию</option><option value="createdAt:1">Дата заявки: по возрастанию</option><option value="createdAt:-1">Дата заявки: по убыванию</option></select></label>
+ <div class="table-scroll" tabindex="0" role="region" aria-label="Заявки на активацию"><table class="data-table"><caption class="visually-hidden">Заявки на активацию</caption><thead><tr><th scope="col"><button type="button" class="sort-control" data-review-sort="tenantName">Компания <span aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-control" data-review-sort="state">Статус <span aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-control" data-review-sort="requestId">Request ID <span aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-control" data-review-sort="requesterLogin">Owner <span aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-control" data-review-sort="expectedRevision">Revision <span aria-hidden="true">↕</span></button></th><th scope="col"><button type="button" class="sort-control" data-review-sort="createdAt">Дата заявки <span aria-hidden="true">↕</span></button></th><th scope="col">Действие / решение</th></tr></thead><tbody id="activation-queue"></tbody></table></div>
+ <div class="table-footer"><span id="review-range" role="status" aria-live="polite">Показано 0 из 0</span><div class="table-pagination"><button class="button secondary small" type="button" id="review-prev">Назад</button><span id="review-page" aria-live="polite">1 / 1</span><button class="button secondary small" type="button" id="review-next">Вперёд</button></div></div>
+ </div>
   <div class="vms-alert" role="status"><strong>Информация</strong><span>В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</span></div>
 </section>
 
 <section class="mp-card mp-stack" data-screen="reviewer" id="screen-reviewer" hidden aria-labelledby="reviewer-heading">
  <h2 class="mp-section-title" id="reviewer-heading">Reviewer · приглашения и подтверждение</h2>
  <div class="vms-alert" role="status"><strong>Информация</strong><span>Контракт: GET /reviewers/status, GET/POST /reviewers/invitations, GET /reviewers/invitations/{requestID}/status и /owner-confirm. Все операции ниже — mock, без секретов и отправки e-mail.</span></div>
- <div class="mp-row"><button type="button" class="button secondary" id="reviewer-check-status">Проверить состояние Reviewer</button><span class="mp-badge" id="reviewer-status-summary">Не проверено</span></div>
+ <div class="mp-row"><button type="button" class="button primary" id="reviewer-check-status">Проверить состояние Reviewer</button><span class="mp-badge" id="reviewer-status-summary">Не проверено</span></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-existing">Существующее приглашение</label><select id="reviewer-existing"><option value="">Выберите запрос</option></select></div><div class="mp-field"><label for="reviewer-existing-check">Просмотр</label><button type="button" class="button secondary" id="reviewer-existing-check">Проверить запрос</button></div></div>
  <div class="vms-alert vms-alert-warning" role="status"><strong>Предупреждение</strong><span>Перед повторной отправкой приглашения проверяйте состояние запроса и почтовый ящик. Не создавайте новый запрос, пока не выяснено состояние прежней попытки.</span></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-operator">Состояние Reviewer Operator (fixture)</label><select id="reviewer-operator"><option value="enabled">configured / enabled</option><option value="disabled">not configured / 503</option></select></div><div class="mp-field"><label for="reviewer-email">E-mail получателя (только example.test)</label><input id="reviewer-email" type="email" placeholder="reviewer@example.test"></div></div>
@@ -246,7 +251,7 @@
  <div class="vms-alert vms-alert-warning" role="status"><strong>Информация</strong><span>HTTP 200 не гарантирует успешной доставки: в ответе отдельно проверяются status и stage. Никаких реальных e-mail из макета не отправляется.</span></div>
 </section>
 <section class="mp-card mp-stack" data-screen="monitor" id="screen-monitor" hidden aria-labelledby="monitor-heading">
- <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="monitor-heading">Мониторинг служб Central Node</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>GET /system/services: read-only состояние доверенных IPC, без проверки отправки SMTP или готовности Provisioning.</span></div></div><button type="button" class="button secondary" id="monitor-refresh">Проверить сейчас</button></div>
+ <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="monitor-heading">Мониторинг служб Central Node</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>GET /system/services: read-only состояние доверенных IPC, без проверки отправки SMTP или готовности Provisioning.</span></div></div><button type="button" class="button primary" id="monitor-refresh">Проверить сейчас</button></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="monitor-scenario">Сценарий диагностики (фикстура)</label><select id="monitor-scenario"><option value="configured">Операторы настроены</option><option value="unavailable">IPC недоступен</option><option value="unknown">Нет прямой проверки</option></select></div><div class="mp-field"><label for="monitor-last">Последняя проверка</label><output id="monitor-last">Не выполнялась</output></div></div>
  <div class="mp-kpi-grid" id="monitor-summary"></div><div class="mp-dashboard-grid" id="monitor-services"></div>
  <div class="vms-alert" role="status"><strong>Только чтение</strong><span>Не выполняются SQL, restart контейнеров, реальные SMTP-тесты или операции создания баз. Статус «Настроен» не означает «Работает».</span></div>
@@ -304,7 +309,7 @@
  </div></form>
 </dialog>
 <dialog class="mp-dialog" id="record-dialog" aria-labelledby="record-dialog-title"><form id="record-form" novalidate>
- <header class="mp-dialog-heading"><div><span class="mp-eyebrow" id="record-mode"></span><h2 id="record-dialog-title">Компания</h2><p class="mp-help" id="record-note"></p></div><button class="mp-modal-close" aria-label="Закрыть" type="button" id="close-record">✕</button></header>
+ <header class="mp-dialog-heading"><div><span class="mp-eyebrow" id="record-mode"></span><h2 id="record-dialog-title">Компания</h2><p class="mp-help" id="record-note"></p></div><button class="button ghost small mp-modal-close" aria-label="Закрыть" type="button" id="close-record">✕</button></header>
  <div class="mp-stack"><div class="mp-field" id="code-field"><label for="record-code">Код компании</label><input id="record-code" maxlength="63" pattern="[a-z][a-z0-9]*(?:-[a-z0-9]+)*" required></div><div class="mp-field"><label for="record-name">Название компании</label><input id="record-name" maxlength="200" required></div><div class="mp-form-grid" id="profile-fields" hidden><div class="mp-field"><label for="profile-legalName">Юридическое название</label><input id="profile-legalName" type="text" maxlength="300"></div><div class="mp-field"><label for="profile-tradeName">Торговое название</label><input id="profile-tradeName" type="text" maxlength="200"></div><div class="mp-field mp-wide"><label for="profile-description">Описание</label><textarea id="profile-description" maxlength="2000" rows="3"></textarea></div><div class="mp-field"><label for="profile-registrationNumber">Регистрационный номер</label><input id="profile-registrationNumber" type="text" maxlength="100"></div><div class="mp-field"><label for="profile-taxNumber">Налоговый номер</label><input id="profile-taxNumber" type="text" maxlength="100"></div><div class="mp-field"><label for="profile-countryCode">Код страны ISO (2 буквы)</label><input id="profile-countryCode" type="text" maxlength="2"></div><div class="mp-field"><label for="profile-contactEmail">Контактный e-mail</label><input id="profile-contactEmail" type="email" maxlength="254"></div><div class="mp-field"><label for="profile-website">Сайт</label><input id="profile-website" type="url" maxlength="300"></div></div></div>
  <p id="record-error" class="mp-error" role="alert"></p>
  <div class="mp-form-actions"><button class="button secondary" id="cancel-record" type="button">Отмена</button><button class="button primary" type="submit">Сохранить фикстуру</button></div>
