@@ -76,7 +76,12 @@ test('reviewer activation flow after cancelling draft edit',async ({page})=>{
  await page.locator('#record-name').fill('Cancelled edit');
  await page.locator('#cancel-record').click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await expect(page.locator('#company-dialog-notice')).toHaveClass(/vms-alert-warning/);
+ await expect(page.locator('#company-dialog-notice')).toBeVisible();
+ await expect(page.locator('#company-dialog-notice')).toContainText('Активация требует решения независимого Reviewer');
  await page.getByRole('button',{name:'Подтвердить запрос'}).click();
+ await expect(page.locator('#company-dialog-notice')).toHaveClass('vms-alert');
+ await expect(page.locator('#company-dialog-notice')).toContainText('Ожидается решение Reviewer');
  await page.locator('#company-dialog-close').click();
  await expect(page.locator('#feedback')).toContainText('requested');
  await page.locator('#concept-nav a[data-page="login"]').click();

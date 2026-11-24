@@ -197,9 +197,12 @@ function openCompanyDetail(id){
  if(!permitted("tenant.read")||!companies.some(c=>c.tenantId===id))return;
  selectedId=id;renderDetail();const dialog=$("company-dialog");if(!dialog.open)dialog.showModal();
 }
+function setCompanyNotice(message="",warning=false){
+ const notice=$("company-dialog-notice");notice.classList.toggle("vms-alert-warning",warning);$("company-dialog-notice-title").textContent=warning?"Предупреждение":"Информация";$("company-dialog-notice-message").textContent=message;notice.hidden=!message;
+}
 function renderDetail(){
  const panel=$("company-detail"),actions=$("company-dialog-actions");panel.replaceChildren();actions.replaceChildren();
- const c=selected();$("company-dialog-notice").textContent="";if(!c||!permitted("tenant.read"))return;
+ const c=selected();setCompanyNotice();if(!c||!permitted("tenant.read"))return;
  $("company-dialog-title").textContent=c.name;
  $("company-dialog-description").textContent="GET "+prefix+"/companies/{tenantID} · mock 200";
  const dl=document.createElement("dl");
@@ -210,11 +213,11 @@ function renderDetail(){
   const edit=textNode("button","Редактировать");edit.type="button";edit.className="button secondary";edit.addEventListener("click",()=>openRecord(c.tenantId));actions.append(edit);
  }
  const existing=reviews.find(r=>r.tenantId===c.tenantId&&["requested","approved"].includes(r.state));
- if(existing){$("company-dialog-notice").textContent=existing.state==="approved"?"Заявка одобрена Reviewer. Для создания Tenant DB требуется отдельный C01 START.":"Заявка на активацию отправлена. Ожидается решение Reviewer.";}
+ if(existing){setCompanyNotice(existing.state==="approved"?"Заявка одобрена Reviewer. Для создания Tenant DB требуется отдельный C01 START.":"Заявка на активацию отправлена. Ожидается решение Reviewer.");}
  if(c.status==="draft"&&permitted("tenant.activate")&&!existing){
   const activate=textNode("button","Запросить активацию");activate.type="button";activate.className="button primary";
   activate.addEventListener("click",()=>{
-   $("company-dialog-notice").textContent="Активация требует решения независимого Reviewer. Создание Tenant DB не выполняется автоматически.";
+   setCompanyNotice("Активация требует решения независимого Reviewer. Создание Tenant DB не выполняется автоматически.",true);
    activate.textContent="Подтвердить запрос";activate.addEventListener("click",()=>requestActivation(c),{once:true});
    const cancel=textNode("button","Отмена");cancel.type="button";cancel.className="button secondary";cancel.addEventListener("click",()=>renderDetail());actions.insertBefore(cancel,activate);
   },{once:true});actions.append(activate);
