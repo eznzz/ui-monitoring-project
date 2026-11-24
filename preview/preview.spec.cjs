@@ -82,7 +82,6 @@ test('Preview deep link to overview opens contextual login and visible companies
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await expect(page.locator('#overview-companies-body')).toContainText('North Shipping');
  await expect(page.locator('#overview-companies-body')).toContainText('Polar Research');
- await expect(page.locator('#overview-tenant-body tr:visible')).toHaveCount(3);
  expect(errors).toEqual([]);
 });
 test('direct overview link never implies authorization before demo login', async ({page})=>{
@@ -104,17 +103,17 @@ test('direct overview link never implies authorization before demo login', async
 
 test('Preview exposes the unified workspaces without inventing Platform roles',async ({page})=>{
  await page.goto('http://127.0.0.1:8765/preview/');
- await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(9);
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(7);
  await expect(page.locator('[data-preview="reviewer"]')).toHaveAttribute('href','../modules/platform/contract-demo/index.html#activation');
  await expect(page.getByRole('link',{name:/Обзор Owner/})).toHaveCount(1);
  await expect(page.getByText('Platform Reader',{exact:true})).toHaveCount(0);
 });
 
 
-test('unified preview links to both isolated Tenant demos and design template', async ({page})=>{
+test('unified preview links to Tenant and design template', async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  const base='http://127.0.0.1:8765';
- for(const [id,selector] of [['tenant-login','#login-form'],['tenant','#tenant-user-list'],['business-platform','#platform-dashboard-title'],['business-tenant','#tenant-dashboard-title'],['dashboard-template','.app']]){
+ for(const [id,selector] of [['tenant-login','#tenant-login-form'],['tenant','#tenant-login-form'],['dashboard-template','.app']]){
   await page.goto(base+'/preview/');
   const href=await page.locator('[data-preview="'+id+'"]').getAttribute('href');
   const response=await page.goto(new URL(href,base+'/preview/').href);

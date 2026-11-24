@@ -1,22 +1,8 @@
-# Tenant Console parity — 2026-11-24
+# VDMS-first scope (24 November 2026)
 
-Source: [VDMS API client](https://github.com/developerpiter/vdms/blob/main/web/tenant-console/src/api.ts) (blob ca1607a2e01c01f712c7e7081e411010abba5573), [VDMS UI](https://github.com/developerpiter/vdms/blob/main/web/tenant-console/src/App.tsx) (blob edf8d795a1ac2070d272ff98d0535bd08e1fbbe4).
+Source snapshot: [VDMS main 24ad075](https://github.com/developerpiter/vdms/tree/24ad075ac45822ac25b9421bbabe4993d33e44c8). Only implemented client contracts and existing screens define scope. UI-only fixtures, no network or backend credentials. Design tokens/components remain independent visual assets.
 
-Demo only. No requests to VDMS, no real credentials or tokens. Existing shell, tokens and Ship Particulars retained.
-
-| Contract | Demo coverage |
-|---|---|
-| User | id, login, displayName, active, revision; create password min 12 discarded |
-| Role | id, code, description, active, revision |
-| Assignment | id, userId, roleId, objectId nullable, objectCode optional, revision |
-| Policy / capability | revision, canManage |
-| Company | id, code, name, legalName, tradeName, status |
-| Module | code, nameEn, nameRu, status, enabled |
-| ObjectItem | id, code, objectTypeId, revision |
-| LanguageRegistry | primary; code, name, isPrimary, isEnabled, sortOrder |
-
-User creation is roleless; edits/security only for roleless accounts; grants/revokes separated, scope tenant or object. Existing local data is migrated on access; legacy fields retained for compatibility. UUIDs and roles/modules/languages are synthetic, not actual VDMS records. Object type and module availability are demo values, not server-confirmed. The original local login/session and licensing concepts remain; exact Tenant login/refresh, localization and server permission/error handling need a separate iteration. Browser QA not yet run.
-
-
-## Follow-up
-Login presents separate Platform TOTP and Tenant company contexts; still navigation only. Dashboard owns the company summary; role edits respect the 100-record completeness guard. Vessel edits advance mock object revision; assignment object code follows IMO changes. Module availability is explicitly unconfirmed. New language fixtures match the default VDMS migration (en primary, ru secondary). No live session, backend error handling or full translation implemented.
+- Platform: login, company directory/draft/activation, reviewer workflow/history, provisioning, email, mail LAB, system monitor, logs, P4 LAB. Overview is restricted to loaded company records; no Tenant users/modules or DB inventory.
+- Tenant: [api.ts](https://github.com/developerpiter/vdms/blob/24ad075ac45822ac25b9421bbabe4993d33e44c8/web/tenant-console/src/api.ts), App.tsx; company code login, session actions, users, role assignments, object lookup, read-only company/modules/language registry. Fixture permissions differ for writer and delegator. No standalone Office/Vessel roles, no local persistent data. Module catalog from migrations/platform/000034_erp_modules.up.sql; planned modules are metadata only, not screens.
+- Removed speculative Etalon, Ship Particulars, vessel lifecycle, Fleet limits, paid subscriptions, licensing/keys and old platform. Historical Git commits are retained, not active source. Existing Platform mock documentation and API rules are explanatory, not additional backend features.
+- No claim of exhaustive runtime parity: C01 backend remains in development; protected actions and server error handling remain mock. Only actual new VDMS functionality may be added.

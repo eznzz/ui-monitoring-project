@@ -259,69 +259,16 @@ test('VDMS Reviewer rejection requires reason and records own rejection',async (
  expect(errors).toEqual([]);
 });
 
-test('full overview separates Platform company counts and demo Tenant users/modules',async ({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');
- await page.locator('a[data-page="overview"]').click();
- await expect(page.locator('#screen-overview')).toBeVisible();
- await expect(page.locator('#overview-kpis .mp-card')).toHaveCount(6);
- await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено');
- await expect(page.locator('#overview-kpis')).toContainText('Tenant DB · общий инвентарь');
- await expect(page.locator('#overview-kpis')).toContainText('Не доступен');
- await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
- await expect(page.locator('label[for="overview-load-demo"]')).toHaveText('Восстановить демонстрационный набор');
- await expect(page.locator('#overview-load-demo')).toHaveText('Загрузить 18 демо-компаний');
- await expect(page.locator('#overview-company-statuses')).toContainText('draft · 5');
- await expect(page.locator('#overview-tenant-body')).toContainText('captain.demo');
- await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 3');
- await page.locator('#overview-tenant-kind').selectOption('modules');
- await expect(page.locator('#overview-tenant-body')).toContainText('Documents (пример)');
- await page.locator('#overview-tenant-select').selectOption({label:'Blue Logistics (demo) · blue'});
- await expect(page.locator('#overview-tenant-kpis')).toContainText('Модулей в фикстуре: 2');
- await page.locator('#overview-tenant-kind').selectOption('users');
- await page.locator('#overview-tenant-select').selectOption({label:'South Transport (demo) · south'});
- await expect(page.locator('#overview-tenant-kpis')).toContainText('Пользователей в этой тестовой компании нет');
- await expect(page.locator('#overview-databases-body')).toContainText('Не проверено');
- await expect(page.locator('#overview-databases-body')).toContainText('Требуется C01 проверка');
- await page.locator('#overview-companies-body tr').last().getByRole('button',{name:'Открыть'}).click();
- await expect(page.locator('#screen-companies')).toBeVisible();
- await expect(page.locator('#company-detail')).toContainText('Tidewater Solutions');
- await expect(page.locator('#company-range')).toHaveText('Показано 18 из 18');
- expect(errors).toEqual([]);
-});
-test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'reviewer');
- await expect(page.locator('#screen-activation')).toBeVisible();
- await expect(page.locator('#concept-nav a[data-page="overview"]')).toBeHidden();
- await page.locator('#concept-nav a[data-page="login"]').click();
- await fillIdentity(page,'owner');
- await page.locator('#mock-login').click();
- await page.locator('a[data-page="overview"]').click();
- await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
- await expect(page.locator('#overview-open-provisioning')).toBeEnabled();
- await page.setViewportSize({width:390,height:844});
- const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2);
- expect(overflow).toBe(false);
- await expect(page.locator('#overview-tenant-body tr:first-child td[data-label="Логин"]')).toBeVisible();
- expect(errors).toEqual([]);
-});
-
-
 test('overview toggles empty and demo fixtures across linked screens',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
  
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
- await expect(page.locator('#overview-tenant-body')).toContainText('captain.demo');
  await page.locator('#overview-data-mode').selectOption('empty');
  await expect(page.locator('#overview-mode-label')).toHaveText('Пустое состояние');
  await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено0');
- await expect(page.locator('#overview-kpis')).toContainText('Пользователи · Tenant demo0');
  await expect(page.locator('#overview-companies-body')).toContainText('Компаний пока нет');
- await expect(page.locator('#overview-tenant-kpis')).toContainText('пользователи и модули не загружены');
- await expect(page.locator('#overview-databases-body')).toContainText('Нет записей Tenant DB');
  await page.locator('#overview-open-companies').click();
  await expect(page.locator('#companies-body')).toContainText('Компаний пока нет');
  await page.locator('a[data-page="provisioning"]').click();
@@ -329,8 +276,6 @@ test('overview toggles empty and demo fixtures across linked screens',async ({pa
  await page.locator('a[data-page="overview"]').click();
  await page.locator('#overview-data-mode').selectOption('demo');
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
- await expect(page.locator('#overview-tenant-body')).toContainText('captain.demo');
- await expect(page.locator('#overview-databases-body')).toContainText('Требуется C01 проверка');
  expect(errors).toEqual([]);
 });
 test('empty overview supports creating a draft and resets it on fixture mode switch',async ({page})=>{
@@ -347,7 +292,6 @@ test('empty overview supports creating a draft and resets it on fixture mode swi
  await expect(page.locator('#companies-body')).toContainText('New Demo Company');
  await page.locator('a[data-page="overview"]').click();
  await expect(page.locator('#overview-kpis')).toContainText('Компаний · загружено1');
- await expect(page.locator('#overview-tenant-kpis')).toContainText('нет Tenant-фикстур');
  await page.locator('#overview-data-mode').selectOption('demo');
  await expect(page.locator('#overview-companies-body')).not.toContainText('New Demo Company');
  await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
@@ -355,23 +299,6 @@ test('empty overview supports creating a draft and resets it on fixture mode swi
  await expect(page.locator('#overview-companies-body')).toContainText('Компаний пока нет');
  expect(errors).toEqual([]);
 });
-test('demo tenant company selection covers varied user and module empty states',async ({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');
- await page.locator('a[data-page="overview"]').click();
- await page.locator('#overview-tenant-select').selectOption({label:'Harbor Engineering (demo) · harbor'});
- await expect(page.locator('#overview-tenant-body')).toContainText('engineer.demo');
- await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 4');
- await page.locator('#overview-tenant-kind').selectOption('modules');
- await expect(page.locator('#overview-tenant-body')).toContainText('Maintenance (пример)');
- await page.locator('#overview-tenant-select').selectOption({label:'Delta Offshore (demo) · delta'});
- await expect(page.locator('#overview-tenant-kpis')).toContainText('не назначено модулей');
- await page.setViewportSize({width:390,height:844});
- expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
- expect(errors).toEqual([]);
-});
-
-
 test('VDMS role navigation and feature flags are enforced on real routes',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner','success','standard');
@@ -611,34 +538,6 @@ test('audit invalid UTC date/time ranges are explicit and recoverable',async ({p
 });
 
 
-test('18 demo companies have unique VDMS codes, lifecycle variety and linked Tenant fixtures',async ({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');
- await expect(page.locator('#overview-companies-body tr')).toHaveCount(18);
- await expect(page.locator('#overview-company-statuses')).toContainText('active · 7');
- await expect(page.locator('#overview-company-statuses')).toContainText('draft · 5');
- await expect(page.locator('#overview-company-statuses')).toContainText('provisioning · 2');
- await expect(page.locator('#overview-company-statuses')).toContainText('suspended · 2');
- await expect(page.locator('#overview-company-statuses')).toContainText('disabled · 2');
- await page.locator('#overview-tenant-select').selectOption({label:'Atlas Marine (demo) · atlas'});
- await expect(page.locator('#overview-tenant-body')).toContainText('fleet.demo');
- await expect(page.locator('#overview-tenant-kpis')).toContainText('Всего (демо): 3');
- await page.locator('#overview-tenant-kind').selectOption('modules');
- await expect(page.locator('#overview-tenant-body')).toContainText('Fleet (пример)');
- await page.locator('#overview-tenant-select').selectOption({label:'Aurora Data (demo) · aurora'});
- await expect(page.locator('#overview-tenant-kpis')).toContainText('не назначено модулей');
- await page.locator('#overview-tenant-select').selectOption({label:'Vector Services (demo) · vector'});
- await expect(page.locator('#overview-tenant-body')).toContainText('Analytics (пример)');
- await page.locator('#overview-tenant-select').selectOption({label:'Seabird Foods (demo) · seabird'});
- await page.locator('#overview-tenant-kind').selectOption('users');
- await expect(page.locator('#overview-tenant-kpis')).toContainText('Пользователей в этой тестовой компании нет');
- await page.locator('#overview-open-companies').click();
- await page.locator('#company-search').fill('Meridian Energy');
- await expect(page.locator('#companies-body')).toContainText('Meridian Energy');
- await page.locator('#company-search').fill('Nimbus Robotics');
- await expect(page.locator('#companies-body')).toContainText('Nimbus Robotics');
- expect(errors).toEqual([]);
-});
 test('audit footer controls match companies position under their tables and mobile behavior',async ({page})=>{
  await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
@@ -671,3 +570,5 @@ test('audit footer controls match companies position under their tables and mobi
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
 });
+
+test('Platform overview only uses Platform records',async ({page})=>{await page.goto(url+'#overview');await page.locator('#platform-login-name').fill('owner.demo');await page.locator('#platform-login-password').fill('demo-only');await page.locator('#platform-login-totp').fill('000000');await page.locator('#mock-login').click();await expect(page.locator('#overview-kpis .mp-card')).toHaveCount(3);await expect(page.locator('#overview-tenant-section,#overview-db-section')).toHaveCount(0);});

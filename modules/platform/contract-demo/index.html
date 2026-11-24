@@ -94,7 +94,7 @@
 <p class="mp-feedback" role="status" id="feedback" aria-live="polite">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</p>
 
 <section class="mp-dashboard mp-stack" data-screen="overview" id="screen-overview" hidden aria-labelledby="overview-heading">
- <header class="mp-dashboard-head"><div><span class="mp-eyebrow">Management / Central Platform</span><h2 id="overview-heading" class="mp-section-title">Обзор платформы</h2><p>Компании, пользователи, модули и базы данных. Отдельно показаны доступные Platform API данные и иллюстративные Tenant-фикстуры.</p></div><span class="mp-demo-chip">UI prototype · mock</span></header>
+ <header class="mp-dashboard-head"><div><span class="mp-eyebrow">Management / Central Platform</span><h2 id="overview-heading" class="mp-section-title">Обзор платформы</h2><p>Управление Central и состояние доступных рабочих областей. Показатели только по загруженным компаниям.</p></div><span class="mp-demo-chip">UI prototype · mock</span></header>
  <div class="mp-card mp-stack" aria-label="Набор данных предпросмотра">
   <div class="mp-row mp-between">
    <div><h3 class="mp-section-title">Набор данных</h3><p class="mp-help">Переключатель меняет фикстуры в Overview, реестре компаний и Provisioning. В VDMS запросы не отправляются.</p></div>
@@ -121,21 +121,7 @@
   <div id="overview-company-statuses" class="mp-row" aria-live="polite"></div>
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Компания</th><th>Код</th><th>Статус Platform</th><th>Ревизия</th><th>Действие</th></tr></thead><tbody id="overview-companies-body"></tbody></table></div>
  </div>
- <div class="mp-card mp-stack" id="overview-tenant-section">
-  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Пользователи и модули компании</h3><p class="mp-help">Отдельная Tenant область. API: /api/v1/tenant-admin/users и /api/v1/company — не Platform JWT.</p></div><span class="mp-badge">Только демонстрационные данные</span></div>
-  <div class="mp-form-grid">
-   <div class="mp-field"><label for="overview-tenant-select">Компания для просмотра mock-данных Tenant</label><select id="overview-tenant-select"></select></div>
-   <div class="mp-field"><label for="overview-tenant-kind">Показать</label><select id="overview-tenant-kind"><option value="users">Пользователи</option><option value="modules">Модули</option></select></div>
-  </div>
-  <div class="mp-row" id="overview-tenant-kpis" aria-live="polite"></div>
-  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead id="overview-tenant-head"></thead><tbody id="overview-tenant-body"></tbody></table></div>
-  <div class="mp-info-strip"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Изоляция Tenant</strong><p>Это не кросс-tenant статистика Central Platform. В реальной системе пользователи, роли и доступные модули запрашиваются из Tenant Runtime с отдельной авторизацией и разрешениями.</p></div></div>
- </div>
- <div class="mp-card mp-stack" id="overview-db-section">
-  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Базы данных и маршрутизация</h3><p class="mp-help">В Platform API доступны признаки C01 provisioning для конкретной компании, но нет общего безопасного инвентаря БД.</p></div><button class="mp-btn mp-btn--secondary" type="button" id="overview-open-provisioning">Открыть C01</button></div>
-  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Компания</th><th>Статус Platform</th><th>Состояние Tenant DB</th><th>Маршрут</th><th>Доказательство</th></tr></thead><tbody id="overview-databases-body"></tbody></table></div>
-  <div class="mp-info-strip"><i class="fa-solid fa-database" aria-hidden="true"></i><div><strong>Никаких секретов инфраструктуры</strong><p>Имена баз, пароли, DSN и число реально созданных Tenant DB не отображаются. Статус компании active не доказывает доступность PostgreSQL; только серверные C01 receipts и проверки могут подтверждать конкретные этапы.</p></div></div>
- </div>
+ <div class="mp-row"><button class="mp-btn mp-btn--secondary" type="button" id="overview-open-provisioning">Открыть Provisioning</button></div>
  <div class="mp-dashboard-grid">
   <button type="button" class="mp-dashboard-tile" id="overview-open-monitor"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span><div><h2>Мониторинг служб</h2><p>Состояние Platform API и операторов. Отдельно от доступности БД.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-go">Перейти</span></div></button>
   <button type="button" class="mp-dashboard-tile" id="overview-open-reviewer"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span><div><h2>Управление Reviewer</h2><p>Приглашения и подтверждения Owner в Platform области.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-go">Перейти</span></div></button>
