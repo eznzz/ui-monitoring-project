@@ -21,9 +21,8 @@
   <nav class="sidebar__nav mp-sidebar-nav" aria-label="Предпросмотр платформы">
    <ul>
     <li><a class="mp-nav-link active" href="./index.html" aria-current="page"><i class="fa-solid fa-house icon" aria-hidden="true"></i><span>Главная Preview</span></a></li>
-    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#overview"><i class="fa-solid fa-building icon" aria-hidden="true"></i><span>Platform Owner</span></a></li>
-    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#activation"><i class="fa-solid fa-list-check icon" aria-hidden="true"></i><span>Reviewer</span></a></li>
-    <li><a class="mp-nav-link" href="../components/index.html"><i class="fa-solid fa-layer-group icon" aria-hidden="true"></i><span>Компоненты</span></a></li>
+    <li><a class="mp-nav-link" href="../modules/platform/contract-demo/index.html#login"><i class="fa-solid fa-right-to-bracket icon" aria-hidden="true"></i><span>Platform Login</span></a></li>
+    <li><a class="mp-nav-link" href="../components/index.html"><i class="fa-solid fa-layer-group icon" aria-hidden="true"></i><span>Каталог компонентов</span></a></li>
    </ul>
   </nav>
   <div class="mp-template-sidebar-footer"><p class="mp-note">Макет: HTML/CSS/JS · без подключений к VDMS.</p><div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Preview</span></div></div>
@@ -46,11 +45,11 @@
   </header>
   <main class="content mp-main-content">
    <section class="mp-dashboard" aria-labelledby="preview-heading">
-    <header class="mp-dashboard-head"><div><span class="mp-eyebrow">Central Node VDMS · UI prototype</span><h1 id="preview-heading">Интерактивное демо интерфейса</h1><p>Два рабочих пространства по permissions VDMS: Platform Owner и независимый Reviewer. Все операции в Preview — только mock, без реальных запросов.</p></div><span class="mp-demo-chip">UI prototype / mock</span></header>
+    <header class="mp-dashboard-head"><div><span class="mp-eyebrow">Monitoring Project · UI prototype</span><h1 id="preview-heading">Интерактивное демо интерфейса</h1><p>Единая точка входа в демонстрационные рабочие пространства и каталог эталонных компонентов Monitoring Project.</p></div><span class="mp-demo-chip">UI prototype / mock</span></header>
     <div class="mp-row mp-between"><h2 class="mp-section-title">Разделы прототипа</h2><span class="mp-help">Откройте нужный экран</span></div>
     <div class="mp-dashboard-grid">
-     <a class="mp-dashboard-tile" data-preview="platform" href="../modules/platform/contract-demo/index.html#login"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-right-to-bracket"></i></span><div><h2>Platform Login</h2><p>Форма VDMS: Platform login, Password и Authenticator code. Только безопасные тестовые значения, без запросов к серверу.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">UI-only authentication</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
-     <a class="mp-dashboard-tile" href="../components/index.html"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span><div><h2>Каталог компонентов</h2><p>Утверждённые Sidebar, Topbar, формы, таблицы и адаптивные состояния.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Design System</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+     <a class="mp-dashboard-tile" data-preview="platform" href="../modules/platform/contract-demo/index.html#login"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-right-to-bracket"></i></span><div><h2>Platform Login</h2><p>Вход в демонстрационные рабочие пространства Platform Owner и Reviewer с учётом уровня доступа.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Демонстрационный вход</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
+     <a class="mp-dashboard-tile" href="../components/index.html"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span><div><h2>Каталог компонентов</h2><p>Эталонные компоненты, дизайн-токены, типографика и интерактивные состояния интерфейса.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-count">Design System</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div></a>
     </div>
     <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Только интерактивный макет</strong><p>Нет реальной авторизации, отправки почты, API-запросов и изменений в VDMS. Отображаемые данные исключительно тестовые.</p></div></div>
    </section>

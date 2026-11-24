@@ -105,6 +105,12 @@ test('direct overview link never implies authorization before demo login', async
 test('Preview has only Platform Login and Components tiles',async ({page})=>{
  await page.goto('http://127.0.0.1:8765/preview/');
  await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(2);
+ await expect(page.locator('#sidebar .sidebar__nav a')).toHaveCount(3);
+ await expect(page.locator('#sidebar .sidebar__nav a').nth(1)).toHaveText('Platform Login');
+ await expect(page.locator('#sidebar .sidebar__nav a').nth(1)).toHaveAttribute('href','../modules/platform/contract-demo/index.html#login');
+ await expect(page.locator('#sidebar .sidebar__nav a').nth(2)).toHaveText('Каталог компонентов');
+ await expect(page.locator('#sidebar .sidebar__nav a').nth(2)).toHaveAttribute('href','../components/index.html');
+ await expect(page.locator('#sidebar .sidebar__nav a').filter({hasText:/Owner|Reviewer/})).toHaveCount(0);
  await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile').filter({hasText:'Platform Login'})).toHaveAttribute('href','../modules/platform/contract-demo/index.html#login');
  await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile').filter({hasText:'Каталог компонентов'})).toHaveAttribute('href','../components/index.html');
  await expect(page.getByText('Platform Reader',{exact:true})).toHaveCount(0);
