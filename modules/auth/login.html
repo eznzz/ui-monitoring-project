@@ -41,22 +41,24 @@
     </header>
     <form class="mp-stack" id="login-form" novalidate>
      <div class="form-row mp-field">
-      <label for="login-email">Email</label>
-      <input type="email" id="login-email" name="email" placeholder="name@company.example" autocomplete="off">
+      <label for="login-email">Login Name</label>
+      <input type="text" id="login-email" name="login" placeholder="demo-user" autocomplete="off">
      </div>
      <div class="form-row mp-field">
       <label for="login-password">Пароль</label>
       <input type="password" id="login-password" name="password" placeholder="В демо не требуется" autocomplete="off">
      </div>
+     <div class="form-row mp-field" id="login-company-field" hidden><label for="login-company">Company / Code</label><select id="login-company"></select></div>
+     <div class="form-row mp-field" id="login-totp-field"><label for="login-totp">TOTP (MFA)</label><input id="login-totp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6 цифр · демо" autocomplete="off"></div>
      <fieldset class="mp-stack mp-login-roles">
       <legend class="mp-label">Открыть интерфейс</legend>
       <label class="mp-role-option">
        <input type="radio" name="demo-role" value="platform" checked>
-       <span><strong>Суперадминистратор</strong><small>Управление компаниями, оплатой и доступностью модулей</small></span>
+       <span><strong>Platform Owner</strong><small>Управление компаниями, оплатой и доступностью модулей</small></span>
       </label>
       <label class="mp-role-option">
        <input type="radio" name="demo-role" value="tenant">
-       <span><strong>Администратор компании</strong><small>Начальная настройка: пользователи и карточки судов</small></span>
+       <span><strong>Tenant Administrator</strong><small>Начальная настройка: пользователи и карточки судов</small></span>
       </label>
      </fieldset>
      <div class="mp-login-actions">
@@ -70,6 +72,6 @@
  </main>
 </div>
 <script src="../shared/app.js?v=7"></script>
-<script src="login.js"></script>
+<script src="login.js?v=2"></script>
 </body>
 </html>

@@ -82,12 +82,15 @@ function removeUser(s,tenantId,userId){
  const before=t.users.length;
  t.users=t.users.filter(u=>u.id!==userId);
  if(t.users.length===before)throw Error('Пользователь не найден.');
+ if(Array.isArray(t.assignments))t.assignments=t.assignments.filter(a=>a.userId!==userId);
  return true;
 }
 function removeVessel(s,tenantId,vesselIMO){
  const c=company(s,tenantId),t=s.tenants?.[tenantId];
  if(!c||!t||!Array.isArray(t.vessels))throw Error('Компания или список судов не найден.');
- if(t.users?.some(u=>u.role==='vessel'&&u.vesselImo===vesselIMO))
+ if(t.assignments?.some(a=>t.vessels.some(v=>vesselSummary(v).imo===vesselIMO&&v.vdmsId===a.objectId)))
+  throw Error('Сначала отзовите назначения ролей на объект.');
+ if(t.users?.some(u=>!u.vdmsMigrated&&u.role==='vessel'&&u.vesselImo===vesselIMO))
   throw Error('Судно привязано к аккаунту vessel. Сначала удалите привязанные аккаунты в разделе «Пользователи».');
  const before=t.vessels.length;
  t.vessels=t.vessels.filter(v=>vesselSummary(v).imo!==vesselIMO);

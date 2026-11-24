@@ -17,3 +17,6 @@ Demo only. No requests to VDMS, no real credentials or tokens. Existing shell, t
 
 User creation is roleless; edits/security only for roleless accounts; grants/revokes separated, scope tenant or object. Existing local data is migrated on access; legacy fields retained for compatibility. UUIDs and roles/modules/languages are synthetic, not actual VDMS records. Object type and module availability are demo values, not server-confirmed. The original local login/session and licensing concepts remain; exact Tenant login/refresh, localization and server permission/error handling need a separate iteration. Browser QA not yet run.
 
+
+## Follow-up
+Login presents separate Platform TOTP and Tenant company contexts; still navigation only. Dashboard owns the company summary; role edits respect the 100-record completeness guard. Vessel edits advance mock object revision; assignment object code follows IMO changes. Module availability is explicitly unconfirmed. New language fixtures match the default VDMS migration (en primary, ru secondary). No live session, backend error handling or full translation implemented.

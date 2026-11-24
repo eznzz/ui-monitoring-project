@@ -196,6 +196,8 @@ function saveForm(event){
  if(source){
   const previousIMO=MP.vesselSummary(source).imo;
   Object.assign(source,record);
+  if(source.vdmsId){source.vdmsRevision=(source.vdmsRevision||1)+1;source.vdmsCode=fields.imo;
+   (MP.tenant(state,tenantId).assignments||[]).filter(a=>a.objectId===source.vdmsId).forEach(a=>{a.objectCode=source.vdmsCode;});}
   if(previousIMO!==fields.imo){
    MP.tenant(state,tenantId).users.forEach(user=>{if(user.vesselImo===previousIMO)user.vesselImo=fields.imo;});
   }

@@ -42,6 +42,7 @@ function showTenantPage(page,updateLocation=true){
  if(!['dashboard','users','vessels','licenses'].includes(page))page='dashboard';
  if(page==='vessels'&&!allowVessels())page='users';
  $('tenant-dashboard').hidden=page!=='dashboard';
+ $('vdms-company-summary').hidden=page!=='dashboard';
  $('tenant-work-area').hidden=page==='dashboard';
  if(page!=='dashboard')viewSelect(page);
  document.querySelectorAll('.mp-sidebar-nav [data-tenant-section]').forEach(a=>{
@@ -146,7 +147,7 @@ $('tenant-vessel-list').addEventListener('click',async event=>{
  const vessel=records().vessels.find(v=>MP.vesselSummary(v).imo===button.dataset.removeVessel);
  if(!vessel)return;
  const {name,imo}=MP.vesselSummary(vessel);
- const accounts=records().users.filter(u=>u.role==='vessel'&&u.vesselImo===imo);
+ const accounts=records().users.filter(u=>!u.vdmsMigrated&&u.role==='vessel'&&u.vesselImo===imo);
  if(vdms.hasObjectAssignments(vessel)){MP.setFeedback('tenant-vessel-feedback','Сначала отзовите назначения ролей для этого объекта.',true);return;}
  if(accounts.length){
   MP.setFeedback('tenant-vessel-feedback','Нельзя удалить «'+name+'»: привязано аккаунтов vessel — '+accounts.length+'. Сначала удалите эти аккаунты в разделе «Пользователи».',true);
@@ -160,7 +161,7 @@ $('tenant-vessel-list').addEventListener('click',async event=>{
  if(!confirmed)return;
  try{
   MP.removeVessel(data,tenantId,imo);store();
-  renderVessels();renderTenantDashboard();
+  renderUsers();renderVessels();renderTenantDashboard();
   MP.setFeedback('tenant-vessel-feedback','Судно «'+name+'» удалено из демоданных.',false);
  }catch(error){MP.setFeedback('tenant-vessel-feedback',error.message,true);}
 });
@@ -172,7 +173,7 @@ $('tenant-license-form').addEventListener('submit',event=>{
  try{
   const result=MP_LICENSE.request(data,tenantId,input.value);
   if(!MP.save(data))throw Error('Не удалось сохранить запрос в браузере.');
-  input.value='';renderLicenseRequests();renderTenantDashboard();
+  input.value='';renderUsers();renderLicenseRequests();renderTenantDashboard();
   MP.setFeedback('tenant-license-feedback','Запрос на модуль '+(MP.MODULES.find(m=>m.id===result.license.moduleId)?.name||'')+' от '+MP_LICENSE.formatDate(result.request.requestedAt)+' передан на рассмотрение платформы (демо).',false);
  }catch(error){MP.setFeedback('tenant-license-feedback',error.message,true);}
 });
