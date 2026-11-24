@@ -75,37 +75,8 @@ document.querySelectorAll('[data-tenant-tab]').forEach(button=>{
   $('tenant-tab-'+tabs[next]).focus();
  });
 });
-function renderUsers(){
- const list=$('tenant-user-list'),users=records().users;
- $('tenant-users-count').textContent=users.length;
- list.replaceChildren();
- if(!users.length){
-  const empty=document.createElement('p');empty.className='mp-empty';
-  empty.textContent='Пользователи ещё не добавлены. Начните с создания первого пользователя.';
-  list.append(empty);return;
- }
- const table=document.createElement('table');table.className='mp-basic-table';
- table.innerHTML='<thead><tr><th scope="col">Пользователь</th><th scope="col">Email</th><th scope="col">Роль</th><th scope="col">Судно</th><th scope="col">Действия</th></tr></thead>';
- const body=document.createElement('tbody');
- users.forEach(u=>{
-  const tr=document.createElement('tr'),assign=records().vessels.find(v=>MP.vesselSummary(v).imo===u.vesselImo);
-  const vals=[u.name,u.email,u.role||'office',assign?MP.vesselSummary(assign).name:'—'];
-  ['Пользователь','Email','Роль','Судно'].forEach((label,i)=>{
-   const td=document.createElement('td');td.dataset.label=label;
-   if(i===2){
-    const span=document.createElement('span');span.className='mp-badge';span.textContent=vals[i];td.append(span);
-   }else td.textContent=vals[i];
-   tr.append(td);
-  });
-  const action=document.createElement('td');action.dataset.label='Действия';
-  const remove=document.createElement('button');remove.type='button';remove.className='mp-btn mp-btn--danger mp-btn--small';
-  remove.dataset.removeUser=u.id;remove.setAttribute('aria-label','Удалить пользователя '+u.name);
-  const icon=document.createElement('i');icon.className='fa-solid fa-trash-can';icon.setAttribute('aria-hidden','true');
-  remove.append(icon,document.createTextNode(' Удалить'));action.append(remove);tr.append(action);
-  body.append(tr);
- });
- table.append(body);list.append(table);
-}
+const vdms = MP_VDMS.mount({records, company, store, tenantId, onChange:()=>renderTenantDashboard()});
+function renderUsers(){vdms.render();}
 function renderVessels(){
  const list=$('tenant-vessel-list');list.replaceChildren();
  const search=$('tenant-vessel-search').value.trim().toLowerCase();
@@ -170,75 +141,13 @@ function render(){
  $('add-vessel-button').href='vessel.html?tenant='+encodeURIComponent(tenantId);
  renderUsers();renderVessels();renderLicenseRequests();renderTenantDashboard();viewSelect(view);
 }
-function populateVesselChoices(){
- const selector=$('tenant-user-vessel');selector.replaceChildren();
- selector.add(new Option('Выберите судно',''));
- records().vessels.forEach(v=>{
-  const s=MP.vesselSummary(v);selector.add(new Option(s.name+' · IMO '+s.imo,s.imo));
- });
-}
-function toggleUserVessel(){
- const vessel=$('tenant-user-role').value==='vessel';
- $('user-vessel-field').hidden=!vessel;
- $('tenant-user-vessel').required=vessel;
- $('tenant-user-vessel').disabled=!vessel||!allowVessels();
- const count=records().vessels.length;
- $('user-vessel-help').textContent=vessel&&!count
-  ?'Нет зарегистрированных судов. Сначала создайте карточку судна в разделе «Суда».'
-  :'Для роли vessel обязательно выбрать уже существующее судно.';
-}
-$('tenant-user-role').addEventListener('change',toggleUserVessel);
-$('add-user-button').addEventListener('click',()=>{
- $('tenant-user-form').reset();$('user-form-error').textContent='';
- populateVesselChoices();toggleUserVessel();dialog.showModal();$('tenant-user-name').focus();
-});
-$('cancel-user').addEventListener('click',()=>dialog.close());
-document.querySelector('[data-dialog-close="user-dialog"]')?.addEventListener('click',()=>dialog.close());
-dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
-$('tenant-user-form').addEventListener('submit',e=>{
- e.preventDefault();const form=e.currentTarget;
- if(!form.reportValidity())return;
- const name=$('tenant-user-name').value.trim(),email=$('tenant-user-email').value.trim().toLowerCase();
- const password=$('tenant-user-password'),confirm=$('tenant-user-password-confirm');
- if(password.value.length<8){$('user-form-error').textContent='Пароль должен содержать минимум 8 символов.';password.focus();return;}
- if(password.value!==confirm.value){$('user-form-error').textContent='Подтверждение пароля не совпадает.';confirm.focus();return;}
- const role=$('tenant-user-role').value,vesselImo=role==='vessel'?$('tenant-user-vessel').value:'';
- if(role==='vessel'&&(!vesselImo||!allowVessels()||!records().vessels.some(v=>MP.vesselSummary(v).imo===vesselImo))){
-  $('user-form-error').textContent='Для роли vessel требуется выбрать существующее судно. Сначала создайте карточку судна.';
-  $('tenant-user-vessel').focus();return;
- }
- if(!name||!email||!MP.ROLES.some(r=>r.id===role)){
-  $('user-form-error').textContent='Заполните данные и выберите роль.';return;
- }
- if(records().users.some(u=>u.email.toLowerCase()===email)){
-  $('user-form-error').textContent='Этот email уже используется в компании.';return;
- }
- records().users.push({id:'user-'+Date.now(),name,email,role,vesselImo});
- // Credentials are intentionally discarded in the public mock application.
- form.reset();store();dialog.close();renderUsers();renderTenantDashboard();
- MP.setFeedback('tenant-user-feedback','Пользователь создан с ролью '+role+'. Это демоданные.',false);
-});
-$('tenant-user-list').addEventListener('click',async event=>{
- const button=event.target.closest('[data-remove-user]');if(!button)return;
- const user=records().users.find(u=>u.id===button.dataset.removeUser);if(!user)return;
- const confirmed=await MP_CONFIRM.remove({
-  title:'Удалить пользователя «'+user.name+'»?',
-  description:'Аккаунт '+user.email+' и привязка к судну будут удалены из этой компании. Действие нельзя отменить.',
-  buttonLabel:'Удалить пользователя'
- });
- if(!confirmed)return;
- try{
-  MP.removeUser(data,tenantId,user.id);store();
-  renderUsers();renderTenantDashboard();
-  MP.setFeedback('tenant-user-feedback','Пользователь удалён из демоданных.',false);
- }catch(error){MP.setFeedback('tenant-user-feedback',error.message,true);}
-});
 $('tenant-vessel-list').addEventListener('click',async event=>{
  const button=event.target.closest('[data-remove-vessel]');if(!button)return;
  const vessel=records().vessels.find(v=>MP.vesselSummary(v).imo===button.dataset.removeVessel);
  if(!vessel)return;
  const {name,imo}=MP.vesselSummary(vessel);
  const accounts=records().users.filter(u=>u.role==='vessel'&&u.vesselImo===imo);
+ if(vdms.hasObjectAssignments(vessel)){MP.setFeedback('tenant-vessel-feedback','Сначала отзовите назначения ролей для этого объекта.',true);return;}
  if(accounts.length){
   MP.setFeedback('tenant-vessel-feedback','Нельзя удалить «'+name+'»: привязано аккаунтов vessel — '+accounts.length+'. Сначала удалите эти аккаунты в разделе «Пользователи».',true);
   return;
