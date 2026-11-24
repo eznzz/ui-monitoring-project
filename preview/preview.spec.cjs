@@ -75,7 +75,6 @@ test('Preview deep link to overview opens contextual login and visible companies
  await page.getByRole('link',{name:/Обзор Owner/}).click();
  await expect(page.locator('#screen-login')).toBeVisible();
  await expect(page.locator('#platform-login-form')).toBeVisible();
- await expect(page.locator('#platform-login-form')).toBeVisible();
  await demoLogin(page,'owner');
 
  await expect(page.locator('#screen-overview')).toBeVisible();
