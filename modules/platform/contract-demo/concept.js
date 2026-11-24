@@ -147,7 +147,7 @@ function changeDataMode(next,force=false){
  companySortKey="";companySortDir=1;
  reviews=[];reviewDecisions=[];invitations.length=0;
  reviewerChecked=false;selectedInvitationId="";reviewerDetailLoaded=false;
- showHistory=false;selectedId=null;editingId=null;companyPage=0;logShown=Number($("log-limit").value);
+ showHistory=false;selectedId=null;editingId=null;companyPage=0;logPage=0;
  $("company-status").value="all";$("company-search").value="";
  $("reviewer-status-filter").value="all";reviewMode="pending";
  document.querySelectorAll("[data-review-mode]").forEach(tab=>{
@@ -292,7 +292,7 @@ function renderReviews(){
  if(!approvalsEnabled){actions.append(notice("Одобрение недоступно в конфигурации сервера (mock).",true));div.append(actions);root.append(div);continue;}
   for(const decision of ["approved","rejected"]){
    const b=textNode("button",decision==="approved"?"Одобрить (mock)":"Отклонить (mock)");
-   b.type="button";b.className="mp-btn mp-btn--secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
+   b.type="button";b.className="button secondary";b.disabled=r.state!=="requested"||r.requesterActorId===session.actorId;
    b.addEventListener("click",()=>openReviewDecision(r,decision));
    actions.append(b);
   }
@@ -359,7 +359,7 @@ window.addEventListener("hashchange",()=>navigate(location.hash.slice(1)));
 document.querySelectorAll("[data-page]").forEach(el=>el.addEventListener("click",ev=>{ev.preventDefault();navigate(el.dataset.page);}));
 
 const invitations=[];
-let showHistory=false,logShown=5;
+let showHistory=false,logPage=0,logPageCount=1,logSortKey="at",logSortDir=-1;const logPageSize=10;
 const baseLogs=[
  {at:"2026-11-23T09:00:00Z",category:"tenant",eventType:"company.created",outcome:"success",subject:"NORTH"},
  {at:"2026-11-23T08:55:00Z",category:"auth",eventType:"platform.login",outcome:"success",subject:"fixture-owner"},
@@ -407,7 +407,7 @@ function renderReviewer(){
   const info=document.createElement("div");
   info.append(textNode("strong",item.reviewerLogin+" · "+item.state),textNode("small",item.recipientEmail+" · "+item.requestId));row.append(info);
   const actions=document.createElement("div");actions.className="mp-row";
-  const view=textNode("button","Выбрать запрос");view.type="button";view.className="mp-btn mp-btn--secondary";
+  const view=textNode("button","Выбрать запрос");view.type="button";view.className="button secondary";
   view.addEventListener("click",()=>{selectedInvitationId=item.requestId;reviewerDetailLoaded=false;renderReviewer();});
   actions.append(view);row.append(actions);root.append(row);
  }
@@ -437,7 +437,7 @@ function renderSelectedInvitation(){
   const desc=textNode("span","Подтверждаю: это только mock. Я понимаю необходимость проверки почтового ящика и защищённого MFA в VDMS.");
   confirmLabel.append(checkbox,desc);
   const send=textNode("button",item.state==="queued"?"Имитировать повторную отправку":"Имитировать отправку приглашения");
-  send.type="button";send.className="mp-btn mp-btn--primary";send.disabled=true;
+  send.type="button";send.className="button primary";send.disabled=true;
   checkbox.addEventListener("change",()=>{send.disabled=!checkbox.checked;});
   send.addEventListener("click",()=>{
    // Two-step fixture: requested -> queued (unknown SMTP outcome), queued -> sent.
@@ -450,7 +450,7 @@ function renderSelectedInvitation(){
  if(item.state==="sent"){
   actions.append(textNode("p","Сервер сообщает sent. В реальной системе Claim выполняется Reviewer по одноразовой ссылке отдельно от Owner.","mp-help"));
   const claim=textNode("button","Имитировать внешний Claim (без токена)");
-  claim.type="button";claim.className="mp-btn mp-btn--secondary";
+  claim.type="button";claim.className="button secondary";
   claim.addEventListener("click",()=>{item.state="claimed";feedback("Mock Reviewer Claim → claimed. Реальная регистрация не выполнена.");renderReviewer();});
   actions.append(claim);
  }
@@ -458,7 +458,7 @@ function renderSelectedInvitation(){
   actions.append(textNode("p","GET /reviewers/invitations/{requestID}/owner-confirm → pending. Для реального подтверждения необходимы Owner password, свежий TOTP и согласие.","mp-help"));
   const l=document.createElement("label");l.className="mp-role-option";
   const c=document.createElement("input");c.type="checkbox";l.append(c,textNode("span","Подтверждаю макетный сценарий Owner Confirmation (без полномочий на сервере)."));
-  const confirm=textNode("button","Подтвердить Reviewer (mock)");confirm.type="button";confirm.className="mp-btn mp-btn--primary";confirm.disabled=true;
+  const confirm=textNode("button","Подтвердить Reviewer (mock)");confirm.type="button";confirm.className="button primary";confirm.disabled=true;
   c.addEventListener("change",()=>{confirm.disabled=!c.checked;});
   confirm.addEventListener("click",()=>{item.confirmed=true;feedback("Mock POST /reviewers/invitations/owner-confirm → confirmed. Реальные permissions не выдавались.");renderReviewer();});
   actions.append(l,confirm);
@@ -479,10 +479,10 @@ function renderLogs(){
  const tbody=$("log-body");tbody.replaceChildren();
  const canView=session?.actorId==="mock-owner"&&permitted("tenant.create")&&permitted("tenant.activate");
  if(!canView){
-  const td=textNode("td","403 · Platform Owner с MFA и правами tenant.create/tenant.activate необходим.");td.colSpan=5;const row=document.createElement("tr");row.append(td);tbody.append(row);
-  $("log-more").hidden=true;$("log-more").disabled=true;$("log-range").textContent="Нет доступа";return;
+  const td=textNode("td","403 · Platform Owner с MFA и правами tenant.create/tenant.activate необходим.");td.colSpan=5;td.className="table-empty";const row=document.createElement("tr");row.append(td);tbody.append(row);
+  logPage=0;logPageCount=1;$("log-prev").disabled=true;$("log-next").disabled=true;$("log-page").textContent="1 / 1";$("log-range").textContent="Нет доступа";return;
  }
- const cat=$("log-category").value,batch=Number($("log-limit").value);
+ const cat=$("log-category").value;
  const query=$("log-search").value.trim().toLocaleLowerCase("ru").normalize("NFKC");
  const dateFrom=$("log-date-from").value,dateTo=$("log-date-to").value;
  const timeFrom=$("log-time-from").value,timeTo=$("log-time-to").value;
@@ -491,9 +491,9 @@ function renderLogs(){
  const invalid=hasInvalidDate||hasInvalidTime;
  $("log-filter-error").textContent=hasInvalidDate?"Начальная дата позже конечной. Исправьте диапазон.":hasInvalidTime?"Начальное время позже конечного. Исправьте диапазон UTC.":"";
  if(invalid){
-  const tr=document.createElement("tr"),td=textNode("td","Исправьте диапазон дат или времени для отображения событий.");td.colSpan=5;tr.append(td);tbody.append(tr);
+  const tr=document.createElement("tr"),td=textNode("td","Исправьте диапазон дат или времени для отображения событий.");td.colSpan=5;td.className="table-empty";tr.append(td);tbody.append(tr);
   $("log-range").textContent="Диапазон некорректен";
-  $("log-more").hidden=true;$("log-more").disabled=true;return;
+  logPage=0;logPageCount=1;$("log-prev").disabled=true;$("log-next").disabled=true;$("log-page").textContent="1 / 1";return;
  }
  const values=baseLogs.filter(x=>{
   if(cat!=="all"&&x.category!==cat)return false;
@@ -505,14 +505,14 @@ function renderLogs(){
   if(timeTo&&time>timeTo)return false;
   return true;
  });
- const shown=values.slice(0,logShown);
- for(const item of shown){const row=document.createElement("tr");for(const [i,key] of ["at","category","eventType","outcome","subject"].entries()){const cell=textNode("td",item[key]);cell.dataset.label=["Дата","Категория","Событие","Результат","Объект"][i];row.append(cell);}tbody.append(row);}
- if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Нет событий по выбранным условиям.");td.colSpan=5;tr.append(td);tbody.append(tr);}
- const hasMore=shown.length<values.length;
+ values.sort((a,b)=>logSortDir*String(a[logSortKey]).localeCompare(String(b[logSortKey]),"ru",{numeric:true}));
+ logPageCount=Math.max(1,Math.ceil(values.length/logPageSize));logPage=Math.min(logPage,logPageCount-1);
+ const shown=values.slice(logPage*logPageSize,(logPage+1)*logPageSize);
+ for(const item of shown){const row=document.createElement("tr");for(const [i,key] of ["at","category","eventType","outcome","subject"].entries()){const cell=textNode("td",key==="outcome"?"":item[key]);if(key==="outcome"){const pill=textNode("span",item[key],"table-status-pill");pill.dataset.status=item[key]==="success"?"active":"disabled";cell.append(pill);}cell.dataset.label=["Дата","Категория","Событие","Результат","Объект"][i];row.append(cell);}tbody.append(row);}
+ if(!shown.length){const tr=document.createElement("tr"),td=textNode("td","Нет событий по выбранным условиям.");td.colSpan=5;td.className="table-empty";tr.append(td);tbody.append(tr);}
  $("log-range").textContent=values.length?"Показано "+shown.length+" из "+values.length:"Записей: 0";
- $("log-more").hidden=!hasMore;$("log-more").disabled=!hasMore;
- $("log-more").textContent="Показать ещё "+Math.min(batch,values.length-shown.length);
- $("log-more").title=hasMore?"Mock GET /platform-logs?limit="+batch+"&offset="+shown.length:"Все загруженные события показаны";
+ $("log-page").textContent=(logPage+1)+" / "+logPageCount;$("log-prev").disabled=logPage===0;$("log-next").disabled=logPage>=logPageCount-1;
+ document.querySelectorAll("[data-log-sort]").forEach(button=>{const active=button.dataset.logSort===logSortKey;button.setAttribute("aria-pressed",String(active));button.querySelector("span").textContent=active?(logSortDir===1?"↑":"↓"):"↕";button.closest("th").setAttribute("aria-sort",active?(logSortDir===1?"ascending":"descending"):"none");});$("log-mobile-sort").value=logSortKey+":"+logSortDir;
 }
 document.querySelectorAll("[data-review-mode]").forEach(btn=>btn.addEventListener("click",()=>{
  reviewMode=btn.dataset.reviewMode;
@@ -542,10 +542,13 @@ $("reviewer-existing-check").addEventListener("click",()=>{reviewerDetailLoaded=
 $("reviewer-status-filter").addEventListener("change",renderReviewer);
 $("invite-reviewer").addEventListener("click",createInvitation);
 $("reviewer-history").addEventListener("click",()=>{showHistory=!showHistory;renderReviewer();});
-const onLogFilterChange=()=>{logShown=Number($("log-limit").value);renderLogs();};
-for(const id of ["log-category","log-limit","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).addEventListener("change",onLogFilterChange);
+const onLogFilterChange=()=>{logPage=0;renderLogs();};
+for(const id of ["log-category","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).addEventListener("change",onLogFilterChange);
 $("log-search").addEventListener("input",onLogFilterChange);
-$("log-more").addEventListener("click",()=>{logShown+=Number($("log-limit").value);renderLogs();});
+$("log-prev").addEventListener("click",()=>{if(logPage>0){logPage--;renderLogs();}});
+$("log-next").addEventListener("click",()=>{if(logPage<logPageCount-1){logPage++;renderLogs();}});
+document.querySelectorAll("[data-log-sort]").forEach(button=>button.addEventListener("click",()=>{const key=button.dataset.logSort;logSortDir=key===logSortKey?-logSortDir:1;logSortKey=key;logPage=0;renderLogs();}));
+$("log-mobile-sort").addEventListener("change",()=>{const [key,dir]=$("log-mobile-sort").value.split(":");logSortKey=key;logSortDir=Number(dir);logPage=0;renderLogs();});
 $("log-reset").addEventListener("click",()=>{
  for(const id of ["log-search","log-date-from","log-date-to","log-time-from","log-time-to"])$(id).value="";
  $("log-category").value="all";onLogFilterChange();

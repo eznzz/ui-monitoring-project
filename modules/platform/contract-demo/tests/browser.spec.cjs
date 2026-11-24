@@ -483,34 +483,14 @@ test('company list empty state does not offer additional entries',async ({page})
  await expect(page.locator('#company-next')).toBeDisabled();
  await expect(page.locator('#company-prev')).toBeDisabled();
 });
-test('audit log appends further events using 5 or 10, resets after filtering',async ({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await signIn(page,'owner');
- await page.locator('#concept-nav a[data-page="logs"]').click();
- await expect(page.locator('#log-body tr')).toHaveCount(5);
- await expect(page.locator('#log-range')).toHaveText('Показано 5 из 16');
- await expect(page.locator('#log-more')).toHaveText('Показать ещё 5');
- await page.locator('#log-more').click();
- await expect(page.locator('#log-body tr')).toHaveCount(10);
- await expect(page.locator('#log-range')).toHaveText('Показано 10 из 16');
- await page.locator('#log-more').click();
- await expect(page.locator('#log-body tr')).toHaveCount(15);
- await page.locator('#log-more').click();
- await expect(page.locator('#log-body tr')).toHaveCount(16);
- await expect(page.locator('#log-more')).toBeHidden();
- await page.locator('#log-category').selectOption('auth');
- await expect(page.locator('#log-body tr')).toHaveCount(5);
- await expect(page.locator('#log-range')).toHaveText('Показано 5 из 5');
- await page.locator('#log-category').selectOption('all');
- await page.locator('#log-limit').selectOption('10');
- await expect(page.locator('#log-body tr')).toHaveCount(10);
- await expect(page.locator('#log-more')).toHaveText('Показать ещё 6');
- await page.locator('#log-more').click();
- await expect(page.locator('#log-body tr')).toHaveCount(16);
- await expect(page.locator('#log-more')).toBeHidden();
- await page.setViewportSize({width:390,height:844});
- expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
- expect(errors).toEqual([]);
+test('audit log uses canonical Data Table and ten-record pages',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));await signIn(page,'owner');await page.locator('#concept-nav a[data-page="logs"]').click();
+ const rows=page.locator('#log-body tr'),next=page.locator('#log-next'),prev=page.locator('#log-prev');
+ await expect(page.locator('#log-table .data-table')).toBeVisible();await expect(rows).toHaveCount(10);await expect(page.locator('#log-page')).toHaveText('1 / 2');await expect(prev).toBeDisabled();
+ await next.click();await expect(rows).toHaveCount(6);await expect(page.locator('#log-page')).toHaveText('2 / 2');await expect(next).toBeDisabled();
+ await prev.click();await expect(rows).toHaveCount(10);await page.locator('#log-category').selectOption('auth');await expect(rows).toHaveCount(5);await expect(page.locator('#log-range')).toHaveText('Показано 5 из 5');
+ await page.locator('#log-category').selectOption('all');await page.locator('[data-log-sort="at"]').click();await expect(rows.first()).toContainText('2026-11-22T07:30:00Z');
+ await page.setViewportSize({width:390,height:844});await expect(page.locator('#log-mobile-sort')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);expect(errors).toEqual([]);
 });
 test('Owner home is overview, Reviewer home is activation, explicit Company deep links remain intact',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -565,13 +545,13 @@ test('company search finds unloaded rows by name, code, UUID and profile and res
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
  expect(errors).toEqual([]);
 });
-test('audit date range, hours, search and load-more interact without duplicates',async ({page})=>{
+test('audit date range, hours, search and pagination interact without duplicates',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="logs"]').click();
  await page.locator('#log-date-from').fill('2026-11-22');
  await page.locator('#log-date-to').fill('2026-11-22');
- await expect(page.locator('#log-range')).toHaveText('Показано 5 из 13');
+ await expect(page.locator('#log-range')).toHaveText('Показано 10 из 13');
  await page.locator('#log-time-from').fill('10:00');
  await page.locator('#log-time-to').fill('12:00');
  await expect(page.locator('#log-range')).toHaveText('Показано 5 из 5');
@@ -581,13 +561,13 @@ test('audit date range, hours, search and load-more interact without duplicates'
  await expect(page.locator('#log-range')).toHaveText('Показано 3 из 3');
  await page.locator('#log-search').fill('missing');
  await expect(page.locator('#log-body')).toContainText('Нет событий по выбранным условиям');
- await expect(page.locator('#log-more')).toBeHidden();
+ await expect(page.locator('#log-next')).toBeDisabled();
  await page.locator('#log-reset').click();
  await expect(page.locator('#log-date-from')).toHaveValue('');
  await expect(page.locator('#log-time-to')).toHaveValue('');
- await expect(page.locator('#log-range')).toHaveText('Показано 5 из 16');
- await page.locator('#log-more').click();
- await expect(page.locator('#log-body tr')).toHaveCount(10);
+ await expect(page.locator('#log-range')).toHaveText('Показано 10 из 16');
+ await page.locator('#log-next').click();
+ await expect(page.locator('#log-body tr')).toHaveCount(6);
  await page.locator('#log-date-from').fill('2026-11-23');
  await expect(page.locator('#log-range')).toHaveText('Показано 3 из 3');
  await page.setViewportSize({width:390,height:844});
@@ -600,7 +580,7 @@ test('audit invalid UTC date/time ranges are explicit and recoverable',async ({p
  await page.locator('#log-date-from').fill('2026-11-23');
  await page.locator('#log-date-to').fill('2026-11-22');
  await expect(page.locator('#log-filter-error')).toContainText('Начальная дата позже конечной');
- await expect(page.locator('#log-more')).toBeHidden();
+ await expect(page.locator('#log-next')).toBeDisabled();
  await page.locator('#log-reset').click();
  await page.locator('#log-time-from').fill('18:00');
  await page.locator('#log-time-to').fill('08:00');
@@ -655,20 +635,20 @@ test('audit footer controls match companies position under their tables and mobi
  });
  expect(companyPositions.below).toBe(true);
  await page.locator('#concept-nav a[data-page="logs"]').click();
- const footer=page.locator('#screen-logs .mp-page-tools');
+ const footer=page.locator('#screen-logs .table-footer');
  await expect(footer.locator('#log-range')).toBeVisible();
- await expect(footer.locator('#log-limit')).toBeVisible();
- await expect(footer.locator('#log-more')).toBeVisible();
+ await expect(footer.locator('#log-prev')).toBeVisible();
+ await expect(footer.locator('#log-page')).toBeVisible();
+ await expect(footer.locator('#log-next')).toBeVisible();
  const positions=await page.evaluate(()=>{
-  const footer=document.querySelector('#screen-logs .mp-page-tools');
-  const table=document.querySelector('#screen-logs .mp-basic-table-wrap');
+  const footer=document.querySelector('#screen-logs .table-footer');
+  const table=document.querySelector('#screen-logs .table-scroll');
   return {below:footer.getBoundingClientRect().top>=table.getBoundingClientRect().bottom};
  });
  expect(positions.below).toBe(true);
- await page.locator('#log-limit').selectOption('10');
  await expect(page.locator('#log-body tr')).toHaveCount(10);
- await page.locator('#log-more').click();
- await expect(page.locator('#log-body tr')).toHaveCount(16);
+ await page.locator('#log-next').click();
+ await expect(page.locator('#log-body tr')).toHaveCount(6);
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
 });

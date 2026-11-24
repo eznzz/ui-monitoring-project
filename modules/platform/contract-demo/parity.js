@@ -4,7 +4,7 @@
 const $=id=>document.getElementById(id);
 const element=(tag,label,cls)=>{const node=document.createElement(tag);if(label!==undefined)node.textContent=String(label);if(cls)node.className=cls;return node;};
 const empty=el=>el.replaceChildren();
-const addButton=(parent,label,cb,cls="mp-btn mp-btn--secondary")=>{const b=element("button",label,cls);b.type="button";b.addEventListener("click",cb);parent.append(b);return b;};
+const addButton=(parent,label,cb,cls="button secondary")=>{const b=element("button",label,cls);b.type="button";b.addEventListener("click",cb);parent.append(b);return b;};
 const detail=(label,value)=>{const d=document.createElement("div");d.append(element("dt",label),element("dd",value));return d;};
 const alert=(msg,warning=false)=>{const node=element("div",undefined,"vms-alert"+(warning?" vms-alert-warning":""));node.setAttribute("role","status");node.append(element("strong",warning?"Предупреждение":"Информация"),element("span",msg));return node;};
 const restricted=(root,msg)=>{root.replaceChildren(alert("403 · "+msg,true));};
@@ -194,7 +194,7 @@ function provisioning(){
   const r=element("div",undefined,"mp-record");r.append(element("strong",step+" · "+state),element("small",description));timeline.append(r);
  }
  panel.append(timeline);
- addButton(panel,"Открыть компанию",()=>{ctx.navigate("companies");}, "mp-btn mp-btn--secondary");
+ addButton(panel,"Открыть компанию",()=>{ctx.navigate("companies");}, "button secondary");
 }
 function mailOperator(){
  const root=$("email-operator-status");empty(root);

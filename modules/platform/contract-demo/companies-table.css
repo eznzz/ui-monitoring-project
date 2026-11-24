@@ -1,17 +1,6 @@
 /* Scoped adoption of Data Table from components/catalog.css and mobile.css.
    Do not change the canonical catalog, global dashboard styles, or other screens. */
 .company-data-table{--bg:var(--vms-color-canvas);--surface:var(--vms-color-surface);--subtle:var(--vms-color-surface-subtle);--text:var(--vms-color-text);--muted:var(--vms-color-muted);--line:var(--vms-color-border);--brand:var(--vms-color-primary);--brand-hover:var(--vms-color-primary-hover);--button-text:var(--vms-color-on-primary);--ring:var(--vms-color-focus-ring);--error:var(--vms-color-error);--disabled:var(--vms-color-input-disabled-bg);--radius:var(--vms-input-radius);font-family:var(--vms-font-body);font-size:14px;line-height:1.5;min-width:0}
-.company-data-table .button{display:inline-flex;align-items:center;justify-content:center;min-height:var(--vms-input-height);padding:8px 18px;border-radius:var(--radius);border:1px solid transparent;font-weight:600;transition:background .15s,transform .15s}
-.company-data-table .button:active:not(:disabled){transform:translateY(1px)}
-.company-data-table .primary{color:var(--button-text);background:var(--brand)}
-.company-data-table .primary:hover:not(:disabled){background:var(--brand-hover)}
-.company-data-table .secondary{color:var(--brand);border-color:var(--line);background:var(--surface)}
-.company-data-table .secondary:hover{background:var(--subtle)}
-.company-data-table .ghost{color:var(--brand);background:transparent}
-.company-data-table .ghost:hover{background:var(--subtle)}
-.company-data-table .button:disabled{opacity:.45;cursor:not-allowed}
-.company-data-table .button.small{min-height:32px;padding:5px 12px}
-.company-data-table .button.large{min-height:48px;padding:12px 22px}
 .company-data-table .field{display:flex;flex-direction:column;gap:6px}
 .company-data-table .field label{font-size:13px;font-weight:600}
 .company-data-table .field input,.company-data-table .field select{height:var(--vms-input-height);border:1px solid var(--line);background:var(--vms-color-input-bg);color:var(--text);border-radius:var(--radius);padding:0 var(--vms-input-padding-x);width:100%}
@@ -144,3 +133,16 @@ body{--brand:var(--vms-color-primary);--subtle:var(--vms-color-surface-subtle);-
 #overview-tenant-kpis .vms-alert{flex:1 1 100%}
 #overview-tenant-table .data-table{min-width:0}
 #overview-tenant-table .data-table td{overflow-wrap:anywhere}
+
+/* Canonical Components button rules for action buttons in the Platform demo. */
+body{--button-text:var(--vms-color-on-primary);--brand-hover:var(--vms-color-primary-hover);--radius:var(--vms-input-radius);--ring:var(--vms-color-focus-ring)}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:var(--vms-input-height);padding:8px 18px;border-radius:var(--radius);border:1px solid transparent;font-weight:600;transition:background .15s,transform .15s}.button:active:not(:disabled){transform:translateY(1px)}.button.primary{color:var(--button-text);background:var(--brand)}.button.primary:hover:not(:disabled){background:var(--brand-hover)}.button.secondary{color:var(--brand);border-color:var(--line);background:var(--surface)}.button.secondary:hover{background:var(--subtle)}.button.ghost{color:var(--brand);background:transparent}.button.ghost:hover{background:var(--subtle)}.button:disabled{opacity:.45;cursor:not-allowed}.button.small{min-height:32px;padding:5px 12px}.button.large{min-height:48px;padding:12px 22px}
+.button{font:inherit;font-weight:600;cursor:pointer}
+.button:focus-visible{outline:2px solid var(--brand);outline-offset:3px;box-shadow:0 0 0 3px var(--ring)}
+#mock-login{width:100%}
+.vms-alert{margin-top:12px}
+#log-table .table-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end}
+#log-table .table-toolbar .field{min-width:0}
+#log-table .data-table td{overflow-wrap:anywhere}
+@media(max-width:760px){#log-table .table-toolbar{grid-template-columns:minmax(0,1fr)}}
+@media(pointer:coarse){.button{min-height:44px}}
