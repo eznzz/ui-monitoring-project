@@ -102,10 +102,24 @@ test('direct overview link never implies authorization before demo login', async
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
 });
 
-test('Preview has only the VDMS Owner and independent Reviewer entry points',async ({page})=>{
+test('Preview exposes the unified workspaces without inventing Platform roles',async ({page})=>{
  await page.goto('http://127.0.0.1:8765/preview/');
- await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(4);
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(9);
  await expect(page.locator('[data-preview="reviewer"]')).toHaveAttribute('href','../modules/platform/contract-demo/index.html#activation');
  await expect(page.getByRole('link',{name:/Обзор Owner/})).toHaveCount(1);
  await expect(page.getByText('Platform Reader',{exact:true})).toHaveCount(0);
+});
+
+
+test('unified preview links to both isolated Tenant demos and design template', async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ const base='http://127.0.0.1:8765';
+ for(const [id,selector] of [['tenant-login','#login-form'],['tenant','#tenant-user-list'],['business-platform','#platform-dashboard-title'],['business-tenant','#tenant-dashboard-title'],['dashboard-template','.app']]){
+  await page.goto(base+'/preview/');
+  const href=await page.locator('[data-preview="'+id+'"]').getAttribute('href');
+  const response=await page.goto(new URL(href,base+'/preview/').href);
+  expect(response.status()).toBe(200);
+  await expect(page.locator(selector)).toBeVisible();
+ }
+ expect(errors).toEqual([]);
 });

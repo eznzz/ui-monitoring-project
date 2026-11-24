@@ -1,0 +1,67 @@
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ship Particulars — Monitoring Project</title>
+<meta name="description" content="Карточка судна: форма Ship Particulars по разделам предоставленного документа">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../tokens/tokens.css"><link rel="stylesheet" href="../../../../style.css?v=0.6.2"><link rel="stylesheet" href="../../../shared/ui.css?v=8"><link rel="stylesheet" href="../../../shared/template.css?v=5">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></head><body>
+<div class="app mp-template-app">
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar__logo"><div class="sidebar__logo-mark"><i class="fa-solid fa-ship" aria-hidden="true"></i></div><span class="sidebar__logo-text">Monitoring Project</span></div>
+  <div class="mp-eyebrow" id="editor-tenant-code" style="padding:0 14px 12px">tenant_db_000001</div>
+  <nav class="sidebar__nav" aria-label="Навигация компании"><a class="mp-nav-link" href="../../../../preview/index.html"><i class="fa-solid fa-arrow-left icon" aria-hidden="true"></i><span>Все демо · Preview</span></a>
+   <ul><li><a id="editor-back-sidebar" href="index.html#vessels"><i class="fa-solid fa-arrow-left icon" aria-hidden="true"></i><span>К списку судов</span></a></li></ul>
+  </nav>
+  <div class="mp-template-sidebar-footer"><p class="mp-note">Ship Particulars — карточка судна.</p><div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Demo</span></div></div>
+ </aside>
+ <div class="overlay" id="overlay"></div>
+ <div class="main">
+  <header class="topbar">
+   <div class="topbar__left"><button class="burger" id="burger" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Открыть меню"><i class="fa-solid fa-bars"></i></button><h1 class="topbar__title">Company / Ship Particulars</h1></div>
+   <div class="user-menu" id="userMenu">
+    <button class="user-menu__trigger" id="userTrigger" type="button" aria-controls="userDropdown" aria-expanded="false">
+     <span class="avatar" aria-hidden="true">А</span><span class="name">Администратор компании</span><i class="fa-solid fa-chevron-down caret" aria-hidden="true"></i>
+    </button>
+    <div class="user-menu__dropdown" id="userDropdown">
+     <div class="user-menu__header"><span class="avatar" aria-hidden="true">А</span><div class="info"><strong>Администратор компании</strong><small>Company · mock</small></div></div>
+     <ul class="user-menu__list">
+      <li><button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false"><span><i class="fa-solid fa-moon icon" id="themeIcon"></i><span id="themeLabel">Тёмная тема</span></span><span class="theme-toggle__switch" aria-hidden="true"></span></button></li>
+      <li class="divider" aria-hidden="true"></li>
+      <li><a href="../auth/login.html" class="danger"><i class="fa-solid fa-right-from-bracket icon"></i> Выйти из демо</a></li>
+     </ul>
+    </div>
+   </div>
+  </header>
+  <main class="content mp-main-content">
+  <div class="mp-page-head">
+   <div><span class="mp-eyebrow">Company / Vessels</span><h1 id="editor-title">Новая карточка судна</h1><p>Identification, Dimensions, Cargo, Machinery и остальные разделы Ship Particulars.</p></div>
+   <a id="editor-back" href="index.html#vessels" class="mp-btn mp-btn--secondary"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Все суда</a>
+  </div>
+  <p id="editor-object-meta" class="mp-help" aria-live="polite">Новое судно будет неактивным до ручного включения.</p>
+  <div id="editor-history" class="mp-card mp-stack" aria-live="polite"></div>
+  <div class="mp-info-strip">
+   <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+   <div><strong>Основа формы — Ship Particulars / Marta Reefer</strong>
+   <p>Структура и названия полей взяты из предоставленного документа (2 страницы). Примерные сведения о конкретном судне не заполняются автоматически. Поля необязательны, кроме Ship's Name и IMO.</p></div>
+  </div>
+  <form id="vessel-particulars-form" novalidate>
+   <div class="mp-editor-layout">
+    <nav id="editor-sections-nav" class="mp-card mp-editor-side" aria-label="Разделы Ship Particulars"></nav>
+    <div id="editor-sections" class="mp-editor-sections"></div>
+   </div>
+   <div class="mp-editor-toolbar">
+    <div><strong id="editor-progress" style="font-size:12px">Заполнено 0 полей</strong><p class="mp-help">Демонстрационное сохранение в этом браузере</p></div>
+    <div class="mp-row"><button class="mp-btn mp-btn--secondary" type="button" id="editor-reset">Очистить</button><button type="submit" class="mp-btn mp-btn--primary">Сохранить карточку</button></div>
+   </div>
+   <p id="editor-feedback" class="mp-feedback" aria-live="polite"></p>
+  </form>
+ </main>
+ </div>
+</div>
+<script src="../shared/app.js?v=12"></script>
+<script src="../services/mock-adapter.js?v=1"></script>
+<script src="ship-particulars.js?v=3"></script>
+<script src="vessel.js?v=12"></script>
+<script src="../../../../script.js?v=0.6.2"></script>
+</body></html>

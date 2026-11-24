@@ -66,7 +66,7 @@
    </div>
    <div class="mp-dashboard-grid">
     <a href="#users" data-tenant-section="users" class="mp-dashboard-tile">
-     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span><div><h2>Пользователи</h2><p>Создание аккаунтов office и vessel, привязка судовых сотрудников к существующим судам.</p></div></div>
+     <div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></span><div><h2>Пользователи</h2><p>Аккаунты, статусы, роли и назначения в пределах компании или объекта.</p></div></div>
      <div class="mp-dashboard-tile-footer"><span class="mp-tile-count" id="tenant-tile-users">0 пользователей</span><span class="mp-tile-go">Открыть <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span></div>
     </a>
     <a href="#vessels" data-tenant-section="vessels" id="tenant-dashboard-vessel-tile" class="mp-dashboard-tile">
@@ -82,12 +82,13 @@
   <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Логика доступа</strong>
    <p>В начале доступны только создание пользователей и заполнение карточек судов. Платные модули подключаются исключительно на платформе после оплаты и подтверждения запроса по ключу.</p></div></div>
  </section>
+ <div id="vdms-company-summary" class="mp-card mp-stack" hidden></div>
  <div id="tenant-work-area" class="mp-stack" data-screen="workspace" hidden>
  <header class="mp-page-head" id="setup">
   <div><span class="mp-eyebrow" id="tenant-head-code">tenant_db_000001</span><h1 id="tenant-company-heading">Настройка компании</h1><p id="tenant-company-title">Пользователи и типы объектов, назначенные платформой</p></div>
   <span class="mp-badge">Базовый доступ</span>
  </header>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей с ролью <b>office</b> или <b>vessel</b> и заполнение Ship Particulars для судов. Активация модулей выполняется платформой после запроса по лицензионному ключу.</p></div></div>
+ <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Что доступно до покупки модулей</strong><p>Создание пользователей и отдельное назначение ролей и заполнение Ship Particulars для судов. Активация модулей выполняется платформой после запроса по лицензионному ключу.</p></div></div>
  <section id="workspace" class="mp-card mp-stack" aria-labelledby="setup-tabs-label">
   <div class="mp-page-tools">
    <div><span class="mp-eyebrow">Первичная настройка</span><h2 id="setup-tabs-label" class="mp-section-title">Данные компании</h2></div>
@@ -100,10 +101,10 @@
   </div>
   <div id="tenant-pane-users" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-users">
    <div class="mp-page-tools">
-    <div><h3 class="mp-section-title">Пользователи компании</h3><p class="mp-help">Базовый список пользователей с принадлежностью к office или vessel.</p></div>
+    <div><h3 class="mp-section-title">Пользователи компании</h3><p class="mp-help">Пользователи, профиль, безопасность, роли и объекты по модели VDMS.</p></div>
     <button class="mp-btn mp-btn--primary" type="button" id="add-user-button"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Добавить пользователя</button>
    </div>
-   <div id="tenant-user-list" aria-live="polite"></div>
+   <div id="tenant-user-list" aria-live="polite"></div><div id="vdms-user-detail" class="mp-stack"></div>
    <p id="tenant-user-feedback" class="mp-feedback" aria-live="polite"></p>
   </div>
   <div id="tenant-pane-vessels" class="mp-pane" role="tabpanel" aria-labelledby="tenant-tab-vessels" hidden>
@@ -132,26 +133,15 @@
 </div>
 <dialog class="mp-dialog" id="user-dialog" aria-labelledby="user-dialog-title" aria-describedby="user-dialog-description">
  <form id="tenant-user-form" novalidate>
-  <div class="mp-dialog-heading"><div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p id="user-dialog-description" class="mp-help">Заполните данные и назначьте роль пользователя.</p></div><button type="button" class="mp-modal-close" data-dialog-close="user-dialog" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
-  <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" maxlength="100" required placeholder="Имя и фамилия"></div>
-  <div class="mp-field"><label for="tenant-user-email">Email *</label><input id="tenant-user-email" type="email" maxlength="150" required placeholder="name@company.example"></div>
-  <div class="mp-field"><label for="tenant-user-password">Пароль *</label><input type="password" id="tenant-user-password" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Не менее 8 символов"></div>
-  <div class="mp-field"><label for="tenant-user-password-confirm">Подтверждение пароля *</label><input type="password" id="tenant-user-password-confirm" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="Повторите пароль"></div>
+  <div class="mp-dialog-heading"><div><span class="mp-eyebrow">Company / Users</span><h2 id="user-dialog-title">Добавить пользователя</h2><p id="user-dialog-description" class="mp-help">Создайте аккаунт без ролей. Назначения выполняются отдельно.</p></div><button type="button" class="mp-modal-close" data-dialog-close="user-dialog" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+  <div class="mp-field"><label for="tenant-user-name">Имя пользователя *</label><input id="tenant-user-name" maxlength="120" required placeholder="Имя и фамилия"></div>
+  <div class="mp-field"><label for="tenant-user-email">Логин *</label><input id="tenant-user-email" type="text" minlength="3" maxlength="64" pattern="[a-z][a-z0-9._-]{2,63}" required placeholder="demo-user"></div>
+  <div class="mp-field"><label for="tenant-user-password">Начальный пароль *</label><input type="password" id="tenant-user-password" minlength="12" required autocomplete="new-password" placeholder="Не менее 12 символов"></div>
   <p class="mp-help">Только для проверки формы: пароль не сохраняется, не отправляется и не позволяет войти в демо. Не используйте настоящий пароль.</p>
-  <div class="mp-field"><label for="tenant-user-role">Роль *</label>
-   <select id="tenant-user-role" required>
-    <option value="office">office — сотрудник офиса</option>
-    <option value="vessel">vessel — судовой пользователь</option>
-   </select>
-  </div>
-  <div class="mp-field" id="user-vessel-field" hidden>
-   <label for="tenant-user-vessel">Судно *</label><select id="tenant-user-vessel"><option value="">Выберите судно</option></select>
-   <p class="mp-help" id="user-vessel-help">Для роли vessel обязательно выбрать судно из уже заполненных карточек. Если список пуст, сначала создайте судно.</p>
-  </div>
   <p id="user-form-error" class="mp-error" role="alert"></p>
   <div class="mp-form-actions"><button type="button" class="mp-btn mp-btn--secondary" id="cancel-user">Отмена</button><button class="mp-btn mp-btn--primary" type="submit">Создать</button></div>
  </form>
 </dialog>
-<script src="../shared/app.js?v=7"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="tenant.js?v=11"></script>
+<script src="../shared/app.js?v=8"></script><script src="../shared/licensing.js?v=3"></script><script src="../shared/confirm.js?v=1"></script><script src="vdms-tenant-demo.js?v=2"></script><script src="tenant.js?v=13"></script>
 <script src="../../script.js?v=0.6.2"></script>
 </body></html>

@@ -1,0 +1,7 @@
+# Consolidation — 24 November 2026
+
+All 22 branch trees inspected. The canonical Platform UI is preview 28fb71be1ce17f0b8e60fed424e564ca9bc39a25 (identical files to feature/platform-signin-authenticator-ui-20261124). The recent Tenant work is main fea6a501a25ff41f1faca2257ce878bb75717638. Both are combined without replacing Platform contract files. Product business prototype is feat/platform-object-types-ui-demo a368c75cccefc5fe207b70f155e895fe2de15488, isolated in modules/concepts/business. October completion branch 3cf413f53b8152054bc9224c9d5705a9a1534c34 retains historical lifecycle implementation and smoke tests. Docs mapping b3c8afa68b2ca2a6c01b9067e70ab7727e490607 restored. Historical intermediate Platform revisions, CSS and tests are not duplicated into the active application. Branches are retained.
+
+The older platform/index.html stays for compatibility, not canonical. Root Dashboard is preserved, with a preview-relative copy because Pages replaces root with a redirect. Use common tokens and CSS in all workspaces. Contract Platform/Tenant and speculative business model remain separate datasets; unifying data requires an explicit mapping of identities, statuses and entitlements. No backend or production data modified.
+
+New browser smoke covers Preview routes. Tests are scheduled by existing workflow on preview push; do not claim pass before results. Further work starts from preview, not old feature branches.
