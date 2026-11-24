@@ -20,7 +20,7 @@ jobs:
         run: |
           cd frontend/central-workspace
           npm ci
-          VITE_C01_P4_LAB_UI=1 VITE_PLATFORM_MAIL_ADMIN_UI=1 VITE_C01_RESTRICTED_REVIEW_APPROVAL=1 npm run build
+          VITE_C01_P4_LAB_UI=1 VITE_PLATFORM_MAIL_ADMIN_UI=0 VITE_C01_RESTRICTED_REVIEW_APPROVAL=1 npm run build
           cd ../tenant-console
           npm install --no-package-lock
           npm run build

@@ -1,12 +1,67 @@
+/* Shared VDMS presentation adapter. The Dashboard Template and tokens remain authoritative. */
 @import url("../../../tokens/tokens.css");
-:root,body{font-family:var(--vms-font-body);color:var(--vms-color-text);background:var(--vms-color-canvas)}
-.panel,.card,.loginbar,.overview,.notice,.topbar,.record,.user-row,.btn-outline,.ghost{background:var(--vms-color-surface);color:var(--vms-color-text);border-color:var(--vms-color-border);border-radius:var(--vms-input-radius)}
-.topbar{border-radius:0}.muted,small,label,.eyebrow,.connection{color:var(--vms-color-muted)}
-input,select,textarea{background:var(--vms-color-input-bg);color:var(--vms-color-text);border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius);min-height:var(--vms-input-height);font-size:var(--vms-input-font-size)}
-button,.btn{border-radius:var(--vms-input-radius);min-height:var(--vms-input-height)}
-.btn-primary,.primary-action,.mark,.brand-mark,button:not(.ghost):not(.btn-outline):not(.user-row):not(.record):not(.danger):not([role=tab]){background:var(--vms-color-primary);color:var(--vms-color-on-primary)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--vms-color-focus);outline-offset:2px}
-.danger{color:var(--vms-color-error)}.green{color:var(--vms-color-success)}.red{color:var(--vms-color-error)}
-.rail,.info-panel{background:var(--vms-color-primary);color:var(--vms-color-on-primary)}
-#mp-demo-banner{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 16px;background:var(--vms-color-surface);color:var(--vms-color-text);border-bottom:1px solid var(--vms-color-border);font-size:13px}
-#mp-demo-banner a{color:var(--vms-color-primary)}#mp-demo-banner button{margin-left:auto}
+.vdms-shell .content {display:grid;gap:20px;align-content:start}
+.vdms-shell .mp-page-head{align-items:center}
+.vdms-shell .vdms-nav-group{display:grid;gap:6px;margin-bottom:12px}
+.vdms-shell .vdms-nav-group>.mp-eyebrow{padding:0 14px}
+.vdms-language{padding:0 0 12px}
+.vdms-shell .mp-card,.vdms-shell .panel,.vdms-shell .card{min-width:0;background:var(--vms-color-surface);color:var(--vms-color-text);border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius);box-shadow:var(--shadow);padding:24px}
+.vdms-shell :is(h1,h2,h3,h4){color:var(--vms-color-text)}
+.vdms-shell :is(small,.muted,.eyebrow,.record-code,.record-foot,.footnote,.sub){color:var(--vms-color-muted)}
+.vdms-shell :is(label,.mp-label){font-size:12px;font-weight:650;color:var(--vms-color-text)}
+.vdms-shell :is(input:not([type=checkbox]):not([type=radio]),select,textarea){display:block;width:100%;min-width:0;min-height:var(--vms-input-height);padding:9px 12px;color:var(--vms-color-text);background:var(--vms-color-input-bg);border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius);font:inherit}
+.vdms-shell :is(input,select,textarea):disabled{background:var(--vms-color-input-disabled-bg)}
+.vdms-shell label{display:grid;gap:7px}
+.vdms-shell .content button:not(.record):not(.user-row):not(.tab){min-height:40px;border-radius:var(--vms-input-radius);font-size:13px;font-weight:650;padding:8px 16px}
+.vdms-shell .content :is(.btn-primary,.primary-action,button[type=submit],.create-form>button:not(.vdms-danger)){background:var(--vms-color-primary);color:var(--vms-color-on-primary);border:1px solid var(--vms-color-primary)}
+.vdms-shell .content :is(.btn-outline,.ghost){background:var(--vms-color-surface);color:var(--vms-color-text);border:1px solid var(--vms-color-border)}
+.vdms-shell .content button:disabled{opacity:.45;cursor:not-allowed}
+.vdms-shell .content :is(.vdms-danger,.danger){border:1px solid var(--vms-color-error);background:var(--vms-color-surface);color:var(--vms-color-error)}
+.vdms-shell .content :is(.record,.user-row){display:flex;flex-direction:column;gap:7px;text-align:left;padding:12px;border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius);background:var(--vms-color-surface);color:var(--vms-color-text);min-width:0}
+.vdms-shell .content :is(.record-selected,.user-row.selected){border-color:var(--vms-color-primary);background:var(--vms-color-surface-subtle)}
+.vdms-shell .user-row{display:grid!important;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;width:100%;margin-bottom:8px}
+.vdms-shell .user-main{display:grid;min-width:0;overflow-wrap:anywhere}
+.vdms-shell .user-row .roles-count{grid-column:2;color:var(--vms-color-muted)}
+.vdms-shell .user-row .avatar,.vdms-shell .profile-icon{display:grid;place-items:center;border-radius:50%;background:var(--vms-color-primary);color:var(--vms-color-on-primary);width:36px;height:36px;font-weight:700}
+.vdms-shell .profile-head{display:flex;align-items:center;gap:12px}
+.vdms-shell .profile-icon{width:48px;height:48px;flex:none}
+.vdms-shell .state,.vdms-shell .status-chip{display:inline-flex;border:1px solid var(--vms-color-border);border-radius:999px;padding:3px 9px;color:var(--vms-color-muted);font-size:11px;white-space:nowrap}
+.vdms-shell :is(.state.on,.green,[data-status=active]){color:var(--vms-color-success)}
+.vdms-shell :is(.state.off,.red,[data-status=disabled]){color:var(--vms-color-error)}
+.vdms-shell .vdms-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.vdms-shell .vdms-metrics>div,.vdms-shell .field-grid>div,.vdms-shell .company-summary>div{display:grid;gap:5px;border:1px solid var(--vms-color-border);background:var(--vms-color-surface);border-radius:var(--vms-input-radius);padding:16px;min-width:0;overflow-wrap:anywhere}
+.vdms-shell .vdms-metrics strong{font-size:21px}
+.vdms-shell .login-form{grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:end}
+.vdms-shell .login-actions,.vdms-shell .edit-footer,.vdms-shell .filter-row,.vdms-shell .section-heading{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.vdms-shell .section-heading{justify-content:space-between;margin-bottom:16px}
+.vdms-shell .columns,.vdms-shell .workarea{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.4fr);gap:20px;align-items:start}
+.vdms-shell .detail,.vdms-shell .user-list{min-width:0}
+.vdms-shell .tabs{border-bottom:1px solid var(--vms-color-border);padding-bottom:12px}
+.vdms-shell .tab-body{min-width:0}
+.vdms-shell .role-line,.vdms-shell .module-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;border:1px solid var(--vms-color-border);padding:12px;border-radius:var(--vms-input-radius);overflow-wrap:anywhere}
+.vdms-shell .chips{display:flex;flex-wrap:wrap;gap:8px}
+.vdms-shell .empty,.vdms-shell .detail-placeholder{padding:30px;text-align:center;color:var(--vms-color-muted)}
+.vdms-shell .notice.warn,.vdms-shell .alert-error{color:var(--vms-color-error)}
+.vdms-shell .alert{border:1px solid var(--vms-color-border);padding:12px;background:var(--vms-color-surface);border-radius:var(--vms-input-radius)}
+.vdms-shell .edit-form,.vdms-shell .auth-form,.vdms-shell .records{display:grid;gap:12px}
+.vdms-shell .auth-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.vdms-shell .info-panel{background:var(--vms-color-surface-subtle)}
+.vdms-shell .workspace-content,.vdms-shell .vdms-workspace{min-width:0}
+.vdms-shell :is(table){width:100%;border-collapse:collapse;font-size:13px}
+.vdms-shell :is(th,td){padding:10px;text-align:left;border-bottom:1px solid var(--vms-color-border);overflow-wrap:anywhere}
+.vdms-shell .workspace-content section{min-width:0}
+.vdms-shell .workspace-content :is(.panel,.card){overflow-x:auto}
+.vdms-shell .search-form input{flex:1 1 200px}
+.vdms-shell .record-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.vdms-shell .mono{font-family:ui-monospace,monospace;overflow-wrap:anywhere}
+@media(max-width:900px){.vdms-shell .columns,.vdms-shell .workarea,.vdms-shell .auth-layout{grid-template-columns:1fr}.vdms-shell .login-form,.vdms-shell .vdms-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.vdms-shell .login-form,.vdms-shell .vdms-metrics,.vdms-shell .field-grid{grid-template-columns:1fr}.vdms-shell .mp-card,.vdms-shell .panel{padding:16px}.vdms-shell .content{gap:14px}}
+/* Original Central-specific layouts kept, but no independent shell or theme. */
+.vdms-shell .central-overview,.vdms-shell .central-provisioning{display:grid;gap:16px}
+.vdms-shell .overview-metrics,.vdms-shell .overview-secondary,.vdms-shell .service-grid,.vdms-shell .monitor-grid,.vdms-shell .provisioning-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.vdms-shell .overview-metrics>div,.vdms-shell .overview-secondary>section,.vdms-shell .provisioning-receipts>li{border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius);padding:12px;background:var(--vms-color-surface-subtle)}
+.vdms-shell .overview-metrics>div{display:grid;gap:6px}
+.vdms-shell .overview-metrics strong{font-size:24px}
+.vdms-shell .provisioning-receipts{list-style:none;display:grid;gap:8px}
+.vdms-shell .provisioning-receipts li{display:flex;gap:8px;flex-wrap:wrap}
+.vdms-claim{min-height:100vh;background:var(--vms-color-canvas);color:var(--vms-color-text)}

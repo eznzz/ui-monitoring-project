@@ -1,10 +1,11 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import "./styles.css";
 import App from "./App";
 import ReviewerAccept from "./ReviewerAccept";
-import "./styles.css";
+
 import "./design.css";
-import "./demo-banner";
+
 
 const root = document.getElementById("root");
 if (!root) throw new Error("VDMS Central Workspace root is missing");

@@ -1,3 +1,4 @@
+import {Shell} from "../../shared/Shell";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { tr, type TranslationKey, type UILanguage } from "./i18n";
 import { api, HttpFailure, type User, type Role, type Assignment,
@@ -48,7 +49,7 @@ function errorText(e: unknown, lang: UILanguage) {
  return e instanceof Error ? e.message : tr(lang,"unknown");
 }
 function Status({children, warn=false}: {children: ReactNode; warn?: boolean}) {
- return <div className={warn ? "notice warn" : "notice"} role="status">{children}</div>;
+ return <div className={warn ? "mp-subtle notice warn" : "mp-subtle notice"} role="status">{children}</div>;
 }
 export default function App() {
  const [lang,setLang]=useState<UILanguage>("ru");
@@ -265,67 +266,52 @@ export default function App() {
  const assignedRoles=chosenAssignments.map(a=>({
    ...a,code:data.roles.find(r=>r.id===a.roleId)?.code ?? a.roleId
  }));
- return <div className="shell">
-  <aside className="rail">
-   <div className="brand"><span className="brand-mark">V</span>
-    <div><strong>VDMS</strong><small>Central Node</small></div></div>
-   <div className="rail-divider"/>
-   <div className="rail-title">{t("platform")}</div>
-   <div className="rail-item active">◉ &nbsp; {t("usersAccess")}</div>
-   <div className="rail-item">◇ &nbsp; {t("universalObjects")}</div>
-   <div className="rail-item">▦ &nbsp; {t("modulesNav")}</div>
-   <label className="locale-select">{t("settings")}
+ return <Shell title={t("appTitle")} identity={session?login:"Guest"} active={Boolean(session)} logout={session?()=>void logout():undefined} settings={<label className="mp-field vdms-language">{t("settings")}
      <select value={availableLanguages.some(l=>l.code===lang)?lang:availableLanguages[0]?.code??"en"} onChange={e=>{const next=e.target.value as UILanguage;if(!availableLanguages.some(l=>l.code===next))return;langRef.current=next;setLang(next);setStatus(session?tr(next,"loginSuccess")+": "+activeCompany.current+" / "+login:tr(next,"loginNeeded"));}} aria-label={t("settings")}>
       {availableLanguages.map(l=><option value={l.code} key={l.code}>{builtInLanguageNames[l.code]??l.name} ({l.code.toUpperCase()})</option>)}
      </select>
-   </label>
-   <div className="rail-bottom">SEC-01B • React/TypeScript
-     <a href="/app/">{t("oldUI")}</a></div>
-  </aside>
-  <main className="main">
-   <header className="topbar">
-    <div><div className="eyebrow">CENTRAL NODE / TENANT</div>
-     <h1>{t("appTitle")}</h1></div>
-    <span className="environment">{t("localMvp")}</span>
-   </header>
-   <section className="loginbar">
-    <form onSubmit={doLogin} className="login-form">
-      <label>{t("company")}<input value={companyCode} onChange={e=>setCompanyCode(e.target.value)}
+   </label>} groups={[{title:t("platform"),items:[{key:"users",label:t("usersAccess"),icon:"fa-users",href:"#users",active:true},{key:"modules",label:t("modulesNav"),icon:"fa-layer-group",href:"#company-modules"}]}]}>
+   <div className="mp-page-head"><div><span className="mp-eyebrow">CENTRAL NODE / TENANT</span><h1>{t("appTitle")}</h1></div><span className="mp-demo-chip">{t("localMvp")} · mock</span></div>
+   <p className="mp-note">Demo: mvp-a / sec01b-writer or sec01b4-delegator / demo-only</p>
+   <section className="mp-card mp-stack loginbar">
+    <form onSubmit={doLogin} className="mp-form-grid login-form">
+      <label className="mp-field">{t("company")}<input value={companyCode} onChange={e=>setCompanyCode(e.target.value)}
        maxLength={128} autoComplete="organization" required/></label>
-      <label>{t("login")}<input value={login} onChange={e=>setLogin(e.target.value)}
+      <label className="mp-field">{t("login")}<input value={login} onChange={e=>setLogin(e.target.value)}
        autoComplete="username" required/></label>
-      <label>{t("password")}<input type="password" value={password}
+      <label className="mp-field">{t("password")}<input type="password" value={password}
        onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required/></label>
       <button disabled={busy} type="submit">{t("signIn")}</button>
     </form>
     <div className="login-actions"><span>{session?"● "+t("activeSession"):"○ "+t("noSession")}</span>
-      <button className="ghost" disabled={!session||busy} onClick={refresh}>{t("renew")}</button>
-      <button className="ghost" disabled={!session||busy} onClick={logout}>{t("logout")}</button>
-      <button className="ghost" disabled={!session||busy}
+      <button className="mp-btn mp-btn--secondary ghost" disabled={!session||busy} onClick={refresh}>{t("renew")}</button>
+      <button className="mp-btn mp-btn--secondary ghost" disabled={!session||busy} onClick={logout}>{t("logout")}</button>
+      <button className="mp-btn mp-btn--secondary ghost" disabled={!session||busy}
        onClick={()=>void load(session!.accessToken)}>{t("reload")}</button>
     </div>
    </section>
    {session&&languageRegistryError&&<Status warn>{t("languageRegistryError")}</Status>}
    {session&&!["en","ru","el"].includes(lang)&&<Status>{t("fallbackEnglish")}</Status>}
    <Status warn={status.includes(t("badLogin"))||status.includes(t("blockedLogin"))||status.includes(t("permissionDenied"))||status.includes(t("updatedFailed"))}>{status}</Status>
-   <section className="overview">
+   {session&&<>
+   <section className="mp-kpi-grid vdms-metrics overview">
      <div><small>{t("company")}</small><strong>{data.company?.company.name??(session?activeCompany.current:"—")}</strong></div>
      <div><small>{t("users")}</small><strong>{errors.users?t("noAccess"):data.items.length}</strong></div>
      <div><small>{t("assignments")}</small><strong>{errors.assignments?t("noAccess"):data.assignments.length}</strong></div>
      <div><small>{t("policyVersion")}</small><strong>{data.revision??"—"}</strong></div>
    </section>
-   <div className="columns">
-    <section className="card user-list">
-     <div className="card-header"><div><div className="eyebrow">{t("tenant")}</div><h2>{t("users")}</h2></div>
+   <div className="mp-columns columns" id="users">
+    <section className="mp-card mp-stack user-list">
+     <div className="mp-row mp-between card-header"><div><div className="eyebrow">{t("tenant")}</div><h2>{t("users")}</h2></div>
        <button disabled={!session||busy||Boolean(errors.users)} onClick={()=>setCreateOpen(!createOpen)}>
          {createOpen?t("close"):"+ "+t("add")}</button>
      </div>
-     {createOpen&&<form onSubmit={createUser} className="create-form">
-       <label>{t("login")}<input value={createLogin} onChange={e=>setCreateLogin(e.target.value)}
+     {createOpen&&<form onSubmit={createUser} className="mp-stack create-form">
+       <label className="mp-field">{t("login")}<input value={createLogin} onChange={e=>setCreateLogin(e.target.value)}
          minLength={3} maxLength={64} pattern="[a-z][a-z0-9._-]{2,63}" required/></label>
-       <label>{t("name")}<input value={createName} onChange={e=>setCreateName(e.target.value)}
+       <label className="mp-field">{t("name")}<input value={createName} onChange={e=>setCreateName(e.target.value)}
          maxLength={120} required/></label>
-       <label>{t("initialPassword")}<input type="password" autoComplete="new-password" minLength={12}
+       <label className="mp-field">{t("initialPassword")}<input type="password" autoComplete="new-password" minLength={12}
          value={createPassword} onChange={e=>setCreatePassword(e.target.value)} required/></label>
        <small>{t("createNoRoles")}</small>
        <button disabled={busy||!session}>{t("createUser")}</button>
@@ -333,8 +319,8 @@ export default function App() {
      {errors.users?<Status warn>{t("userListUnavailable")}: {errorText(errors.users,lang)}</Status>:
       !session?<div className="empty">{t("loginToLoad")}</div>:
       data.items.length===0?<div className="empty">{t("emptyUsers")}</div>:
-      <div className="user-rows">
-       {data.items.map(u=><button key={u.id} type="button" className={"user-row "+(selected===u.id?"selected":"")}
+      <div className="mp-basic-table-wrap user-rows">
+       {data.items.map(u=><button key={u.id} type="button" className={"mp-record mp-record--button user-row "+(selected===u.id?"selected":"")}
           onClick={()=>choose(u)}>
           <span className="avatar">{u.login.slice(0,2).toUpperCase()}</span>
           <span className="user-main"><strong>{u.login}</strong><small>{u.displayName}</small></span>
@@ -344,71 +330,71 @@ export default function App() {
       </div>}
      {session&&data.items.length>=100&&<small className="footnote">{t("usersPartial")}</small>}
     </section>
-    <section className="card detail">
+    <section className="mp-card mp-stack detail">
      {!currentUser?<div className="empty large">{t("selectUser")}</div>:
      <>
       <div className="profile-head"><span className="profile-icon">{currentUser.login.slice(0,2).toUpperCase()}</span>
        <div><div className="eyebrow">{t("userCard")}</div><h2>{currentUser.displayName}</h2>
        <div className="sub">{currentUser.login} · <span className={currentUser.active?"green":"red"}>
        {currentUser.active?t("active"):t("blocked")}</span></div></div></div>
-      <div className="tabs" role="tablist" aria-label={t("userCard")}>
+      <div className="mp-row tabs" role="tablist" aria-label={t("userCard")}>
        {tabNames.map(entry=><button role="tab" aria-selected={tab===entry.key}
-         className={tab===entry.key?"tab selected":"tab"} key={entry.key} onClick={()=>setTab(entry.key)}>{t(entry.key)}</button>)}
+         className={tab===entry.key?"mp-btn mp-btn--primary tab selected":"mp-btn mp-btn--secondary tab"} key={entry.key} onClick={()=>setTab(entry.key)}>{t(entry.key)}</button>)}
       </div>
       <div className="tab-body">
-       {tab==="profile"&&<div className="stack">
+       {tab==="profile"&&<div className="mp-stack stack">
          <h3>{t("primaryDetails")}</h3>
-         <div className="field-grid">
+         <div className="mp-form-grid field-grid">
           <div><small>UUID</small><div className="mono tiny">{currentUser.id}</div></div>
           <div><small>{t("login")}</small><div>{currentUser.login}</div></div>
           <div><small>{t("userRevision")}</small><div>{currentUser.revision}</div></div>
           <div><small>{t("assignedRoles")}</small><div>{roleCountFor(currentUser)}</div></div>
          </div>
-         <label>{t("displayName")}
+         <label className="mp-field">{t("displayName")}
           <input value={editName} onChange={e=>setEditName(e.target.value)}
            disabled={!mayModify||busy} maxLength={120}/>
          </label>
-         <button className="primary-action" disabled={!mayModify||busy||!editName.trim()||editName.trim()===currentUser.displayName}
+         <button className="mp-btn mp-btn--primary primary-action" disabled={!mayModify||busy||!editName.trim()||editName.trim()===currentUser.displayName}
           onClick={()=>void mutate({displayName:editName.trim()})}>{t("saveName")}</button>
          {!mayModify&&<Status warn>{t("currentlyRoleless")}</Status>}
         </div>}
-       {tab==="security"&&<div className="stack">
+       {tab==="security"&&<div className="mp-stack stack">
          <h3>{t("securityHeading")}</h3>
-         <div className="field-grid">
+         <div className="mp-form-grid field-grid">
            <div><small>{t("status")}</small><div>{currentUser.active?t("accessAllowed"):t("blocked")}</div></div>
            <div><small>{t("currentRevision")}</small><div>{currentUser.revision}</div></div>
          </div>
          <p>{t("userBlocked")} {t("userEnabled")}</p>
-         <button className={currentUser.active?"danger":"primary-action"}
+         <button className={currentUser.active?"mp-btn vdms-danger":"mp-btn mp-btn--primary primary-action"}
           disabled={!mayModify||busy} onClick={()=>void mutate({active:!currentUser.active})}>
           {currentUser.active?t("blockUser"):t("unblockUser")}</button>
          {!mayModify&&<Status warn>{t("securityRoleless")}</Status>}
-         <div className="placeholder">{t("securityPending")}</div>
+         <div className="mp-subtle placeholder">{t("securityPending")}</div>
         </div>}
-       {tab==="roles"&&<div className="stack">
+       {tab==="roles"&&<div className="mp-stack stack">
          <h3>{t("roleHeading")}</h3>
          {errors.assignments?<Status warn>{errorText(errors.assignments,lang)}</Status>:
-          assignedRoles.length===0?<div className="placeholder">{t("noRoles")}</div>:
-          assignedRoles.map(a=><div className="role-line" key={a.id}>
+          assignedRoles.length===0?<div className="mp-subtle placeholder">{t("noRoles")}</div>:
+          assignedRoles.map(a=><div className="mp-record role-line" key={a.id}>
            <strong>{a.code}</strong>
            <small>{a.objectId ? (a.objectCode??a.objectId)+" · "+a.objectId : t("wholeCompany")}</small>
-           {canEditAssignments&&<button type="button" className="danger" disabled={busy} onClick={()=>void revokeRole(a)}>{t("revokeRole")}</button>}
+           {canEditAssignments&&<button type="button" className="mp-btn vdms-danger" disabled={busy} onClick={()=>void revokeRole(a)}>{t("revokeRole")}</button>}
           </div>)}
-         {canEditAssignments?<form className="create-form role-grant" onSubmit={grantRole}>
+         {canEditAssignments?<form className="mp-stack create-form role-grant" onSubmit={grantRole}>
            <h3>{t("grantRole")}</h3>
-           <label>{t("roleCatalog")}
+           <label className="mp-field">{t("roleCatalog")}
              <select value={assignRoleID} onChange={e=>setAssignRoleID(e.target.value)} required>
                <option value="">{t("selectRole")}</option>
                {data.roles.filter(r=>r.active).map(r=><option key={r.id} value={r.id}>{r.description||r.code} ({r.code})</option>)}
              </select>
            </label>
-           <label>{t("assignmentScope")}
+           <label className="mp-field">{t("assignmentScope")}
              <select value={assignScope} onChange={e=>setAssignScope(e.target.value as "object"|"tenant")}>
                <option value="object">{t("singleObject")}</option>
                <option value="tenant">{t("wholeCompany")}</option>
              </select>
            </label>
-           {assignScope==="object"&&<label>{t("selectObject")}
+           {assignScope==="object"&&<label className="mp-field">{t("selectObject")}
              <select value={assignObjectID} onChange={e=>setAssignObjectID(e.target.value)} required>
                <option value="">{t("selectObjectPlaceholder")}</option>
                {data.objects.map(o=><option key={o.id} value={o.id}>{o.code}</option>)}
@@ -418,52 +404,51 @@ export default function App() {
            {assignScope==="object"&&Boolean(errors.objects)&&<Status warn>{t("objectListRequired")}</Status>}
            <small>{t("scopeExactHint")}</small>
            <button disabled={busy||!assignRoleID||(assignScope==="object"&&!objectSelectionValid)}>{t("grantRole")}</button>
-         </form>:<div className="placeholder">{t("rolesPending")}</div>}
+         </form>:<div className="mp-subtle placeholder">{t("rolesPending")}</div>}
          <h3>{t("roleCatalog")}</h3>
          {errors.roles?<Status warn>{errorText(errors.roles,lang)}</Status>:
-          <div className="chips">{data.roles.map(r=><span className="chip" key={r.id}>{r.code}</span>)}</div>}
+          <div className="chips">{data.roles.map(r=><span className="mp-badge chip" key={r.id}>{r.code}</span>)}</div>}
         </div>}
-       {tab==="objects"&&<div className="stack">
+       {tab==="objects"&&<div className="mp-stack stack">
          <h3>{t("objectAccess")}</h3>
          {assignedRoles.filter(a=>a.objectId).length===0?
-          <div className="placeholder">{t("noObjectAssignments")}</div>:
-          assignedRoles.filter(a=>a.objectId).map(a=><div className="role-line" key={a.id}>
+          <div className="mp-subtle placeholder">{t("noObjectAssignments")}</div>:
+          assignedRoles.filter(a=>a.objectId).map(a=><div className="mp-record role-line" key={a.id}>
             <strong>{a.objectCode??a.objectId}</strong><small>{t("roles")}: {a.code} · UUID: {a.objectId}</small></div>)}
          <h3>{t("objectLookup")}</h3>
-         <form className="search-form" onSubmit={openObject}>
+         <form className="mp-row search-form" onSubmit={openObject}>
            <input value={scopeID} placeholder={t("objectUUID")} onChange={e=>setScopeID(e.target.value)}/>
            <button disabled={!session}>{t("get")}</button>
          </form>
          {scopeError&&<Status warn>{scopeError.kind==="validation"?t("objectUUIDRequired"):errorText(scopeError.error,lang)}</Status>}
-         {scopeResult&&<div className="role-line"><strong>{scopeResult.code}</strong><small>{scopeResult.id}</small></div>}
+         {scopeResult&&<div className="mp-record role-line"><strong>{scopeResult.code}</strong><small>{scopeResult.id}</small></div>}
          {errors.objects?<small>{t("noAccess")}: {errorText(errors.objects,lang)}.</small>:
            <small>{t("visibleObjects")}: {data.objects.length} (100 max)</small>}
         </div>}
-       {tab==="history"&&<div className="stack">
+       {tab==="history"&&<div className="mp-stack stack">
          <h3>{t("readHistory")}</h3>
-         <div className="placeholder">{t("historyPending")}</div>
+         <div className="mp-subtle placeholder">{t("historyPending")}</div>
          <p>{t("historyPlan")}</p>
         </div>}
       </div>
      </>}
     </section>
    </div>
-   <section className="card lower">
-    <div className="card-header"><div><div className="eyebrow">CENTRAL NODE</div><h2>{t("companyModules")}</h2></div></div>
+   <section className="mp-card mp-stack lower" id="company-modules">
+    <div className="mp-row mp-between card-header"><div><div className="eyebrow">CENTRAL NODE</div><h2>{t("companyModules")}</h2></div></div>
     {errors.company?<Status warn>{t("accessError")}: {errorText(errors.company,lang)}</Status>:
-     data.company?<div className="company-summary">
+     data.company?<div className="mp-form-grid company-summary">
       <div><small>{t("company")}</small><strong>{data.company.company.name}</strong></div>
       <div><small>Code</small><strong>{data.company.company.code}</strong></div>
       <div><small>{t("modules")}</small><strong>{data.company.modules.length}</strong></div></div>:
       <div className="empty">{t("noAccess")}</div>}
-    {data.company&&<div className="modules">
-      {data.company.modules.map(m=><div className="module-row" key={m.code}>
+    {data.company&&<div className="mp-stack modules">
+      {data.company.modules.map(m=><div className="mp-record module-row" key={m.code}>
        <strong>{lang==="ru" ? (m.nameRu||m.nameEn) : m.nameEn}</strong><span>{m.code}</span>
        <small>{m.status==="available"&&m.enabled?t("active"):m.status==="planned"?t("development"):t("unavailable")}</small></div>)}
      </div>}
    </section>
-   <footer>VDMS · Central Node · Tenant Security · C01 &nbsp;|&nbsp;
-    <a href="/app/">{t("oldUI")}</a> &nbsp;|&nbsp; {t("localFoot")}</footer>
-  </main>
- </div>;
+   </>}
+   <footer className="mp-note">VDMS · Central Node · Tenant Security · C01 · {t("localFoot")}</footer>
+ </Shell>;
 }

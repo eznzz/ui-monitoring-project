@@ -127,8 +127,8 @@ export default function ReviewerAccept(){
    setPassword("");setRepeat("");setTotp("");
   }finally{setBusy(false);}
  }
- return <div className="app">
-  <header className="topbar"><div className="brand"><span className="mark">V</span>
+ return <div className="vdms-claim">
+  <header className="vdms-claim-header"><div className="brand"><span className="mark">V</span>
    <div><strong>VDMS</strong><small>Central / Reviewer</small></div></div>
    <div className="top-actions">
     <label className="visually-hidden" htmlFor="accept-lang">Language</label>
@@ -137,8 +137,8 @@ export default function ReviewerAccept(){
     </select>
    </div>
   </header>
-  <main className="main">
-   <section className="panel auth-panel">
+  <main className="content mp-main-content">
+   <section className="mp-card mp-stack auth-panel">
     <h1>{t.title}</h1><p>{t.intro}</p>
     {!claimBearer&&outcome!=="done"&&<p role="alert">{t.noToken}</p>}
     {claimBearer&&readinessChecked&&!claimEnabled&&<p role="status">{t.notReady}</p>}
@@ -159,7 +159,7 @@ export default function ReviewerAccept(){
      </>}
     </form>}
     {outcome&&<p role={outcome==="done"?"status":"alert"}>{t[outcome]}</p>}
-    <p className="muted">{t.security}</p><a className="btn btn-outline" href="/central/">{t.back}</a>
+    <p className="muted">{t.security}</p><a className="btn btn-outline" href="./index.html">{t.back}</a>
    </section>
   </main>
  </div>;

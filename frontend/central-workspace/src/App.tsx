@@ -1,3 +1,4 @@
+import {Shell} from "../../shared/Shell";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {platform,PlatformApiError,type CompanyFilter,type CompanyPage,
   type CompanyProfile,type CompanyRecord,type CompanySummary,type CompanyStatus,type PlatformSelf} from "./api";
@@ -332,32 +333,29 @@ export default function App(){
 
   const isEdited=Boolean(selected&&editor&&
     JSON.stringify(editor)!==JSON.stringify(editorFrom(selected)));
-  return <div className="app">
-    <header className="topbar">
-      <div className="brand">
-        <span className="mark">V</span>
-        <div><strong>VDMS</strong><small>{t("workspace")}</small></div>
-      </div>
-      <div className="top-actions">
-        <label className="visually-hidden" htmlFor="platform-language">Language</label>
-        <select id="platform-language" value={language}
-          onChange={e=>setLanguage(e.target.value as Language)}>
-          <option value="en">English</option>
-          <option value="ru">Русский</option>
-          <option value="el">Ελληνικά</option>
-        </select>
-        <span className={access?"connection connected":"connection"}>
-          <span className="dot" />{access?(identity?.login??t("signedIn")):t("noSession")}
-        </span>
-        {access&&identity&&<span className="connection" title={identity.permissions.join(", ")}>
-          {canReviews&&!canCompanies?"Reviewer":"Platform"}
-        </span>}
-        {access&&<button className="btn btn-outline" disabled={working}
-          onClick={logout}>{t("signOut")}</button>}
-      </div>
-    </header>
-    <main className="main">
-      <div className="intro">
+  return <Shell title={t("overview")} identity={access?(identity?.login??t("signedIn")):t("noSession")} active={Boolean(access)} logout={access?()=>void logout():undefined} groups={access?([
+            {title:navigationLabels[language].management,items:[
+              {key:"overview",label:navigationLabels[language].overview,enabled:canCompanies},
+              {key:"companies",label:navigationLabels[language].companies,enabled:canCompanies},
+            ]},
+            {title:navigationLabels[language].operations,items:[
+              {key:"provisioning",label:navigationLabels[language].provisioning,enabled:Boolean(canLogs)&&canCompanies},
+              {key:"reviews",label:navigationLabels[language].reviews,enabled:canReviews},
+            ]},
+            {title:navigationLabels[language].security,items:[
+              {key:"reviewers",label:navigationLabels[language].reviewers,enabled:canManageReviewers},
+            ]},
+            {title:navigationLabels[language].system,items:[
+              {key:"system-monitor",label:navigationLabels[language].monitor,enabled:Boolean(canLogs)},
+              {key:"email-operator",label:navigationLabels[language].emailOperator,enabled:canEmailOperator},
+              {key:"mail",label:navigationLabels[language].mail,enabled:mailLabOnly&&canMail},
+              {key:"logs",label:navigationLabels[language].logs,enabled:Boolean(canLogs)},
+              {key:"p4",label:navigationLabels[language].p4,enabled:p4LabOnly&&canP4},
+            ]}
+          ] as {title:string;items:{key:WorkspaceSection;label:string;enabled:boolean}[]}[])
+            .filter(group=>group.items.some(item=>item.enabled)).map(group=>({title:group.title,items:group.items.filter(item=>item.enabled).map(item=>({key:item.key,label:item.label,active:section===item.key,action:()=>setSection(item.key),icon:({overview:"fa-house",companies:"fa-building",provisioning:"fa-diagram-project",reviews:"fa-list-check",reviewers:"fa-user-shield","system-monitor":"fa-heart-pulse","email-operator":"fa-envelope",mail:"fa-server",logs:"fa-clipboard-list",p4:"fa-flask"} as Record<string,string>)[item.key]??"fa-circle"}))})):[]} settings={<label className="mp-field vdms-language">Language<select id="platform-language" value={language} onChange={e=>setLanguage(e.target.value as Language)}><option value="en">English</option><option value="ru">Русский</option><option value="el">Ελληνικά</option></select></label>}>
+      <p className="mp-note">VDMS mock · owner.demo / reviewer.demo · demo-only · 000000</p>
+      <div className="mp-page-head intro">
         <div>
           <div className="eyebrow">VDMS / CENTRAL-01C</div>
           <h1>{t("overview")}</h1>
@@ -368,8 +366,8 @@ export default function App(){
       {notice&&<div className={notice.isError?"alert alert-error":"alert"}
         role={notice.isError?"alert":"status"}>{t(notice.key)}</div>}
       {!access?
-        <div className="auth-layout">
-          <section className="panel auth-panel">
+        <div className="mp-login-layout auth-layout">
+          <section className="mp-card mp-stack auth-panel">
             <div className="section-heading"><h2>{t("signIn")}</h2></div>
             <form onSubmit={login} className="auth-form">
               <label>{t("loginName")}
@@ -395,7 +393,7 @@ export default function App(){
               {t("continueSession")}
             </button>
           </section>
-          <aside className="panel info-panel">
+          <aside className="mp-card mp-stack info-panel">
             <div className="step-number">01C</div>
             <h2>Platform Owner</h2>
             <p>{t("noSession")}</p>
@@ -403,38 +401,7 @@ export default function App(){
           </aside>
         </div>:
         <>
-        <div className="workspace-shell">
-        <nav className="workspace-sidebar" aria-label="Platform administration">
-          {([
-            {title:navigationLabels[language].management,items:[
-              {key:"overview",label:navigationLabels[language].overview,enabled:canCompanies},
-              {key:"companies",label:navigationLabels[language].companies,enabled:canCompanies},
-            ]},
-            {title:navigationLabels[language].operations,items:[
-              {key:"provisioning",label:navigationLabels[language].provisioning,enabled:Boolean(canLogs)&&canCompanies},
-              {key:"reviews",label:navigationLabels[language].reviews,enabled:canReviews},
-            ]},
-            {title:navigationLabels[language].security,items:[
-              {key:"reviewers",label:navigationLabels[language].reviewers,enabled:canManageReviewers},
-            ]},
-            {title:navigationLabels[language].system,items:[
-              {key:"system-monitor",label:navigationLabels[language].monitor,enabled:Boolean(canLogs)},
-              {key:"email-operator",label:navigationLabels[language].emailOperator,enabled:canEmailOperator},
-              {key:"mail",label:navigationLabels[language].mail,enabled:mailLabOnly&&canMail},
-              {key:"logs",label:navigationLabels[language].logs,enabled:Boolean(canLogs)},
-              {key:"p4",label:navigationLabels[language].p4,enabled:p4LabOnly&&canP4},
-            ]}
-          ] as {title:string;items:{key:WorkspaceSection;label:string;enabled:boolean}[]}[])
-            .filter(group=>group.items.some(item=>item.enabled))
-            .map(group=><div className="nav-group" key={group.title}>
-              <div className="nav-heading"><span className="nav-heading-marker" aria-hidden="true"/>{group.title}</div>
-              {group.items.filter(item=>item.enabled).map(item=>
-                <button type="button" key={item.key}
-                  className={"nav-item"+(section===item.key?" nav-item-active":"")}
-                  aria-current={section===item.key?"page":undefined}
-                  onClick={()=>setSection(item.key)}>{item.label}</button>)}
-            </div>)}
-        </nav>
+        <div className="vdms-workspace">
         <div className="workspace-content">
         {!permittedSection(section)?<div className="alert alert-error">{t("forbidden")}</div>:
         p4LabOnly&&section==="p4"?
@@ -451,8 +418,8 @@ export default function App(){
           canProvisioning={Boolean(canLogs)} onOpenProvisioning={()=>setSection("provisioning")}/>:
         section==="provisioning"? <ProvisioningWorkspace access={access} language={language}
           onOpenCompany={id=>{setSection("companies");openCompany(id);}}/>:
-        <div className="workarea">
-          <section className="panel company-list">
+        <div className="mp-columns workarea">
+          <section className="mp-card mp-stack company-list">
             <div className="section-heading">
               <h2>{t("companyDirectory")}</h2>
               {canCreate&&<button className="btn btn-primary" onClick={()=>{
@@ -489,7 +456,7 @@ export default function App(){
             {nextCursor&&<button className="btn btn-outline load-more" onClick={loadNext}
               disabled={working}>{t("next")}</button>}
           </section>
-          <section className="panel company-detail">
+          <section className="mp-card mp-stack company-detail">
             {showCreate?
               <>
                 <div className="section-heading">
@@ -595,7 +562,6 @@ export default function App(){
         </div>
         </>
       }
-    </main>
-    <footer className="footer"><span>VDMS · Central Node</span><span>Development MVP · API-first</span></footer>
-  </div>;
+    <footer className="mp-note">VDMS · Central Node · Development MVP · API-first</footer>
+  </Shell>;
 }
