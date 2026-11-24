@@ -78,6 +78,7 @@ test('reviewer activation flow after cancelling draft edit',async ({page})=>{
  await page.getByRole('button',{name:'Запросить активацию'}).click();
  await expect(page.locator('#company-dialog-notice')).toHaveClass(/vms-alert-warning/);
  await expect(page.locator('#company-dialog-notice')).toBeVisible();
+ await expect(page.locator('#company-dialog-notice')).toHaveCSS('margin-top','12px');
  await expect(page.locator('#company-dialog-notice')).toContainText('Активация требует решения независимого Reviewer');
  await page.getByRole('button',{name:'Подтвердить запрос'}).click();
  await expect(page.locator('#company-dialog-notice')).toHaveClass('vms-alert');
@@ -122,6 +123,7 @@ test('Reviewer invitation state and owner audit journal',async ({page})=>{
  await expect(page.locator('#reviewer-invitations')).toContainText('requested');
  await page.locator('#reviewer-existing-check').click();
  await expect(page.locator('#reviewer-selected-detail')).toContainText('requested');
+ await expect(page.locator('#reviewer-selected-detail .vms-alert')).toHaveCount(0);
  await page.locator('#reviewer-selected-detail input[type="checkbox"]').check();
  await page.getByRole('button',{name:'Имитировать отправку приглашения'}).click();
  await expect(page.locator('#reviewer-invitations')).toContainText('queued');
@@ -226,6 +228,7 @@ test('Reviewer invitation existing request, SMTP uncertainty and owner confirmat
  await page.locator('#invite-reviewer').click();
  await page.locator('#reviewer-existing-check').click();
  await expect(page.locator('#reviewer-selected-detail')).toContainText('requested');
+ await expect(page.locator('#reviewer-selected-detail .vms-alert')).toHaveCount(0);
  await page.locator('#reviewer-selected-detail input[type="checkbox"]').check();
  await page.getByRole('button',{name:'Имитировать отправку приглашения'}).click();
  await page.locator('#reviewer-existing-check').click();

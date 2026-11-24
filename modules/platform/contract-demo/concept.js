@@ -420,9 +420,9 @@ function renderReviewer(){
 function renderSelectedInvitation(){
  const root=$("reviewer-selected-detail");root.replaceChildren(textNode("h3","Состояние существующего приглашения","mp-section-title"));
  const item=invitations.find(x=>x.requestId===selectedInvitationId);
- if(!canInvite()||!reviewerAvailability()){root.append(notice("Просмотр ограничен правами и состоянием оператора.",true));return;}
- if(!item){root.append(notice("Выберите запрос для просмотра его актуального состояния.",false));return;}
- if(!reviewerDetailLoaded){root.append(notice("Выбран запрос. Нажмите «Проверить запрос» для GET /reviewers/invitations/{requestID}/status (mock).",false));return;}
+ if(!canInvite()||!reviewerAvailability()){root.append(textNode("p","Просмотр ограничен правами и состоянием оператора.","mp-help"));return;}
+ if(!item){root.append(textNode("p","Выберите запрос для просмотра его актуального состояния.","mp-help"));return;}
+ if(!reviewerDetailLoaded){root.append(textNode("p","Выбран запрос. Нажмите «Проверить запрос» для GET /reviewers/invitations/{requestID}/status (mock).","mp-help"));return;}
  const list=document.createElement("dl");list.className="mp-description-grid";
  for(const [k,v] of [["requestId",item.requestId],["reviewerLogin",item.reviewerLogin],["recipientEmail",item.recipientEmail],["state",item.state],["Owner confirmation",item.confirmed?"confirmed":"pending"]]){
   const dl=document.createElement("div");dl.append(textNode("dt",k),textNode("dd",v));list.append(dl);
@@ -448,14 +448,14 @@ function renderSelectedInvitation(){
   actions.append(note,confirmLabel,send);
  }
  if(item.state==="sent"){
-  actions.append(notice("Сервер сообщает sent. В реальной системе Claim выполняется Reviewer по одноразовой ссылке отдельно от Owner.",false));
+  actions.append(textNode("p","Сервер сообщает sent. В реальной системе Claim выполняется Reviewer по одноразовой ссылке отдельно от Owner.","mp-help"));
   const claim=textNode("button","Имитировать внешний Claim (без токена)");
   claim.type="button";claim.className="mp-btn mp-btn--secondary";
   claim.addEventListener("click",()=>{item.state="claimed";feedback("Mock Reviewer Claim → claimed. Реальная регистрация не выполнена.");renderReviewer();});
   actions.append(claim);
  }
  if(item.state==="claimed"&&!item.confirmed){
-  actions.append(notice("GET /reviewers/invitations/{requestID}/owner-confirm → pending. Для реального подтверждения необходимы Owner password, свежий TOTP и согласие.",true));
+  actions.append(textNode("p","GET /reviewers/invitations/{requestID}/owner-confirm → pending. Для реального подтверждения необходимы Owner password, свежий TOTP и согласие.","mp-help"));
   const l=document.createElement("label");l.className="mp-role-option";
   const c=document.createElement("input");c.type="checkbox";l.append(c,textNode("span","Подтверждаю макетный сценарий Owner Confirmation (без полномочий на сервере)."));
   const confirm=textNode("button","Подтвердить Reviewer (mock)");confirm.type="button";confirm.className="mp-btn mp-btn--primary";confirm.disabled=true;
