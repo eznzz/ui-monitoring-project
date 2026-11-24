@@ -50,17 +50,17 @@ test('API rules have canonical inset on desktop and mobile',async ({page})=>{
  await page.locator('#concept-nav a[data-page="contract"]').click();
  const card=page.locator('#screen-contract');
  await expect(card).toBeVisible();
- await expect(card.locator('.mp-info-strip')).toHaveCount(6);
+ await expect(card.locator('.vms-alert')).toHaveCount(6);
  async function assertInset(){
   const result=await card.evaluate(el=>{
    const bounds=el.getBoundingClientRect();
-   const child=el.querySelector('.mp-info-strip');
+   const child=el.querySelector('.vms-alert');
    const rect=child.getBoundingClientRect();
-   const p=child.querySelector('p').getBoundingClientRect();
+   const p=child.querySelector('span').getBoundingClientRect();
    return {left:rect.left-bounds.left, inner:p.left-rect.left,right:bounds.right-rect.right};
   });
   expect(result.left).toBeGreaterThan(10);
-  expect(result.inner).toBeGreaterThan(15);
+  expect(result.inner).toBeGreaterThanOrEqual(16);
   expect(result.right).toBeGreaterThan(10);
  }
  await assertInset();

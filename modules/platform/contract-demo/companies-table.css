@@ -132,9 +132,15 @@
 #company-dialog #company-detail dd{margin:0;min-width:0;overflow-wrap:anywhere}
 #company-dialog #company-dialog-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:16px}
 #company-dialog #company-dialog-actions{justify-content:flex-end;gap:12px}
-/* Alert & Inline Validation — canonical components/essentials.css, scoped to company modal. */
-#company-dialog .vms-alert{display:flex;flex-direction:column;gap:4px;border-left:4px solid var(--brand);padding:12px 16px;background:var(--subtle);border-radius:6px;margin-bottom:12px}#company-dialog .vms-alert-warning{border-left-color:var(--vms-status-maintenance)}
-#company-dialog .vms-alert[hidden]{display:none!important}
+
 @media(min-width:700px){#company-dialog #company-detail dl{grid-template-columns:minmax(0,1fr) minmax(0,1.65fr);gap:12px 24px}}
 #company-dialog #company-dialog-description{overflow-wrap:anywhere}
 @media(max-width:520px){#company-dialog[open]{width:calc(100vw - 24px)}#company-dialog .vms-dialog-content{padding:20px}#company-dialog .dialog-actions{justify-content:stretch}#company-dialog .dialog-actions .button{flex:1 1 auto}#company-dialog #company-dialog-actions{flex:1 1 auto;justify-content:stretch}#company-dialog #company-dialog-footer{align-items:stretch}}
+
+/* Canonical essentials.css is loaded directly; provide its semantic aliases for the Platform prototype only. */
+body{--brand:var(--vms-color-primary);--subtle:var(--vms-color-surface-subtle);--line:var(--vms-color-border);--text:var(--vms-color-text);--surface:var(--vms-color-surface);--muted:var(--vms-color-muted)}
+.vms-alert{min-width:0;overflow-wrap:anywhere}
+.vms-alert[hidden]{display:none!important}
+#overview-tenant-kpis .vms-alert{flex:1 1 100%}
+#overview-tenant-table .data-table{min-width:0}
+#overview-tenant-table .data-table td{overflow-wrap:anywhere}

@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="../../auth/login.css">
+<link rel="stylesheet" href="../../../components/essentials.css">
 <link rel="stylesheet" href="companies-table.css">
 </head>
 <body>
@@ -26,13 +27,13 @@
  <main class="mp-login-main"><div class="mp-login-box">
   <div class="mp-login-toolbar"><span class="mp-demo-chip">UI prototype / mock</span><button type="button" class="mp-btn mp-btn--secondary" id="login-theme">◐ Тёмная тема</button></div>
   <section class="content__card mp-login-form-card">
-   <header class="mp-login-form-heading"><span class="mp-eyebrow">Platform / VDMS API · demo</span><h2 id="login-heading">Sign in</h2><p class="mp-help">Экран повторяет поля VDMS Central Workspace. Это публичный UI-макет без подключения к API.</p></header>
+   <header class="mp-login-form-heading"><span class="mp-eyebrow">Platform / VDMS API · demo</span><h2 id="login-heading">Sign in</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>Экран повторяет поля VDMS Central Workspace. Это публичный UI-макет без подключения к API.</span></div></header>
    <form class="mp-stack" id="platform-login-form" autocomplete="off">
     <div class="form-row mp-field"><label for="platform-login-name">Platform login</label><input id="platform-login-name" name="mock-login-name" type="text" maxlength="128" autocomplete="off" spellcheck="false" autocapitalize="none" placeholder="owner.demo или reviewer.demo" required></div>
     <div class="form-row mp-field"><label for="platform-login-password">Password</label><input id="platform-login-password" name="mock-password" type="password" autocomplete="new-password" placeholder="demo-only" required></div>
     <div class="form-row mp-field"><label for="platform-login-totp">Authenticator code</label><input id="platform-login-totp" name="mock-totp" type="text" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required></div>
     <div class="mp-login-actions"><button class="btn mp-btn mp-btn--primary mp-btn--full" id="mock-login" type="submit">Sign in</button>
-     <p class="mp-note">Только демонстрационные значения: <strong>owner.demo</strong> или <strong>reviewer.demo</strong>, пароль <strong>demo-only</strong>, код <strong>000000</strong>. Не вводите реальные пароли или коды из приложения-аутентификатора. Значения не передаются и не сохраняются.</p>
+     <div class="vms-alert vms-alert-warning" role="status"><strong>Информация</strong><span>Только демонстрационные значения: <strong>owner.demo</strong> или <strong>reviewer.demo</strong>, пароль <strong>demo-only</strong>, код <strong>000000</strong>. Не вводите реальные пароли или коды из приложения-аутентификатора. Значения не передаются и не сохраняются.</span></div>
      <p class="mp-error" id="platform-login-error" role="alert" aria-live="polite"></p>
     </div>
    </form>
@@ -60,7 +61,7 @@
 <li><a class="mp-nav-link" href="#logs" data-page="logs"><i class="fa-solid fa-clipboard-list icon" aria-hidden="true"></i><span>Журнал</span></a></li>
 <li><a class="mp-nav-link" href="#contract" data-page="contract"><i class="fa-solid fa-circle-info icon" aria-hidden="true"></i><span>Правила API</span></a></li></ul></nav>
     <div class="mp-template-sidebar-footer">
-      <p class="mp-note">Контрактный интерактивный макет. Только тестовые данные.</p>
+      <div class="vms-alert" role="status"><strong>Информация</strong><span>Контрактный интерактивный макет. Только тестовые данные.</span></div>
       <div class="sidebar__footer"><span>© Monitoring Project</span><span class="sidebar__version">UI Demo</span></div>
     </div>
   </aside>
@@ -92,13 +93,13 @@
     </header>
 <main class="content mp-main-content" id="main">
 <header class="mp-page-head"><div><span class="mp-eyebrow">Platform Administration · Central Node</span><h1 id="page-heading">Вход / MFA</h1><p>Интерактивный UI-макет. Введённые демо-значения обрабатываются только в браузере; запросы на VDMS не отправляются.</p></div></header>
-<p class="mp-feedback" role="status" id="feedback" aria-live="polite">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</p>
+<div class="vms-alert" role="status" id="feedback" aria-live="polite"><strong id="feedback-title">Информация</strong><span id="feedback-message">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</span></div>
 
 <section class="mp-dashboard mp-stack" data-screen="overview" id="screen-overview" hidden aria-labelledby="overview-heading">
  <header class="mp-dashboard-head"><div><span class="mp-eyebrow">Management / Central Platform</span><h2 id="overview-heading" class="mp-section-title">Обзор платформы</h2><p>Компании, пользователи, модули и базы данных. Отдельно показаны доступные Platform API данные и иллюстративные Tenant-фикстуры.</p></div><span class="mp-demo-chip">UI prototype · mock</span></header>
  <div class="mp-card mp-stack" aria-label="Набор данных предпросмотра">
   <div class="mp-row mp-between">
-   <div><h3 class="mp-section-title">Набор данных</h3><p class="mp-help">Переключатель меняет фикстуры в Overview, реестре компаний и Provisioning. В VDMS запросы не отправляются.</p></div>
+   <div><h3 class="mp-section-title">Набор данных</h3><div class="vms-alert" role="status"><strong>Информация</strong><span>Переключатель меняет фикстуры в Overview, реестре компаний и Provisioning. В VDMS запросы не отправляются.</span></div></div>
    <span class="mp-badge" id="overview-mode-label">Демонстрационные данные</span>
   </div>
   <div class="mp-form-grid">
@@ -112,30 +113,38 @@
      <button type="button" class="mp-btn mp-btn--secondary" id="overview-load-demo">Загрузить демо-компании</button>
    </div>
   </div>
-  <p class="mp-note" id="overview-mode-hint">При смене режима или повторной загрузке демо-набора созданные в этом сеансе mock-записи, заявки и приглашения сбрасываются. Данные не сохраняются между обновлениями страницы.</p>
+  <div class="vms-alert vms-alert-warning" id="overview-mode-hint" role="status"><strong>Информация</strong><span>При смене режима или повторной загрузке демо-набора созданные в этом сеансе mock-записи, заявки и приглашения сбрасываются. Данные не сохраняются между обновлениями страницы.</span></div>
  </div>
  <div class="mp-row mp-between"><h3 class="mp-section-title">Ключевые показатели</h3><span class="mp-badge" id="overview-kpi-source">Источник: демонстрационные записи</span></div>
  <div class="mp-kpi-grid" id="overview-kpis" aria-live="polite"></div>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Ограничения статистики</strong><p>Счётчики компаний основаны только на загруженных в демо записях Platform. Пользователи и модули относятся к Tenant API и здесь показаны только как вымышленные фикстуры. Полный инвентарь Tenant DB и общий счётчик пользователей отсутствуют в рассматриваемом Platform API.</p></div></div>
+ <div class="vms-alert" role="status"><strong>Ограничения статистики</strong><span>Счётчики компаний основаны только на загруженных в демо записях Platform. Пользователи и модули относятся к Tenant API и здесь показаны только как вымышленные фикстуры. Полный инвентарь Tenant DB и общий счётчик пользователей отсутствуют в рассматриваемом Platform API.</span></div>
  <div class="mp-card mp-stack" id="overview-company-section">
-  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Компании и статусы</h3><p class="mp-help">GET /companies · сводка только загруженных записей</p></div><button class="mp-btn mp-btn--secondary" type="button" id="overview-open-companies">Открыть реестр</button></div>
+  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Компании и статусы</h3><div class="vms-alert" role="status"><strong>Информация</strong><span>GET /companies · сводка только загруженных записей</span></div></div><button class="mp-btn mp-btn--secondary" type="button" id="overview-open-companies">Открыть реестр</button></div>
   <div id="overview-company-statuses" class="mp-row" aria-live="polite"></div>
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Компания</th><th>Код</th><th>Статус Platform</th><th>Ревизия</th><th>Действие</th></tr></thead><tbody id="overview-companies-body"></tbody></table></div>
  </div>
  <div class="mp-card mp-stack" id="overview-tenant-section">
-  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Пользователи и модули компании</h3><p class="mp-help">Отдельная Tenant область. API: /api/v1/tenant-admin/users и /api/v1/company — не Platform JWT.</p></div><span class="mp-badge">Только демонстрационные данные</span></div>
+  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Пользователи и модули компании</h3><div class="vms-alert" role="status"><strong>Информация</strong><span>Отдельная Tenant область. API: /api/v1/tenant-admin/users и /api/v1/company — не Platform JWT.</span></div></div><span class="mp-badge">Только демонстрационные данные</span></div>
   <div class="mp-form-grid">
    <div class="mp-field"><label for="overview-tenant-select">Компания для просмотра mock-данных Tenant</label><select id="overview-tenant-select"></select></div>
    <div class="mp-field"><label for="overview-tenant-kind">Показать</label><select id="overview-tenant-kind"><option value="users">Пользователи</option><option value="modules">Модули</option></select></div>
   </div>
   <div class="mp-row" id="overview-tenant-kpis" aria-live="polite"></div>
-  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead id="overview-tenant-head"></thead><tbody id="overview-tenant-body"></tbody></table></div>
-  <div class="mp-info-strip"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Изоляция Tenant</strong><p>Это не кросс-tenant статистика Central Platform. В реальной системе пользователи, роли и доступные модули запрашиваются из Tenant Runtime с отдельной авторизацией и разрешениями.</p></div></div>
+  <div class="company-data-table" id="overview-tenant-table">
+ <div class="table-toolbar">
+  <div class="field table-search"><label for="tenant-table-search">Поиск</label><input id="tenant-table-search" type="search" placeholder="Логин или имя" autocomplete="off"></div>
+  <div class="field table-filter"><label for="tenant-table-status">Статус</label><select id="tenant-table-status"><option value="all">Все статусы</option><option value="active">active</option><option value="disabled">disabled</option></select></div>
+ </div>
+ <label class="mobile-sort field" for="tenant-mobile-sort"><span>Сортировка карточек</span><select id="tenant-mobile-sort"><option value="first:1">Логин: А—Я</option><option value="first:-1">Логин: Я—А</option><option value="second:1">Имя: А—Я</option><option value="second:-1">Имя: Я—А</option><option value="status:1">Статус: А—Я</option><option value="status:-1">Статус: Я—А</option></select></label>
+ <div class="table-scroll" tabindex="0" role="region" aria-label="Пользователи и модули компании"><table class="data-table"><caption class="visually-hidden" id="tenant-table-caption">Пользователи компании</caption><thead id="overview-tenant-head"></thead><tbody id="overview-tenant-body"></tbody></table></div>
+ <div class="table-footer"><span id="tenant-table-range" role="status" aria-live="polite"></span><div class="table-pagination"><button class="button secondary small" type="button" id="tenant-table-prev">Назад</button><span id="tenant-table-page" aria-live="polite">1 / 1</span><button class="button secondary small" type="button" id="tenant-table-next">Вперёд</button></div></div>
+</div>
+  <div class="vms-alert" role="status"><strong>Изоляция Tenant</strong><span>Это не кросс-tenant статистика Central Platform. В реальной системе пользователи, роли и доступные модули запрашиваются из Tenant Runtime с отдельной авторизацией и разрешениями.</span></div>
  </div>
  <div class="mp-card mp-stack" id="overview-db-section">
-  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Базы данных и маршрутизация</h3><p class="mp-help">В Platform API доступны признаки C01 provisioning для конкретной компании, но нет общего безопасного инвентаря БД.</p></div><button class="mp-btn mp-btn--secondary" type="button" id="overview-open-provisioning">Открыть C01</button></div>
+  <div class="mp-row mp-between"><div><h3 class="mp-section-title">Базы данных и маршрутизация</h3><div class="vms-alert" role="status"><strong>Информация</strong><span>В Platform API доступны признаки C01 provisioning для конкретной компании, но нет общего безопасного инвентаря БД.</span></div></div><button class="mp-btn mp-btn--secondary" type="button" id="overview-open-provisioning">Открыть C01</button></div>
   <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Компания</th><th>Статус Platform</th><th>Состояние Tenant DB</th><th>Маршрут</th><th>Доказательство</th></tr></thead><tbody id="overview-databases-body"></tbody></table></div>
-  <div class="mp-info-strip"><i class="fa-solid fa-database" aria-hidden="true"></i><div><strong>Никаких секретов инфраструктуры</strong><p>Имена баз, пароли, DSN и число реально созданных Tenant DB не отображаются. Статус компании active не доказывает доступность PostgreSQL; только серверные C01 receipts и проверки могут подтверждать конкретные этапы.</p></div></div>
+  <div class="vms-alert vms-alert-warning" role="status"><strong>Никаких секретов инфраструктуры</strong><span>Имена баз, пароли, DSN и число реально созданных Tenant DB не отображаются. Статус компании active не доказывает доступность PostgreSQL; только серверные C01 receipts и проверки могут подтверждать конкретные этапы.</span></div>
  </div>
  <div class="mp-dashboard-grid">
   <button type="button" class="mp-dashboard-tile" id="overview-open-monitor"><div class="mp-dashboard-tile-head"><span class="mp-dashboard-tile-icon"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span><div><h2>Мониторинг служб</h2><p>Состояние Platform API и операторов. Отдельно от доступности БД.</p></div></div><div class="mp-dashboard-tile-footer"><span class="mp-tile-go">Перейти</span></div></button>
@@ -143,7 +152,7 @@
  </div>
 </section>
 <section class="mp-card mp-stack" data-screen="companies" id="screen-companies" hidden aria-labelledby="companies-heading">
-  <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · поиск, фильтры и постраничный просмотр загруженных данных</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
+  <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>GET /companies · permission tenant.read · поиск, фильтры и постраничный просмотр загруженных данных</span></div></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
   <div class="company-data-table">
    <p class="hint table-intro" id="company-search-hint">Поиск и сортировка по загруженным демонстрационным записям, включая профиль компании.</p>
    <div class="table-toolbar">
@@ -170,45 +179,45 @@
 </section>
 
 <section class="mp-card mp-stack" data-screen="provisioning" id="screen-provisioning" hidden aria-labelledby="provisioning-heading">
- <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="provisioning-heading">Активация и Provisioning</h2><p class="mp-help">Режим чтения: GET /companies?status=provisioning → GET /companies/{tenantID}/provisioning. Нет запуска C01.</p></div><button type="button" class="mp-btn mp-btn--secondary" id="provisioning-refresh">Обновить фикстуру</button></div>
+ <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="provisioning-heading">Активация и Provisioning</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>Режим чтения: GET /companies?status=provisioning → GET /companies/{tenantID}/provisioning. Нет запуска C01.</span></div></div><button type="button" class="mp-btn mp-btn--secondary" id="provisioning-refresh">Обновить фикстуру</button></div>
  <div class="mp-workspace"><aside class="mp-workspace-nav"><section class="mp-card mp-stack"><h3 class="mp-section-title">Компании в provisioning</h3><div class="mp-stack" id="provisioning-list"></div></section></aside>
  <div class="mp-workspace-content mp-stack"><section class="mp-card mp-stack" id="provisioning-detail" aria-live="polite"></section></div></div>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info"></i><div><strong>Без повторного запуска</strong><p>Состояние C01, receipts и timeline здесь только фикстуры. Подтверждение Reviewer не создаёт Tenant DB и не доказывает готовность маршрута.</p></div></div>
+ <div class="vms-alert vms-alert-warning" role="status"><strong>Без повторного запуска</strong><span>Состояние C01, receipts и timeline здесь только фикстуры. Подтверждение Reviewer не создаёт Tenant DB и не доказывает готовность маршрута.</span></div>
 </section>
 <section class="mp-card mp-stack" data-screen="activation" id="screen-activation" hidden aria-labelledby="activation-heading">
   <h2 class="mp-section-title" id="activation-heading">Заявки на активацию</h2>
-  <p class="mp-help">GET /activation-reviews · отдельное право tenant.provision.approve. Одобрение требует другого Reviewer, свежих пароля и TOTP на реальном сервере.</p>
+  <div class="vms-alert" role="status"><strong>Информация</strong><span>GET /activation-reviews · отдельное право tenant.provision.approve. Одобрение требует другого Reviewer, свежих пароля и TOTP на реальном сервере.</span></div>
   <div role="tablist" class="mp-tabs--buttons" aria-label="Решения Reviewer" id="review-mode">
   <button type="button" role="tab" aria-selected="true" data-review-mode="pending">Ожидают</button>
   <button type="button" role="tab" aria-selected="false" data-review-mode="approved">Мои одобрения</button>
   <button type="button" role="tab" aria-selected="false" data-review-mode="rejected">Мои отказы</button>
   </div>
   <div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="review-seed-demo">Загрузить 2 демо-заявки</button><span class="mp-help">Заявки от отдельного Owner; доступны только в демо-режиме.</span></div>
-<div class="mp-info-strip" id="review-approval-status"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Серверное подтверждение</strong><p id="review-approval-text">Для принятия решений требуется включённый серверный режим и свежий Reviewer MFA. В демо MFA не обрабатывается.</p></div></div>
+<div class="vms-alert vms-alert-warning" id="review-approval-status" role="status"><strong>Серверное подтверждение</strong><span id="review-approval-text">Для принятия решений требуется включённый серверный режим и свежий Reviewer MFA. В демо MFA не обрабатывается.</span></div>
 <div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="review-refresh">Обновить заявки</button><span id="review-count" class="mp-pill">0</span></div>
   <div id="activation-queue" class="mp-stack"></div>
-  <p class="mp-help">В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</p>
+  <div class="vms-alert" role="status"><strong>Информация</strong><span>В концепте решение имитируется без ввода пароля или TOTP, без серверного provisioning и без выдачи реальной лицензии.</span></div>
 </section>
 
 <section class="mp-card mp-stack" data-screen="reviewer" id="screen-reviewer" hidden aria-labelledby="reviewer-heading">
  <h2 class="mp-section-title" id="reviewer-heading">Reviewer · приглашения и подтверждение</h2>
- <p class="mp-help">Контракт: GET /reviewers/status, GET/POST /reviewers/invitations, GET /reviewers/invitations/{requestID}/status и /owner-confirm. Все операции ниже — mock, без секретов и отправки e-mail.</p>
+ <div class="vms-alert" role="status"><strong>Информация</strong><span>Контракт: GET /reviewers/status, GET/POST /reviewers/invitations, GET /reviewers/invitations/{requestID}/status и /owner-confirm. Все операции ниже — mock, без секретов и отправки e-mail.</span></div>
  <div class="mp-row"><button type="button" class="mp-btn mp-btn--secondary" id="reviewer-check-status">Проверить состояние Reviewer</button><span class="mp-badge" id="reviewer-status-summary">Не проверено</span></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-existing">Существующее приглашение</label><select id="reviewer-existing"><option value="">Выберите запрос</option></select></div><div class="mp-field"><label for="reviewer-existing-check">Просмотр</label><button type="button" class="mp-btn mp-btn--secondary" id="reviewer-existing-check">Проверить запрос</button></div></div>
- <p class="mp-help">Перед повторной отправкой приглашения проверяйте состояние запроса и почтовый ящик. Не создавайте новый запрос, пока не выяснено состояние прежней попытки.</p>
+ <div class="vms-alert vms-alert-warning" role="status"><strong>Предупреждение</strong><span>Перед повторной отправкой приглашения проверяйте состояние запроса и почтовый ящик. Не создавайте новый запрос, пока не выяснено состояние прежней попытки.</span></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-operator">Состояние Reviewer Operator (fixture)</label><select id="reviewer-operator"><option value="enabled">configured / enabled</option><option value="disabled">not configured / 503</option></select></div><div class="mp-field"><label for="reviewer-email">E-mail получателя (только example.test)</label><input id="reviewer-email" type="email" placeholder="reviewer@example.test"></div></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="reviewer-login">Логин Reviewer</label><input id="reviewer-login" placeholder="reviewer-demo"></div><div class="mp-field"><label for="reviewer-status-filter">Просмотр</label><select id="reviewer-status-filter"><option value="all">Все приглашения</option><option value="requested">requested</option><option value="queued">queued</option><option value="sent">sent</option><option value="claimed">claimed</option></select></div></div>
  <div class="mp-row"><button class="mp-btn mp-btn--primary" id="invite-reviewer" type="button">Создать mock-приглашение</button><button class="mp-btn mp-btn--secondary" id="reviewer-history" type="button">Показать историю решений</button></div>
- <p class="mp-help">Реальный POST требует пароль Owner и свежий TOTP, которых публичный прототип не запрашивает. Запрос приглашения сам по себе не отправляет письмо.</p>
+ <div class="vms-alert vms-alert-warning" role="status"><strong>Предупреждение</strong><span>Реальный POST требует пароль Owner и свежий TOTP, которых публичный прототип не запрашивает. Запрос приглашения сам по себе не отправляет письмо.</span></div>
  <div id="reviewer-invitations" class="mp-stack" aria-live="polite"></div>
  <section id="reviewer-selected-detail" class="mp-subtle mp-stack" aria-live="polite">
   <h3 class="mp-section-title">Состояние существующего приглашения</h3>
-  <p class="mp-help">Выберите запрос и нажмите «Проверить запрос», чтобы увидеть доступные действия.</p>
+  <div class="vms-alert" role="status"><strong>Информация</strong><span>Выберите запрос и нажмите «Проверить запрос», чтобы увидеть доступные действия.</span></div>
  </section>
  <div id="reviewer-history-panel" class="mp-subtle mp-stack" hidden aria-live="polite"></div>
 </section>
 <section class="mp-card mp-stack" data-screen="email-operator" id="screen-email-operator" hidden aria-labelledby="email-operator-heading">
- <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="email-operator-heading">Reviewer Email Operator</h2><p class="mp-help">GET /reviewer/email/status, шаблон приглашения, защищённые настройки отправки. Только Owner с platform.reviewer.bootstrap.</p></div><button type="button" class="mp-btn mp-btn--secondary" id="email-operator-check">Проверить состояние</button></div>
+ <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="email-operator-heading">Reviewer Email Operator</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>GET /reviewer/email/status, шаблон приглашения, защищённые настройки отправки. Только Owner с platform.reviewer.bootstrap.</span></div></div><button type="button" class="mp-btn mp-btn--secondary" id="email-operator-check">Проверить состояние</button></div>
  <div class="mp-description-grid" id="email-operator-status"></div>
  <div class="mp-form-grid">
   <div class="mp-field"><label for="email-template-link">HTTPS URL подтверждения приглашения</label><input id="email-template-link" type="url" value="https://central.example.test/reviewer/accept"></div>
@@ -216,26 +225,26 @@
   <div class="mp-field mp-wide"><label for="email-template-body">Шаблон письма · фикстура</label><textarea id="email-template-body" rows="4">Подтвердите приглашение Reviewer в Central Platform. Это только пример.</textarea></div>
  </div>
  <div class="mp-row"><button type="button" class="mp-btn mp-btn--primary" id="email-template-save">Сохранить mock-шаблон</button><span class="mp-badge" id="email-template-revision">revision: 1</span></div>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info"></i><div><strong>Защищённые действия</strong><p>Реальное изменение шаблона, запись SMTP-пароля и отправка приглашения требуют свежие Owner password/TOTP. Секреты здесь НЕ вводятся; реальная почта НЕ отправляется.</p></div></div>
+ <div class="vms-alert vms-alert-warning" role="status"><strong>Защищённые действия</strong><span>Реальное изменение шаблона, запись SMTP-пароля и отправка приглашения требуют свежие Owner password/TOTP. Секреты здесь НЕ вводятся; реальная почта НЕ отправляется.</span></div>
 </section>
 <section class="mp-card mp-stack" data-screen="mail" id="screen-mail" hidden aria-labelledby="mail-heading">
  <h2 class="mp-section-title" id="mail-heading">Почтовый сервер · LAB</h2>
- <p class="mp-help">GET /mail/settings и POST /mail/diagnostics доступны только при включённом feature flag. В демо — безопасная имитация без SMTP-соединения.</p>
+ <div class="vms-alert" role="status"><strong>Информация</strong><span>GET /mail/settings и POST /mail/diagnostics доступны только при включённом feature flag. В демо — безопасная имитация без SMTP-соединения.</span></div>
  <div class="mp-description-grid" id="mail-settings"></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="mail-action">Проверка</label><select id="mail-action"><option value="tls">TLS</option><option value="auth">Authentication</option><option value="envelope">Envelope</option><option value="send">Send (только mock)</option></select></div>
  <div class="mp-field"><label for="mail-recipient">Получатель</label><select id="mail-recipient"><option value="">Не требуется</option><option value="owner">Owner</option><option value="reviewer">Reviewer</option></select></div></div>
  <div class="mp-row"><button class="mp-btn mp-btn--secondary" type="button" id="mail-check">Имитировать диагностику</button><span class="mp-badge" id="mail-result">Проверка не выполнялась</span></div>
- <p class="mp-note">HTTP 200 не гарантирует успешной доставки: в ответе отдельно проверяются status и stage. Никаких реальных e-mail из макета не отправляется.</p>
+ <div class="vms-alert vms-alert-warning" role="status"><strong>Информация</strong><span>HTTP 200 не гарантирует успешной доставки: в ответе отдельно проверяются status и stage. Никаких реальных e-mail из макета не отправляется.</span></div>
 </section>
 <section class="mp-card mp-stack" data-screen="monitor" id="screen-monitor" hidden aria-labelledby="monitor-heading">
- <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="monitor-heading">Мониторинг служб Central Node</h2><p class="mp-help">GET /system/services: read-only состояние доверенных IPC, без проверки отправки SMTP или готовности Provisioning.</p></div><button type="button" class="mp-btn mp-btn--secondary" id="monitor-refresh">Проверить сейчас</button></div>
+ <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="monitor-heading">Мониторинг служб Central Node</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>GET /system/services: read-only состояние доверенных IPC, без проверки отправки SMTP или готовности Provisioning.</span></div></div><button type="button" class="mp-btn mp-btn--secondary" id="monitor-refresh">Проверить сейчас</button></div>
  <div class="mp-form-grid"><div class="mp-field"><label for="monitor-scenario">Сценарий диагностики (фикстура)</label><select id="monitor-scenario"><option value="configured">Операторы настроены</option><option value="unavailable">IPC недоступен</option><option value="unknown">Нет прямой проверки</option></select></div><div class="mp-field"><label for="monitor-last">Последняя проверка</label><output id="monitor-last">Не выполнялась</output></div></div>
  <div class="mp-kpi-grid" id="monitor-summary"></div><div class="mp-dashboard-grid" id="monitor-services"></div>
- <div class="mp-info-strip"><i class="fa-solid fa-circle-info"></i><div><strong>Только чтение</strong><p>Не выполняются SQL, restart контейнеров, реальные SMTP-тесты или операции создания баз. Статус «Настроен» не означает «Работает».</p></div></div>
+ <div class="vms-alert" role="status"><strong>Только чтение</strong><span>Не выполняются SQL, restart контейнеров, реальные SMTP-тесты или операции создания баз. Статус «Настроен» не означает «Работает».</span></div>
 </section>
 <section class="mp-card mp-stack" data-screen="p4" id="screen-p4" hidden aria-labelledby="p4-heading">
- <div class="mp-row mp-between"><div><span class="mp-eyebrow">Local acceptance / LAB</span><h2 class="mp-section-title" id="p4-heading">Локальная приёмка C01 P4</h2><p class="mp-help">В VDMS раздел доступен только при VITE_C01_P4_LAB_UI=1 и permission platform.reviewer.bootstrap.</p></div><span class="mp-demo-chip">LAB · mock</span></div>
- <div class="mp-stack"><div class="mp-info-strip"><i class="fa-solid fa-shield-halved"></i><div><strong>Только демонстрация чек-листа</strong><p>Эта страница не выполняет CLI, SQL, provisioning или изменение Tenant DB. Для реальной приёмки требуется изолированный стенд и защищённые операции VDMS.</p></div></div>
+ <div class="mp-row mp-between"><div><span class="mp-eyebrow">Local acceptance / LAB</span><h2 class="mp-section-title" id="p4-heading">Локальная приёмка C01 P4</h2><div class="vms-alert" role="status"><strong>Информация</strong><span>В VDMS раздел доступен только при VITE_C01_P4_LAB_UI=1 и permission platform.reviewer.bootstrap.</span></div></div><span class="mp-demo-chip">LAB · mock</span></div>
+ <div class="mp-stack"><div class="vms-alert" role="status"><strong>Только демонстрация чек-листа</strong><span>Эта страница не выполняет CLI, SQL, provisioning или изменение Tenant DB. Для реальной приёмки требуется изолированный стенд и защищённые операции VDMS.</span></div>
  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Проверка</th><th>Статус</th><th>Действие</th></tr></thead><tbody>
  <tr><td data-label="Проверка">Тестовое окружение</td><td data-label="Статус">Не проверено</td><td data-label="Действие">Только read-only fixture</td></tr>
  <tr><td data-label="Проверка">C01 receipts</td><td data-label="Статус">Не проверено</td><td data-label="Действие">См. Provisioning</td></tr>
@@ -244,7 +253,7 @@
 </section>
 <section class="mp-card mp-stack" data-screen="logs" id="screen-logs" hidden aria-labelledby="logs-heading">
  <h2 class="mp-section-title" id="logs-heading">Журнал платформы</h2>
- <p class="mp-help">GET /platform-logs?limit&amp;offset · только Platform Owner с действующим MFA, tenant.create и tenant.activate. Данные демонстрационные.</p>
+ <div class="vms-alert" role="status"><strong>Информация</strong><span>GET /platform-logs?limit&amp;offset · только Platform Owner с действующим MFA, tenant.create и tenant.activate. Данные демонстрационные.</span></div>
  <div class="mp-form-grid">
   <div class="mp-field"><label for="log-category">Категория</label><select id="log-category"><option value="all">Все события</option><option value="tenant">tenant</option><option value="auth">auth</option><option value="review">review</option></select></div>
   <div class="mp-field"><label for="log-search">Поиск по журналу</label><input id="log-search" type="search" placeholder="Событие, объект, результат" aria-describedby="log-filter-hint"></div>
@@ -253,7 +262,7 @@
   <div class="mp-field"><label for="log-time-from">Время с (UTC)</label><input id="log-time-from" type="time"></div>
   <div class="mp-field"><label for="log-time-to">Время по (UTC, включительно)</label><input id="log-time-to" type="time"></div>
  </div>
- <div class="mp-row mp-between"><p class="mp-help" id="log-filter-hint">Диапазоны дат и времени суток пересекаются. Все значения и события — UTC. Фильтрация только загруженной mock-истории, не параметры серверного API.</p><button type="button" class="mp-btn mp-btn--secondary" id="log-reset">Сбросить фильтры</button></div>
+ <div class="mp-row mp-between"><div class="vms-alert" id="log-filter-hint" role="status"><strong>Информация</strong><span>Диапазоны дат и времени суток пересекаются. Все значения и события — UTC. Фильтрация только загруженной mock-истории, не параметры серверного API.</span></div><button type="button" class="mp-btn mp-btn--secondary" id="log-reset">Сбросить фильтры</button></div>
  <p class="mp-error" id="log-filter-error" role="alert" aria-live="polite"></p>
  <div class="mp-basic-table-wrap"><table class="mp-basic-table"><thead><tr><th>Дата</th><th>Категория</th><th>Событие</th><th>Результат</th><th>Объект</th></tr></thead><tbody id="log-body"></tbody></table></div>
  <div class="mp-page-tools" aria-label="Загрузка событий журнала">
@@ -269,14 +278,14 @@
  <h2 class="mp-section-title" id="contract-heading">Границы и источники</h2>
  <p>Визуальная модель создана для согласования API-ориентированного пользовательского опыта. Это не новая реализация аутентификации, не backend и не работающий контроль доступа.</p>
  <div class="mp-stack" role="list" aria-label="Правила взаимодействия с API">
-  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-code" aria-hidden="true"></i><div><strong>Разделение API</strong><p>Platform API: <code>/internal/platform-admin/*</code>; Tenant API: отдельное пространство <code>/api/v1/*</code>.</p></div></div>
-  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><strong>Права доступа</strong><p>Только сервер определяет permissions. В этом макете роли — выбираемые тестовые фикстуры.</p></div></div>
-  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-building" aria-hidden="true"></i><div><strong>Создание компании</strong><p>Создание компании: <code>requestId</code> UUID v4 + <code>code</code> + <code>name</code>. Здесь нет ввода владельца или objectType — их нет в данном POST.</p></div></div>
-  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-file-pen" aria-hidden="true"></i><div><strong>Редактирование черновика</strong><p>Редактирование только draft с <code>expectedRevision</code>; 409 требует повторного чтения.</p></div></div>
-  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-list-check" aria-hidden="true"></i><div><strong>Активация и Reviewer</strong><p>Заявка на активацию не означает, что компания provisioned или active. Reviewer — отдельный сценарий с серверным MFA.</p></div></div>
-  <div class="mp-info-strip" role="listitem"><i class="fa-solid fa-lock" aria-hidden="true"></i><div><strong>Секреты и безопасность</strong><p>Никаких реальных паролей, TOTP, токенов и секретов в localStorage или fixtures.</p></div></div>
+  <div class="vms-alert" role="listitem"><strong>Разделение API</strong><span>Platform API: <code>/internal/platform-admin/*</code>; Tenant API: отдельное пространство <code>/api/v1/*</code>.</span></div>
+  <div class="vms-alert" role="listitem"><strong>Права доступа</strong><span>Только сервер определяет permissions. В этом макете роли — выбираемые тестовые фикстуры.</span></div>
+  <div class="vms-alert" role="listitem"><strong>Создание компании</strong><span>Создание компании: <code>requestId</code> UUID v4 + <code>code</code> + <code>name</code>. Здесь нет ввода владельца или objectType — их нет в данном POST.</span></div>
+  <div class="vms-alert" role="listitem"><strong>Редактирование черновика</strong><span>Редактирование только draft с <code>expectedRevision</code>; 409 требует повторного чтения.</span></div>
+  <div class="vms-alert vms-alert-warning" role="listitem"><strong>Активация и Reviewer</strong><span>Заявка на активацию не означает, что компания provisioned или active. Reviewer — отдельный сценарий с серверным MFA.</span></div>
+  <div class="vms-alert vms-alert-warning" role="listitem"><strong>Секреты и безопасность</strong><span>Никаких реальных паролей, TOTP, токенов и секретов в localStorage или fixtures.</span></div>
  </div>
- <p class="mp-help">Демо не вызывает API. Документация: <a href="https://github.com/developerpiter/vdms/blob/docs/central-platform-api/docs/api/central-platform.md">Central Platform API</a> · <a href="../../../docs/VDMS_UI_API_MAPPING.md">Матрица соответствия (если принята в main)</a>.</p>
+ <div class="vms-alert" role="status"><strong>Информация</strong><span>Демо не вызывает API. Документация: <a href="https://github.com/developerpiter/vdms/blob/docs/central-platform-api/docs/api/central-platform.md">Central Platform API</a> · <a href="../../../docs/VDMS_UI_API_MAPPING.md">Матрица соответствия (если принята в main)</a>.</span></div>
 </section>
 </main></div></div>
 <dialog id="company-dialog" class="vms-dialog company-data-table" aria-labelledby="company-dialog-title" aria-describedby="company-dialog-description">
@@ -300,7 +309,7 @@
   <header class="mp-dialog-heading"><div><span class="mp-eyebrow">Reviewer / независимое решение</span><h2 id="review-decision-heading">Рассмотрение заявки</h2><p class="mp-help" id="review-decision-note"></p></div><button class="mp-modal-close" type="button" id="review-close" aria-label="Закрыть">✕</button></header>
   <div class="mp-stack">
    <div class="mp-field" id="review-reason-field" hidden><label for="review-reason">Причина отказа *</label><textarea id="review-reason" rows="4" maxlength="8000"></textarea><p class="mp-help">Не более 2000 Unicode-символов (ограничение UI VDMS).</p></div>
-   <div class="mp-info-strip"><i class="fa-solid fa-shield-halved"></i><div><strong>Подтверждение MFA на реальном сервере</strong><p>VDMS требует пароль Reviewer и свежий 6-значный код TOTP. Публичный макет не принимает и не проверяет секреты, решение остаётся только mock.</p></div></div>
+   <div class="vms-alert vms-alert-warning" role="status"><strong>Подтверждение MFA на реальном сервере</strong><span>VDMS требует пароль Reviewer и свежий 6-значный код TOTP. Публичный макет не принимает и не проверяет секреты, решение остаётся только mock.</span></div>
    <label class="mp-role-option"><input type="checkbox" id="review-decision-consent"><span>Понимаю, что это демонстрационное решение без реальной авторизации и provisioning.</span></label>
    <p id="review-decision-error" class="mp-error" role="alert"></p>
   </div>

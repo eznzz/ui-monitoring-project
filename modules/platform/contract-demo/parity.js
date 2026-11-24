@@ -6,7 +6,8 @@ const element=(tag,label,cls)=>{const node=document.createElement(tag);if(label!
 const empty=el=>el.replaceChildren();
 const addButton=(parent,label,cb,cls="mp-btn mp-btn--secondary")=>{const b=element("button",label,cls);b.type="button";b.addEventListener("click",cb);parent.append(b);return b;};
 const detail=(label,value)=>{const d=document.createElement("div");d.append(element("dt",label),element("dd",value));return d;};
-const restricted=(root,msg)=>{root.replaceChildren(element("p","403 · "+msg,"mp-help"));};
+const alert=(msg,warning=false)=>{const node=element("div",undefined,"vms-alert"+(warning?" vms-alert-warning":""));node.setAttribute("role","status");node.append(element("strong",warning?"Предупреждение":"Информация"),element("span",msg));return node;};
+const restricted=(root,msg)=>{root.replaceChildren(alert("403 · "+msg,true));};
 let ctx=null,chosenProvisioningId=null,mailRevision=1,mailAttempt=0;
 let monitorState=null;
 let mailLab=false;
@@ -130,36 +131,50 @@ function overview(){
   dbBody.append(tr);
  }
 }
+let tenantPage=0,tenantPageCount=1,tenantSortKey="first",tenantSortDir=1;
+const tenantPageSize=10;
+function resetTenantTable(){tenantPage=0;tenantSortKey="first";tenantSortDir=1;$("tenant-table-search").value="";$("tenant-table-status").value="all";}
 function overviewTenant(){
  const kpis=$("overview-tenant-kpis"),body=$("overview-tenant-body"),thead=$("overview-tenant-head");
  empty(kpis);empty(body);empty(thead);
- if(!canCompanies()){restricted(kpis,"Нет доступа к обзору.");return;}
- const c=ctx.companies.find(x=>x.tenantId===$("overview-tenant-select").value);
- const fixture=fixtureFor(c);
- const kind=$("overview-tenant-kind").value;
- if(!fixture){
-  kpis.append(element("p",ctx.companies.length===0?
-   "Компаний пока нет — пользователи и модули не загружены.":
-   "Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули.","mp-help"));
-  return;
- }
- if(kind==="users"){
-  if(!fixture.users.length){kpis.append(element("p","Пользователей в этой тестовой компании нет.","mp-help"));}
+ const allowed=canCompanies(),c=allowed?ctx.companies.find(x=>x.tenantId===$("overview-tenant-select").value):null,fixture=fixtureFor(c);
+ const users=$("overview-tenant-kind").value==="users";
+ const labels=users?["Логин","Имя","Состояние"]:["Код","Название","Состояние"];
+ $("tenant-table-caption").textContent=users?"Пользователи компании":"Модули компании";
+ $("tenant-table-search").placeholder=users?"Логин или имя":"Код или название";
+ const status=$("tenant-table-status");status.options[1].textContent=users?"active":"enabled";
+ const mobile=$("tenant-mobile-sort");
+ for(let i=0;i<4;i++)mobile.options[i].textContent=labels[Math.floor(i/2)]+(i%2===0?": А—Я":": Я—А");
+ const head=element("tr");
+ ["first","second","status"].forEach((key,i)=>{const th=element("th");th.scope="col";const button=element("button",labels[i]+" ","sort-control");button.type="button";const active=tenantSortKey===key;button.setAttribute("aria-pressed",String(active));th.setAttribute("aria-sort",active?(tenantSortDir===1?"ascending":"descending"):"none");const arrow=element("span",active?(tenantSortDir===1?"↑":"↓"):"↕");arrow.setAttribute("aria-hidden","true");button.append(arrow);button.addEventListener("click",()=>{tenantSortDir=tenantSortKey===key?-tenantSortDir:1;tenantSortKey=key;tenantPage=0;overviewTenant();});th.append(button);head.append(th);});thead.append(head);
+ let records=[];
+ if(!allowed)restricted(kpis,"Нет доступа к обзору.");
+ else if(!fixture)kpis.append(alert(ctx.companies.length===0?"Компаний пока нет — пользователи и модули не загружены.":"Для выбранной компании нет Tenant-фикстур. Это не означает, что на сервере отсутствуют пользователи или модули."));
+ else if(users){
+  if(!fixture.users.length)kpis.append(alert("Пользователей в этой тестовой компании нет."));
   kpis.append(element("span","Всего (демо): "+fixture.users.length,"mp-badge"),element("span","Активных (демо): "+fixture.users.filter(u=>u.active).length,"mp-badge"));
-  const row=element("tr");for(const heading of ["Логин","Имя","Состояние"])row.append(element("th",heading));thead.append(row);
-  for(const user of fixture.users){const tr=element("tr");tr.append(tableCell(user.login,"Логин"),tableCell(user.displayName,"Имя"),tableCell(user.active?"active (demo)":"disabled (demo)","Состояние"));body.append(tr);}
+  records=fixture.users.map(u=>({first:u.login,second:u.displayName,status:u.active?"active":"disabled",enabled:u.active}));
  }else{
-  if(!fixture.modules.length){kpis.append(element("p","В этой тестовой компании не назначено модулей.","mp-help"));}
+  if(!fixture.modules.length)kpis.append(alert("В этой тестовой компании не назначено модулей."));
   kpis.append(element("span","Модулей в фикстуре: "+fixture.modules.length,"mp-badge"),element("span","Enabled (демо): "+fixture.modules.filter(m=>m.enabled).length,"mp-badge"));
-  const row=element("tr");for(const heading of ["Код","Название","Состояние"])row.append(element("th",heading));thead.append(row);
-  for(const module of fixture.modules){const tr=element("tr");tr.append(tableCell(module.code,"Код"),tableCell(module.name,"Название"),tableCell(module.enabled?"enabled (demo)":"disabled (demo)","Состояние"));body.append(tr);}
+  records=fixture.modules.map(m=>({first:m.code,second:m.name,status:m.enabled?"enabled":"disabled",enabled:m.enabled}));
  }
+ const query=$("tenant-table-search").value.trim().toLocaleLowerCase("ru"),filter=status.value;
+ const filtered=records.filter(r=>(filter==="all"||(filter==="active"?r.enabled:!r.enabled))&&(!query||[r.first,r.second].some(v=>v.toLocaleLowerCase("ru").includes(query)))).sort((a,b)=>tenantSortDir*String(a[tenantSortKey]).localeCompare(String(b[tenantSortKey]),"ru",{numeric:true}));
+ tenantPageCount=Math.max(1,Math.ceil(filtered.length/tenantPageSize));tenantPage=Math.min(tenantPage,tenantPageCount-1);
+ const visible=filtered.slice(tenantPage*tenantPageSize,(tenantPage+1)*tenantPageSize);
+ if(!visible.length){const row=element("tr"),cell=element("td",query||filter!=="all"?"По вашему запросу ничего не найдено":"Нет записей","table-empty");cell.colSpan=3;row.append(cell);body.append(row);}
+ for(const r of visible){const row=element("tr"),cell=tableCell("",labels[2]),pill=element("span",r.status+" (demo)","table-status-pill");pill.dataset.status=r.enabled?"active":"disabled";cell.append(pill);row.append(tableCell(r.first,labels[0]),tableCell(r.second,labels[1]),cell);body.append(row);}
+ $("tenant-table-range").textContent="Показано "+visible.length+" из "+filtered.length;
+ $("tenant-table-page").textContent=(tenantPage+1)+" / "+tenantPageCount;
+ $("tenant-table-prev").disabled=tenantPage===0;$("tenant-table-next").disabled=tenantPage>=tenantPageCount-1;
+ mobile.value=tenantSortKey+":"+tenantSortDir;
 }
 function provisioning(){
  const list=$("provisioning-list"),panel=$("provisioning-detail");empty(list);empty(panel);
  if(!canCompanies()||!canOperate()){restricted(list,"Provisioning доступен Owner с tenant.create, tenant.activate и правом списка компаний.");restricted(panel,"Нет доступа к C01.");return;}
  const active=ctx.companies.filter(c=>c.status==="provisioning");
- if(!active.length){list.append(element("p","Компаний в provisioning среди загруженных нет.","mp-help"));panel.append(element("p","Нет данных для просмотра.","mp-empty"));return;}
+ if(!active.length){list.append(alert("Компаний в provisioning среди загруженных нет."));panel.append(element("p","Нет данных для просмотра.","mp-empty"));return;}
  if(!active.some(c=>c.tenantId===chosenProvisioningId))chosenProvisioningId=active[0].tenantId;
  for(const c of active){
   const b=addButton(list,c.name+" · "+c.code,()=>{chosenProvisioningId=c.tenantId;provisioning();},"mp-record mp-record--button");
@@ -202,13 +217,13 @@ function monitor(){
  const root=$("monitor-services"),summary=$("monitor-summary");empty(root);empty(summary);
  if(!canOperate()){restricted(root,"Мониторинг служб требует tenant.create и tenant.activate.");return;}
  const mode=monitorState;
- if(!mode){summary.append(kpi("Отвечают",0),kpi("Не проверено",7),kpi("Недоступно",0));root.append(element("p","Нажмите «Проверить сейчас», чтобы просмотреть выбранную фикстуру.","mp-help"));return;}
+ if(!mode){summary.append(kpi("Отвечают",0),kpi("Не проверено",7),kpi("Недоступно",0));root.append(alert("Нажмите «Проверить сейчас», чтобы просмотреть выбранную фикстуру."));return;}
  const counts={live:0,configured:0,unavailable:0,unknown:0};
  for(const [id,name,note] of services){
   let state=mode==="configured"?(id==="platform"||id==="platform-db"?"live":id==="central-web"?"unknown":"configured"):mode==="unavailable"?(id==="platform"?"live":"unavailable"):"unknown";
   counts[state]++;
   const card=element("article",undefined,"mp-card mp-stack");
-  card.append(element("h3",name,"mp-section-title"),element("span",state==="live"?"Отвечает":state==="configured"?"Настроен":state==="unavailable"?"Недоступен":"Не проверено","mp-badge"),element("p",note,"mp-help"));
+  card.append(element("h3",name,"mp-section-title"),element("span",state==="live"?"Отвечает":state==="configured"?"Настроен":state==="unavailable"?"Недоступен":"Не проверено","mp-badge"),alert(note));
   root.append(card);
  }
  summary.append(kpi("Отвечают",counts.live),kpi("Настроены",counts.configured),kpi("Недоступны / неизвестны",counts.unavailable+counts.unknown));
@@ -223,10 +238,15 @@ function render(page,context){
 }
 // Setup: all event handlers are local mock actions, never network requests.
 $("overview-tenant-select").addEventListener("change",()=>{
- overviewTenantID=$("overview-tenant-select").value;
+ overviewTenantID=$("overview-tenant-select").value;resetTenantTable();
  overview();
 });
-$("overview-tenant-kind").addEventListener("change",overviewTenant);
+$("overview-tenant-kind").addEventListener("change",()=>{resetTenantTable();overviewTenant();});
+$("tenant-table-search").addEventListener("input",()=>{tenantPage=0;overviewTenant();});
+$("tenant-table-status").addEventListener("change",()=>{tenantPage=0;overviewTenant();});
+$("tenant-mobile-sort").addEventListener("change",()=>{const [key,dir]=$("tenant-mobile-sort").value.split(":");tenantSortKey=key;tenantSortDir=Number(dir);tenantPage=0;overviewTenant();});
+$("tenant-table-prev").addEventListener("click",()=>{if(tenantPage>0){tenantPage--;overviewTenant();}});
+$("tenant-table-next").addEventListener("click",()=>{if(tenantPage<tenantPageCount-1){tenantPage++;overviewTenant();}});
 $("overview-open-monitor").addEventListener("click",()=>{if(canOperate())ctx.navigate("monitor");});
 $("overview-open-reviewer").addEventListener("click",()=>{if(canReviewerAdmin())ctx.navigate("reviewer");});
 $("overview-open-companies").addEventListener("click",()=>{if(canCompanies())ctx.navigate("companies");});
@@ -265,7 +285,7 @@ $("monitor-refresh").addEventListener("click",()=>{
  $("monitor-last").textContent=new Date().toLocaleString("ru-RU")+" · mock";
  monitor();ctx.feedback("Mock GET /system/services → 200. Это не реальный health-check.");
 });
-function resetFixtures(){overviewTenantID="";chosenProvisioningId=null;monitorState=null;mailLab=false;mailAttempt=0;mailRevision=1;
+function resetFixtures(){resetTenantTable();overviewTenantID="";chosenProvisioningId=null;monitorState=null;mailLab=false;mailAttempt=0;mailRevision=1;
  $("monitor-last").textContent="Не выполнялась";
  $("mail-result").textContent="Проверка не выполнялась";
  $("mail-lab").value="off";

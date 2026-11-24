@@ -126,6 +126,9 @@ jobs:
                grep -Fq 'id="company-next"' /tmp/pages-concept.html &&
                ! grep -Fq 'id="company-more"' /tmp/pages-concept.html &&
                grep -Fq 'const homeSection=' /tmp/pages-concept.js &&
+               grep -Fq 'companyPageSize=10' /tmp/pages-concept.js &&
+               grep -Fq 'id="overview-tenant-table"' /tmp/pages-concept.html &&
+               grep -Fq 'components/essentials.css?v=' /tmp/pages-concept.html &&
                ! grep -Fq 'value="reader"' /tmp/pages-concept.html; then
               echo "Verified live GitHub Pages build: ${GITHUB_SHA}"
               echo "Live preview: ${SITE_URL%/}/preview/?v=${GITHUB_SHA}"

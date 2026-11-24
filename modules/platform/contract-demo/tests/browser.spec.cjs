@@ -703,3 +703,15 @@ test('Companies adopts catalog Data Table controls and responsive rows',async ({
  await expect(page.locator('#company-mobile-sort')).toBeVisible();
  await expect(table.locator('thead')).toBeHidden();
 });
+
+
+test('Tenant overview uses canonical Data Table and alerts without selection controls',async ({page})=>{
+ await signIn(page,'owner');
+ const table=page.locator('#overview-tenant-table .data-table');await expect(table).toBeVisible();await expect(table.locator('tbody tr')).toHaveCount(3);await expect(table.locator('input[type=checkbox]')).toHaveCount(0);
+ await expect(table.locator('.table-status-pill')).toHaveCount(3);
+ await page.locator('#tenant-table-search').fill('captain');await expect(table.locator('tbody tr')).toHaveCount(1);await expect(table).toContainText('captain.demo');
+ await page.locator('#tenant-table-search').fill('');await page.locator('#tenant-table-status').selectOption('disabled');await expect(table.locator('tbody tr')).toHaveCount(1);await expect(table).toContainText('auditor.demo');
+ await page.locator('#overview-tenant-kind').selectOption('modules');await expect(table.locator('tbody tr')).toHaveCount(3);
+ await page.locator('#overview-tenant-select').selectOption({label:'South Transport (demo) · south'});await expect(page.locator('#overview-tenant-kpis .vms-alert')).toBeVisible();
+ await expect(page.locator('#screen-overview .mp-info-strip')).toHaveCount(0);
+});
