@@ -14,7 +14,7 @@ test('preview landing links and theme work', async ({page})=>{
  await page.locator('#userTrigger').click();
  await page.locator('#themeToggle').click();
  await expect(page.locator('body')).toHaveClass(/dark/);
- await page.locator('[data-preview="reviewer"]').click();
+ await page.locator('[data-preview="platform"]').click();
  await expect(page).toHaveURL(/\/modules\/platform\/contract-demo\/index\.html#login$/);
  await expect(page.locator('#screen-login')).toBeVisible();
  await expect(page.locator('#platform-login-form')).toBeVisible();
@@ -69,10 +69,10 @@ test('API rules have canonical inset on desktop and mobile',async ({page})=>{
  expect(errors).toEqual([]);
 });
 
-test('Preview deep link to overview opens contextual login and visible companies', async ({page})=>{
+test('Preview Platform Login opens Owner overview and visible companies', async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.goto('http://127.0.0.1:8765/preview/');
- await page.getByRole('link',{name:/Обзор Owner/}).click();
+ await page.locator('[data-preview="platform"]').click();
  await expect(page.locator('#screen-login')).toBeVisible();
  await expect(page.locator('#platform-login-form')).toBeVisible();
  await demoLogin(page,'owner');
@@ -102,10 +102,10 @@ test('direct overview link never implies authorization before demo login', async
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
 });
 
-test('Preview has only the VDMS Owner and independent Reviewer entry points',async ({page})=>{
+test('Preview has only Platform Login and Components tiles',async ({page})=>{
  await page.goto('http://127.0.0.1:8765/preview/');
- await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(4);
- await expect(page.locator('[data-preview="reviewer"]')).toHaveAttribute('href','../modules/platform/contract-demo/index.html#activation');
- await expect(page.getByRole('link',{name:/Обзор Owner/})).toHaveCount(1);
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile')).toHaveCount(2);
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile').filter({hasText:'Platform Login'})).toHaveAttribute('href','../modules/platform/contract-demo/index.html#login');
+ await expect(page.locator('.mp-dashboard-grid .mp-dashboard-tile').filter({hasText:'Каталог компонентов'})).toHaveAttribute('href','../components/index.html');
  await expect(page.getByText('Platform Reader',{exact:true})).toHaveCount(0);
 });
