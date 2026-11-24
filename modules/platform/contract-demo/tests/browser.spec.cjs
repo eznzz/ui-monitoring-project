@@ -671,3 +671,29 @@ test('audit footer controls match companies position under their tables and mobi
  await page.setViewportSize({width:390,height:844});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
 });
+
+
+test('Companies adopts catalog Data Table controls and responsive rows',async ({page})=>{
+ await page.goto(url+'#companies');
+ await page.locator('#platform-login-name').fill('owner.demo');
+ await page.locator('#platform-login-password').fill('demo-only');
+ await page.locator('#platform-login-totp').fill('000000');
+ await page.locator('#mock-login').click();
+ const table=page.locator('#screen-companies .data-table');
+ await expect(table).toBeVisible();
+ await expect(table.locator('tbody .table-status-pill')).toHaveCount(5);
+ await page.locator('#company-select-all').check();
+ await expect(page.locator('#company-selection')).toHaveText('Выбрано строк: 5');
+ await table.locator('tbody input[type=checkbox]').first().uncheck();
+ await expect(page.locator('#company-select-all')).toHaveJSProperty('indeterminate',true);
+ await page.locator('[data-company-sort="name"]').click();
+ await expect(page.locator('[data-company-sort="name"]')).toHaveAttribute('aria-pressed','true');
+ await expect(table.locator('tbody tr:first-child td[data-label="Компания"]')).toContainText('Atlas Marine');
+ await page.locator('#company-search').fill('harbor');
+ await expect(table.locator('tbody tr')).toHaveCount(1);
+ await table.getByRole('button',{name:'Открыть'}).click();
+ await expect(page.locator('#company-detail')).toContainText('Harbor Engineering');
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.locator('#company-mobile-sort')).toBeVisible();
+ await expect(table.locator('thead')).toBeHidden();
+});

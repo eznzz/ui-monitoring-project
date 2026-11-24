@@ -36,7 +36,7 @@ test('design-system markup is canonical on Platform and Login',async ({page})=>{
  await expect(page.locator('#screen-overview')).toBeVisible();
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await expect(page.locator('#screen-companies')).toHaveClass(/mp-card/);
- await expect(page.locator('#screen-companies .mp-basic-table')).toBeVisible();
+ await expect(page.locator('#screen-companies .data-table')).toBeVisible();
  await expect(page.locator('#companies-body tr:first-child td[data-label="Компания"]')).toHaveCount(1);
  expect(await page.locator('link[href*="concept.css"]').count()).toBe(0);
 });

@@ -1,0 +1,120 @@
+/* Scoped adoption of Data Table from components/catalog.css and mobile.css.
+   Do not change the canonical catalog, global dashboard styles, or other screens. */
+.company-data-table{--bg:var(--vms-color-canvas);--surface:var(--vms-color-surface);--subtle:var(--vms-color-surface-subtle);--text:var(--vms-color-text);--muted:var(--vms-color-muted);--line:var(--vms-color-border);--brand:var(--vms-color-primary);--brand-hover:var(--vms-color-primary-hover);--button-text:var(--vms-color-on-primary);--ring:var(--vms-color-focus-ring);--error:var(--vms-color-error);--disabled:var(--vms-color-input-disabled-bg);--radius:var(--vms-input-radius);font-family:var(--vms-font-body);font-size:14px;line-height:1.5;min-width:0}
+.company-data-table .button{display:inline-flex;align-items:center;justify-content:center;min-height:var(--vms-input-height);padding:8px 18px;border-radius:var(--radius);border:1px solid transparent;font-weight:600;transition:background .15s,transform .15s}
+.company-data-table .button:active:not(:disabled){transform:translateY(1px)}
+.company-data-table .primary{color:var(--button-text);background:var(--brand)}
+.company-data-table .primary:hover:not(:disabled){background:var(--brand-hover)}
+.company-data-table .secondary{color:var(--brand);border-color:var(--line);background:var(--surface)}
+.company-data-table .secondary:hover{background:var(--subtle)}
+.company-data-table .ghost{color:var(--brand);background:transparent}
+.company-data-table .ghost:hover{background:var(--subtle)}
+.company-data-table .button:disabled{opacity:.45;cursor:not-allowed}
+.company-data-table .button.small{min-height:32px;padding:5px 12px}
+.company-data-table .button.large{min-height:48px;padding:12px 22px}
+.company-data-table .field{display:flex;flex-direction:column;gap:6px}
+.company-data-table .field label{font-size:13px;font-weight:600}
+.company-data-table .field input,.company-data-table .field select{height:var(--vms-input-height);border:1px solid var(--line);background:var(--vms-color-input-bg);color:var(--text);border-radius:var(--radius);padding:0 var(--vms-input-padding-x);width:100%}
+.company-data-table .field input::placeholder{color:var(--muted);opacity:1}
+.company-data-table .field input:disabled,.company-data-table .field select:disabled{background:var(--disabled);color:var(--muted);cursor:not-allowed}
+.company-data-table .field input[readonly]{background:var(--subtle)}
+.company-data-table .field input[aria-invalid=true]{border-color:var(--error)}
+.company-data-table .error-text{color:var(--error)}
+
+.company-data-table .table-intro{margin:0 0 20px}
+.company-data-table .table-toolbar{display:flex;gap:16px;flex-wrap:wrap;align-items:end;margin-bottom:20px}
+.company-data-table .table-search{flex:1 1 250px}
+.company-data-table .table-filter{flex:0 1 220px}
+.company-data-table .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+.company-data-table .data-table{border-collapse:collapse;width:100%;min-width:620px;text-align:left}
+.company-data-table .data-table th,.company-data-table .data-table td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.company-data-table .data-table thead{background:var(--subtle)}
+.company-data-table .data-table th{font-size:12px;font-weight:600;color:var(--muted)}
+.company-data-table .data-table tr:last-child td{border-bottom:0}
+.company-data-table .data-table tbody tr:hover{background:var(--subtle)}
+.company-data-table .data-table input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
+.company-data-table .data-table .sort-control{color:inherit;border:0;background:transparent;font-weight:inherit;cursor:pointer;padding:5px 2px;text-align:left}
+.company-data-table .data-table .sort-control:hover{color:var(--brand)}
+.company-data-table .data-table .sort-control[aria-pressed=true]{color:var(--brand)}
+.company-data-table .table-footer{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding-top:16px}
+.company-data-table .table-pagination{display:flex;gap:12px;align-items:center}
+.company-data-table .table-pagination button:disabled{opacity:.45;cursor:not-allowed}
+.company-data-table .table-status-pill{font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:100px;padding:4px 10px;white-space:nowrap}
+.company-data-table .table-status-pill::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 8px}
+.company-data-table .table-status-pill[data-status="В пути"]{color:var(--vms-status-in-transit)}
+.company-data-table .table-status-pill[data-status="В порту"]{color:var(--vms-status-in-port)}
+.company-data-table .table-status-pill[data-status="Обслуживание"]{color:var(--vms-status-maintenance)}
+.company-data-table .table-empty{text-align:center;color:var(--muted);padding:28px 14px!important}
+.company-data-table .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+
+.company-data-table .hint{color:var(--muted);font-size:12px;margin:16px 0 0}
+.company-data-table .table-intro{margin:0 0 20px}
+.company-data-table .table-status-pill[data-status="active"]{color:var(--vms-color-success)}
+.company-data-table .table-status-pill[data-status="provisioning"]{color:var(--vms-color-primary)}
+.company-data-table .table-status-pill[data-status="suspended"],.company-data-table .table-status-pill[data-status="disabled"]{color:var(--vms-color-error)}
+.company-data-table .table-status-pill[data-status="draft"]{color:var(--vms-color-muted)}
+.company-data-table .mobile-sort{display:none}
+.company-data-table .field{min-width:0}
+.company-data-table .table-pagination{flex-wrap:wrap}
+.company-data-table .table-pagination select{height:32px}
+.company-data-table :is(button,input,select):focus-visible{outline:2px solid var(--brand);outline-offset:3px;box-shadow:0 0 0 3px var(--ring)}
+@media(max-width:760px){.company-data-table .table-toolbar{display:grid;grid-template-columns:1fr}.company-data-table .table-search,.company-data-table .table-filter{width:100%}}
+@media(max-width:600px){.company-data-table .table-scroll{
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+.company-data-table .data-table{
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+  }
+.company-data-table .data-table thead{ display: none; }
+.company-data-table .data-table tbody{ display: grid; gap: 12px; }
+.company-data-table .data-table tbody tr{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    padding: 7px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--vms-input-radius, 6px);
+  }
+.company-data-table .data-table tbody td{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+.company-data-table .data-table tbody td:last-child{ border-bottom: 0; }
+.company-data-table .data-table tbody td::before{
+    content: attr(data-label);
+    flex: 0 0 37%;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-align: left;
+  }
+.company-data-table .data-table tbody td:first-child{ align-items: center; }
+.company-data-table .data-table tbody td:first-child input{ margin-left: auto; }
+.company-data-table .data-table tbody .table-empty{
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 26px 10px !important;
+  }
+.company-data-table .data-table tbody .table-empty::before{ content: none; }
+.company-data-table .table-intro{ margin-bottom: 12px; }
+.company-data-table .mobile-sort{ display:flex; flex-direction:column; gap:7px; margin:0 0 14px; }
+.company-data-table .mobile-sort span{ font-size:12px; font-weight:600; color:var(--text); }
+.company-data-table .mobile-sort select{ width:100%; min-width:0; min-height:44px; padding:8px 12px; background:var(--vms-color-input-bg); color:var(--text); border:1px solid var(--line); border-radius:var(--radius); }
+}
+@media(max-width:520px){.company-data-table .table-footer{flex-direction:column;align-items:stretch}.company-data-table .table-pagination{justify-content:space-between}}
+@media(pointer:coarse){.company-data-table .button{min-height:44px}}
