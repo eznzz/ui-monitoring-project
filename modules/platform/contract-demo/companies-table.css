@@ -117,7 +117,7 @@
 @media(pointer:coarse){.company-data-table .button{min-height:44px}}
 
 /* Modal Dialog: canonical catalog rules, scoped to company card. */
-#company-dialog{width:min(440px,calc(100% - 32px));border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);padding:0;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+#company-dialog{width:min(800px,calc(100% - 32px));border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);padding:0;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 #company-dialog::backdrop{background:rgba(5,12,24,.65)}
 #company-dialog .vms-dialog-content{padding:28px}
 #company-dialog .vms-dialog-content h3{font-size:19px;margin:0 0 14px}
@@ -130,6 +130,9 @@
 #company-dialog #company-detail dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px 14px;margin:0 0 24px}
 #company-dialog #company-detail dt{font-size:12px;font-weight:600;color:var(--muted)}
 #company-dialog #company-detail dd{margin:0;min-width:0;overflow-wrap:anywhere}
-#company-dialog #company-dialog-actions{margin-bottom:12px}
+#company-dialog #company-dialog-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:16px}
+#company-dialog #company-dialog-actions{justify-content:flex-end;gap:12px}
+#company-dialog #company-dialog-notice:not(:empty){margin-bottom:16px;color:var(--muted)}
+@media(min-width:700px){#company-dialog #company-detail dl{grid-template-columns:minmax(0,1fr) minmax(0,1.65fr);gap:12px 24px}}
 #company-dialog #company-dialog-description{overflow-wrap:anywhere}
-@media(max-width:520px){#company-dialog[open]{width:calc(100vw - 24px)}#company-dialog .vms-dialog-content{padding:20px}#company-dialog .dialog-actions{justify-content:stretch}#company-dialog .dialog-actions .button{flex:1 1 auto}}
+@media(max-width:520px){#company-dialog[open]{width:calc(100vw - 24px)}#company-dialog .vms-dialog-content{padding:20px}#company-dialog .dialog-actions{justify-content:stretch}#company-dialog .dialog-actions .button{flex:1 1 auto}#company-dialog #company-dialog-actions{flex:1 1 auto;justify-content:stretch}#company-dialog #company-dialog-footer{align-items:stretch}}

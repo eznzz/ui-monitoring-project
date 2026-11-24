@@ -26,9 +26,9 @@ const seed=[
  {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c816","code":"aurora","name":"Aurora Data (demo)","status":"draft","revision":1,"profile":{"legalName":"Aurora Data AB","tradeName":"Aurora","description":"New draft with incomplete setup","registrationNumber":"DEMO-AURORA","taxNumber":"","countryCode":"SE","contactEmail":"aurora@example.test","website":""}},
  {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c817","code":"vector","name":"Vector Services (demo)","status":"active","revision":7,"profile":{"legalName":"Vector Services SAS","tradeName":"Vector","description":"Multiple modules and users fixture","registrationNumber":"DEMO-VECTOR","taxNumber":"","countryCode":"FR","contactEmail":"vector@example.test","website":""}},
  {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c818","code":"tidewater","name":"Tidewater Solutions (demo)","status":"draft","revision":2,"profile":{"legalName":"Tidewater Solutions Ltd.","tradeName":"Tidewater","description":"New draft for review testing","registrationNumber":"DEMO-TIDEWATER","taxNumber":"","countryCode":"GB","contactEmail":"tidewater@example.test","website":""}}];
-let companySortKey="",companySortDir=1,companyPage=0,companyPageCount=1;const companyPageSize=4;
+let companySortKey="",companySortDir=1,companyPage=0,companyPageCount=1;const companyPageSize=10;
 let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, selectedId=null, editingId=null;
-let reviews=[], reviewDecisions=[], forcedConflict=false, serverMode="standard";
+let reviews=[], reviewDecisions=[], serverMode="standard";
 const $=id=>document.getElementById(id);
 const profile=()=>({legalName:"",tradeName:"",description:"",registrationNumber:"",taxNumber:"",countryCode:"",contactEmail:"",website:""});
 const permitted=right=>Boolean(session?.permissions.includes(right));
@@ -146,7 +146,7 @@ function changeDataMode(next,force=false){
  companySortKey="";companySortDir=1;
  reviews=[];reviewDecisions=[];invitations.length=0;
  reviewerChecked=false;selectedInvitationId="";reviewerDetailLoaded=false;
- showHistory=false;selectedId=null;editingId=null;forcedConflict=false;companyPage=0;logShown=Number($("log-limit").value);
+ showHistory=false;selectedId=null;editingId=null;companyPage=0;logShown=Number($("log-limit").value);
  $("company-status").value="all";$("company-search").value="";
  $("reviewer-status-filter").value="all";reviewMode="pending";
  document.querySelectorAll("[data-review-mode]").forEach(tab=>{
@@ -199,17 +199,26 @@ function openCompanyDetail(id){
 }
 function renderDetail(){
  const panel=$("company-detail"),actions=$("company-dialog-actions");panel.replaceChildren();actions.replaceChildren();
- const c=selected();if(!c||!permitted("tenant.read"))return;
+ const c=selected();$("company-dialog-notice").textContent="";if(!c||!permitted("tenant.read"))return;
  $("company-dialog-title").textContent=c.name;
  $("company-dialog-description").textContent="GET "+prefix+"/companies/{tenantID} · mock 200";
  const dl=document.createElement("dl");
  const pairs=[["Tenant UUID",c.tenantId],["Код",c.code],["Статус",c.status],["Revision",c.revision],["Юридическое название",c.profile.legalName||"—"],["Торговое название",c.profile.tradeName||"—"],["Описание",c.profile.description||"—"],["Регистрационный номер",c.profile.registrationNumber||"—"],["Налоговый номер",c.profile.taxNumber||"—"],["Страна",c.profile.countryCode||"—"],["Контактный e-mail",c.profile.contactEmail||"—"],["Веб-сайт",c.profile.website||"—"]];
  for(const [name,value] of pairs)dl.append(textNode("dt",name),textNode("dd",value));
  panel.append(dl);
- const edit=textNode("button","Редактировать draft");edit.type="button";edit.className="button secondary";edit.disabled=!permitted("tenant.draft.update")||c.status!=="draft";edit.addEventListener("click",()=>openRecord(c.tenantId));actions.append(edit);
- const conflict=textNode("button","Имитировать 409 при сохранении");conflict.type="button";conflict.className="button secondary";conflict.disabled=edit.disabled;conflict.addEventListener("click",()=>{forcedConflict=true;openRecord(c.tenantId);feedback("Следующее PATCH вернёт 409 (симуляция).");});actions.append(conflict);
- const activate=textNode("button","Запросить активацию");activate.type="button";activate.className="button primary";activate.disabled=!permitted("tenant.activate")||c.status!=="draft"||reviews.some(r=>r.tenantId===c.tenantId&&r.state==="requested");
- activate.addEventListener("click",()=>requestActivation(c));actions.append(activate);
+ if(c.status==="draft"&&permitted("tenant.draft.update")){
+  const edit=textNode("button","Редактировать");edit.type="button";edit.className="button secondary";edit.addEventListener("click",()=>openRecord(c.tenantId));actions.append(edit);
+ }
+ const existing=reviews.find(r=>r.tenantId===c.tenantId&&["requested","approved"].includes(r.state));
+ if(existing){$("company-dialog-notice").textContent=existing.state==="approved"?"Заявка одобрена Reviewer. Для создания Tenant DB требуется отдельный C01 START.":"Заявка на активацию отправлена. Ожидается решение Reviewer.";}
+ if(c.status==="draft"&&permitted("tenant.activate")&&!existing){
+  const activate=textNode("button","Запросить активацию");activate.type="button";activate.className="button primary";
+  activate.addEventListener("click",()=>{
+   $("company-dialog-notice").textContent="Активация требует решения независимого Reviewer. Создание Tenant DB не выполняется автоматически.";
+   activate.textContent="Подтвердить запрос";activate.addEventListener("click",()=>requestActivation(c),{once:true});
+   const cancel=textNode("button","Отмена");cancel.type="button";cancel.className="button secondary";cancel.addEventListener("click",()=>renderDetail());actions.insertBefore(cancel,activate);
+  },{once:true});actions.append(activate);
+ }
 }
 function openRecord(id){
  const c=companies.find(x=>x.tenantId===id);editingId=c?.tenantId||null;
@@ -229,7 +238,6 @@ function saveRecord(ev){
  if(editingId){
   const c=companies.find(x=>x.tenantId===editingId);
   if(!c||c.status!=="draft"||!permitted("tenant.draft.update")){$("record-error").textContent="403: действие недоступно.";return;}
-  if(forcedConflict){forcedConflict=false;$("record-error").textContent="409: revision устарела. Закройте форму, перечитайте карточку и повторите изменение.";return;}
   const updated={};
   for(const key of ["legalName","tradeName","description","registrationNumber","taxNumber","countryCode","contactEmail","website"])updated[key]=$("profile-"+key).value.trim();
   if(updated.contactEmail&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(updated.contactEmail)){$("record-error").textContent="Проверьте формат e-mail.";return;}

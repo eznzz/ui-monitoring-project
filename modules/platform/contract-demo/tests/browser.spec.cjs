@@ -58,7 +58,7 @@ test('only actual Owner and Reviewer fixtures exist; Owner can create and edit d
  await page.locator('#record-form button[type="submit"]').click();
  await expect(page.locator('#companies-body')).toContainText('Smoke Test');
  await expect(page.locator('#company-detail')).toContainText('draft');
- await page.getByRole('button',{name:'Редактировать draft'}).click();
+ await page.getByRole('button',{name:'Редактировать'}).click();
  await page.locator('#record-name').fill('Smoke Revised');
  await page.locator('#profile-legalName').fill('Smoke Revised Ltd.');
  await page.locator('#profile-countryCode').fill('GB');
@@ -66,18 +66,17 @@ test('only actual Owner and Reviewer fixtures exist; Owner can create and edit d
  await expect(page.locator('#company-detail')).toContainText('Smoke Revised Ltd.');
  expect(errors).toEqual([]);
 });
-test('409 and reviewer activation flow',async ({page})=>{
+test('reviewer activation flow after cancelling draft edit',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page);
  
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
- await page.getByRole('button',{name:'Имитировать 409 при сохранении'}).click();
- await page.locator('#record-name').fill('Conflicted');
- await page.locator('#record-form button[type="submit"]').click();
- await expect(page.locator('#record-error')).toContainText('409');
+ await page.getByRole('button',{name:'Редактировать',exact:true}).click();
+ await page.locator('#record-name').fill('Cancelled edit');
  await page.locator('#cancel-record').click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.getByRole('button',{name:'Подтвердить запрос'}).click();
  await page.locator('#company-dialog-close').click();
  await expect(page.locator('#feedback')).toContainText('requested');
  await page.locator('#concept-nav a[data-page="login"]').click();
@@ -191,6 +190,7 @@ test('VDMS Reviewer decision history tabs are separated',async ({page})=>{
  await page.locator('a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.getByRole('button',{name:'Подтвердить запрос'}).click();
  await page.locator('#company-dialog-close').click();
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
@@ -244,6 +244,7 @@ test('VDMS Reviewer rejection requires reason and records own rejection',async (
  await page.locator('a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.getByRole('button',{name:'Подтвердить запрос'}).click();
  await page.locator('#company-dialog-close').click();
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
@@ -291,8 +292,8 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await expect(page.locator('#company-dialog')).toBeVisible();
  await expect(page.locator('#company-dialog-title')).toContainText('Tidewater Solutions');
  await page.locator('#company-dialog-close').click();
- await expect(page.locator('#company-range')).toHaveText('Показано 2 из 18');
- await expect(page.locator('#company-page')).toHaveText('5 / 5');
+ await expect(page.locator('#company-range')).toHaveText('Показано 8 из 18');
+ await expect(page.locator('#company-page')).toHaveText('2 / 2');
  expect(errors).toEqual([]);
 });
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
@@ -409,6 +410,7 @@ test('linked Owner draft requests are visible to Reviewer and history stays pers
  await page.locator('#concept-nav a[data-page="companies"]').click();
  await page.locator('#companies-body button').first().click();
  await page.getByRole('button',{name:'Запросить активацию'}).click();
+ await page.getByRole('button',{name:'Подтвердить запрос'}).click();
  await page.locator('#company-dialog-close').click();
  await page.locator('#concept-nav a[data-page="login"]').click();
  await fillIdentity(page,'reviewer');
@@ -448,43 +450,21 @@ test('LAB-only route toggles and active Reviewer permissions are independent',as
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
 });
 
-test('company list follows catalog pagination with four rows per page',async ({page})=>{
+test('company list follows catalog pagination with ten rows per page',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
  const rows=page.locator('#companies-body tr'),prev=page.locator('#company-prev'),next=page.locator('#company-next'),counter=page.locator('#company-page');
- await expect(rows).toHaveCount(4);
- await expect(counter).toHaveText('1 / 5');
- await expect(prev).toBeDisabled();
- await expect(next).toBeEnabled();
- await next.click();
- await expect(counter).toHaveText('2 / 5');
- await expect(rows).toHaveCount(4);
+ await expect(rows).toHaveCount(10);await expect(counter).toHaveText('1 / 2');await expect(prev).toBeDisabled();
+ await next.click();await expect(counter).toHaveText('2 / 2');await expect(rows).toHaveCount(8);await expect(next).toBeDisabled();
  await expect(page.locator('#companies-body')).not.toContainText('North Shipping');
- await prev.click();
- await expect(counter).toHaveText('1 / 5');
- for(let i=0;i<4;i++)await next.click();
- await expect(counter).toHaveText('5 / 5');
- await expect(rows).toHaveCount(2);
- await expect(page.locator('#company-range')).toHaveText('Показано 2 из 18');
- await expect(next).toBeDisabled();
- await page.locator('#company-status').selectOption('draft');
- await expect(counter).toHaveText('1 / 2');
- await expect(rows).toHaveCount(4);
- await next.click();
- await expect(rows).toHaveCount(1);
- await expect(next).toBeDisabled();
- await page.locator('#company-status').selectOption('all');
- await next.click();
- await page.locator('#company-search').fill('harbor');
- await expect(counter).toHaveText('1 / 1');
- await expect(rows).toHaveCount(1);
+ await prev.click();await expect(rows).toHaveCount(10);
+ await page.locator('#company-status').selectOption('draft');await expect(counter).toHaveText('1 / 1');await expect(rows).toHaveCount(5);await expect(next).toBeDisabled();
+ await page.locator('#company-status').selectOption('all');await next.click();
+ await page.locator('#company-search').fill('harbor');await expect(counter).toHaveText('1 / 1');await expect(rows).toHaveCount(1);
  await expect(prev).toBeDisabled();await expect(next).toBeDisabled();
- await expect(page.locator('#company-range')).toHaveText('Показано 1 из 1');
- await page.locator('#company-search').fill('');
- await page.setViewportSize({width:390,height:844});
- expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
- expect(errors).toEqual([]);
+ await page.locator('#company-search').fill('');await page.setViewportSize({width:390,height:844});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);expect(errors).toEqual([]);
 });
 test('company list empty state does not offer additional entries',async ({page})=>{
  await signIn(page,'owner');
@@ -546,14 +526,14 @@ test('direct Company route still opens Companies after Owner mock login',async (
  await page.locator('#mock-login').click();
  
  await expect(page.locator('#screen-companies')).toBeVisible();
- await expect(page.locator('#company-range')).toHaveText('Показано 4 из 18');
+ await expect(page.locator('#company-range')).toHaveText('Показано 10 из 18');
 });
 
 test('company search finds unloaded rows by name, code, UUID and profile and resets',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
- await expect(page.locator('#companies-body tr')).toHaveCount(4);
+ await expect(page.locator('#companies-body tr')).toHaveCount(10);
  await page.locator('#company-search').fill('polar');
  await expect(page.locator('#company-filter-summary')).toContainText('Найдено: 1');
  await expect(page.locator('#companies-body tr')).toHaveCount(1);
@@ -569,7 +549,7 @@ test('company search finds unloaded rows by name, code, UUID and profile and res
  await page.locator('#company-reset').click();
  await expect(page.locator('#company-search')).toHaveValue('');
  await expect(page.locator('#company-filter-summary')).toContainText('Все загруженные компании: 18');
- await expect(page.locator('#companies-body tr')).toHaveCount(4);
+ await expect(page.locator('#companies-body tr')).toHaveCount(10);
  await page.locator('#company-status').selectOption('draft');
  await page.locator('#company-search').fill('north');
  await expect(page.locator('#companies-body tr')).toHaveCount(1);
@@ -696,7 +676,7 @@ test('Companies adopts catalog Data Table controls and responsive rows',async ({
  await expect(table).toBeVisible();
  await expect(table.locator('input[type=checkbox]')).toHaveCount(0);
  await expect(table.locator('thead th')).toHaveCount(5);
- await expect(table.locator('tbody .table-status-pill')).toHaveCount(4);
+ await expect(table.locator('tbody .table-status-pill')).toHaveCount(10);
  await page.locator('[data-company-sort="name"]').click();
  await expect(page.locator('[data-company-sort="name"]')).toHaveAttribute('aria-pressed','true');
  await expect(table.locator('tbody tr:first-child td[data-label="Компания"]')).toContainText('Atlas Marine');
@@ -705,6 +685,8 @@ test('Companies adopts catalog Data Table controls and responsive rows',async ({
  await table.getByRole('button',{name:'Открыть'}).click();
  await expect(page.locator('#company-dialog')).toBeVisible();
  await expect(page.locator('#company-dialog-title')).toContainText('Harbor Engineering');
+ await expect(page.locator('#company-dialog-actions button')).toHaveCount(0);
+ await expect(page.locator('#company-dialog').getByRole('button',{name:'Закрыть'})).toBeVisible();
  await expect(page.locator('#company-dialog')).toHaveClass(/vms-dialog/);
  await page.keyboard.press('Escape');
  await expect(page.locator('#company-dialog')).not.toBeVisible();
