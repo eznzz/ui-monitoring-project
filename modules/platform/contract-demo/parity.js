@@ -80,7 +80,7 @@ function overview(){
   $("overview-tenant-body").replaceChildren();
   const blocked=element("tr");
   const cell=tableCell("403 · нет права чтения компаний","Доступ");cell.colSpan=5;blocked.append(cell);companyBody.append(blocked);
-  return;
+  overviewDatabases();return;
  }
  const companies=ctx.companies;
  const chosen=companies.find(c=>c.tenantId===overviewTenantID)||companies[0]||null;
@@ -119,18 +119,32 @@ function overview(){
  for(const c of companies)select.add(new Option(c.name+" · "+c.code,c.tenantId));
  select.value=overviewTenantID;
  overviewTenant();
- if(!companies.length){
-  const tr=element("tr"),td=tableCell("Нет записей Tenant DB для просмотра.","Базы данных");
-  td.colSpan=5;tr.append(td);dbBody.append(tr);
- }
- for(const c of companies){
-  const tr=element("tr");
-  const dbState=c.status==="provisioning"?"Требуется C01 проверка":"Не проверено";
-  tr.append(tableCell(c.name,"Компания"),tableCell(c.status,"Статус Platform"),
-    tableCell(dbState,"Tenant DB"),tableCell("Не проверено","Маршрут"),tableCell(c.status==="provisioning"?"GET /companies/{tenantID}/provisioning":"Нет Platform DB inventory","Доказательство"));
-  dbBody.append(tr);
- }
+ overviewDatabases();
 }
+let dbPage=0,dbPageCount=1,dbSortKey="",dbSortDir=1;
+const dbPageSize=10;
+function resetDatabaseTable(){dbPage=0;dbSortKey="";dbSortDir=1;$("db-table-search").value="";$("db-table-status").value="all";}
+function overviewDatabases(){
+ const body=$("overview-databases-body");empty(body);
+ const allowed=canCompanies(),query=$("db-table-search").value.trim().toLocaleLowerCase("ru").normalize("NFKC"),filter=$("db-table-status").value;
+ const records=allowed?ctx.companies.map(c=>({name:c.name,code:c.code,status:c.status,db:c.status==="provisioning"?"Требуется C01 проверка":"Не проверено",route:"Не проверено",evidence:c.status==="provisioning"?"GET /companies/{tenantID}/provisioning":"Нет Platform DB inventory"})):[];
+ const filtered=records.filter(r=>(filter==="all"||r.status===filter)&&(!query||Object.values(r).some(v=>String(v).toLocaleLowerCase("ru").normalize("NFKC").includes(query))));
+ if(dbSortKey)filtered.sort((a,b)=>dbSortDir*String(a[dbSortKey]).localeCompare(String(b[dbSortKey]),"ru",{numeric:true}));
+ dbPageCount=Math.max(1,Math.ceil(filtered.length/dbPageSize));dbPage=Math.max(0,Math.min(dbPage,dbPageCount-1));
+ const shown=filtered.slice(dbPage*dbPageSize,(dbPage+1)*dbPageSize);
+ if(!shown.length){const tr=element("tr"),td=element("td",!allowed?"403 · Нет доступа к обзору.":records.length?"По вашему запросу ничего не найдено":"Нет записей Tenant DB для просмотра.","table-empty");td.colSpan=5;tr.append(td);body.append(tr);}
+ for(const r of shown){
+  const tr=element("tr"),status=tableCell("","Статус Platform"),pill=element("span",r.status,"table-status-pill");pill.dataset.status=r.status;status.append(pill);
+  tr.append(tableCell(r.name,"Компания"),status,tableCell(r.db,"Состояние Tenant DB"),tableCell(r.route,"Маршрут"),tableCell(r.evidence,"Доказательство"));body.append(tr);
+ }
+ $("db-table-range").textContent=allowed?"Показано "+shown.length+" из "+filtered.length:"Нет доступа";
+ $("db-table-page").textContent=(dbPage+1)+" / "+dbPageCount;
+ $("db-table-prev").disabled=!allowed||dbPage===0;$("db-table-next").disabled=!allowed||dbPage>=dbPageCount-1;
+ $("db-table-search").disabled=!allowed;$("db-table-status").disabled=!allowed;$("db-table-reset").disabled=!allowed||(!query&&filter==="all");$("db-mobile-sort").disabled=!allowed;
+ document.querySelectorAll("[data-db-sort]").forEach(button=>{const active=button.dataset.dbSort===dbSortKey;button.disabled=!allowed;button.setAttribute("aria-pressed",String(active));button.querySelector("span").textContent=active?(dbSortDir===1?"↑":"↓"):"↕";button.closest("th").setAttribute("aria-sort",active?(dbSortDir===1?"ascending":"descending"):"none");});
+ $("db-mobile-sort").value=dbSortKey?dbSortKey+":"+dbSortDir:"";
+}
+
 let tenantPage=0,tenantPageCount=1,tenantSortKey="first",tenantSortDir=1;
 const tenantPageSize=10;
 function resetTenantTable(){tenantPage=0;tenantSortKey="first";tenantSortDir=1;$("tenant-table-search").value="";$("tenant-table-status").value="all";}
@@ -247,6 +261,13 @@ $("tenant-table-status").addEventListener("change",()=>{tenantPage=0;overviewTen
 $("tenant-mobile-sort").addEventListener("change",()=>{const [key,dir]=$("tenant-mobile-sort").value.split(":");tenantSortKey=key;tenantSortDir=Number(dir);tenantPage=0;overviewTenant();});
 $("tenant-table-prev").addEventListener("click",()=>{if(tenantPage>0){tenantPage--;overviewTenant();}});
 $("tenant-table-next").addEventListener("click",()=>{if(tenantPage<tenantPageCount-1){tenantPage++;overviewTenant();}});
+$("db-table-search").addEventListener("input",()=>{dbPage=0;overviewDatabases();});
+$("db-table-status").addEventListener("change",()=>{dbPage=0;overviewDatabases();});
+$("db-table-reset").addEventListener("click",()=>{$("db-table-search").value="";$("db-table-status").value="all";dbPage=0;overviewDatabases();});
+$("db-table-prev").addEventListener("click",()=>{if(dbPage>0){dbPage--;overviewDatabases();}});
+$("db-table-next").addEventListener("click",()=>{if(dbPage<dbPageCount-1){dbPage++;overviewDatabases();}});
+document.querySelectorAll("[data-db-sort]").forEach(button=>button.addEventListener("click",()=>{const key=button.dataset.dbSort;dbSortDir=key===dbSortKey?-dbSortDir:1;dbSortKey=key;dbPage=0;overviewDatabases();}));
+$("db-mobile-sort").addEventListener("change",()=>{const [key,dir]=$("db-mobile-sort").value.split(":");dbSortKey=key;dbSortDir=Number(dir)||1;dbPage=0;overviewDatabases();});
 $("overview-open-monitor").addEventListener("click",()=>{if(canOperate())ctx.navigate("monitor");});
 $("overview-open-reviewer").addEventListener("click",()=>{if(canReviewerAdmin())ctx.navigate("reviewer");});
 $("overview-open-companies").addEventListener("click",()=>{if(canCompanies())ctx.navigate("companies");});
@@ -285,7 +306,7 @@ $("monitor-refresh").addEventListener("click",()=>{
  $("monitor-last").textContent=new Date().toLocaleString("ru-RU")+" · mock";
  monitor();ctx.feedback("Mock GET /system/services → 200. Это не реальный health-check.");
 });
-function resetFixtures(){resetTenantTable();overviewTenantID="";chosenProvisioningId=null;monitorState=null;mailLab=false;mailAttempt=0;mailRevision=1;
+function resetFixtures(){resetTenantTable();resetDatabaseTable();overviewTenantID="";chosenProvisioningId=null;monitorState=null;mailLab=false;mailAttempt=0;mailRevision=1;
  $("monitor-last").textContent="Не выполнялась";
  $("mail-result").textContent="Проверка не выполнялась";
  $("mail-lab").value="off";

@@ -146,3 +146,5 @@ body{--button-text:var(--vms-color-on-primary);--brand-hover:var(--vms-color-pri
 #log-table .data-table td{overflow-wrap:anywhere}
 @media(max-width:760px){#log-table .table-toolbar{grid-template-columns:minmax(0,1fr)}}
 @media(pointer:coarse){.button{min-height:44px}}
+
+#overview-db-table .data-table td{overflow-wrap:anywhere}

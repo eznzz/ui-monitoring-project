@@ -698,3 +698,19 @@ test('Tenant overview uses canonical Data Table and alerts without selection con
  await page.locator('#overview-tenant-select').selectOption({label:'South Transport (demo) · south'});await expect(page.locator('#overview-tenant-kpis .vms-alert')).toBeVisible();
  await expect(page.locator('#screen-overview .mp-info-strip')).toHaveCount(0);
 });
+
+
+test('Database and routing overview adopts canonical Data Table and preserves evidence boundaries',async ({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));await signIn(page,'owner');
+ const table=page.locator('#overview-db-table .data-table'),rows=table.locator('tbody tr'),prev=page.locator('#db-table-prev'),next=page.locator('#db-table-next');
+ await expect(table).toBeVisible();await expect(rows).toHaveCount(10);await expect(table.locator('.table-status-pill')).toHaveCount(10);await expect(table.locator('input[type=checkbox]')).toHaveCount(0);
+ await expect(page.locator('#db-table-range')).toHaveText('Показано 10 из 18');await expect(page.locator('#db-table-page')).toHaveText('1 / 2');await expect(prev).toBeDisabled();
+ await next.click();await expect(rows).toHaveCount(8);await expect(page.locator('#db-table-page')).toHaveText('2 / 2');await expect(next).toBeDisabled();
+ await page.locator('#db-table-search').fill('north');await expect(rows).toHaveCount(1);await expect(table).toContainText('North Shipping');await expect(table).toContainText('Не проверено');await expect(page.locator('#db-table-page')).toHaveText('1 / 1');
+ await page.locator('#db-table-reset').click();await expect(rows).toHaveCount(10);
+ await page.locator('#db-table-status').selectOption('provisioning');await expect(table).toContainText('Требуется C01 проверка');await expect(table).toContainText('GET /companies/{tenantID}/provisioning');
+ await page.locator('#db-table-reset').click();await page.locator('[data-db-sort="name"]').click();await expect(rows.first()).toContainText('Atlas Marine');
+ await page.setViewportSize({width:390,height:844});await expect(page.locator('#db-mobile-sort')).toBeVisible();await expect(table.locator('thead')).toBeHidden();expect(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+2)).toBe(false);
+ await page.locator('#overview-data-mode').selectOption('empty');await expect(table).toContainText('Нет записей Tenant DB');await expect(next).toBeDisabled();
+ expect(errors).toEqual([]);
+});
