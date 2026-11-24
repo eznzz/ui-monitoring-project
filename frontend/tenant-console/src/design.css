@@ -1,0 +1,12 @@
+@import url("../../../tokens/tokens.css");
+:root,body{font-family:var(--vms-font-body);color:var(--vms-color-text);background:var(--vms-color-canvas)}
+.panel,.card,.loginbar,.overview,.notice,.topbar,.record,.user-row,.btn-outline,.ghost{background:var(--vms-color-surface);color:var(--vms-color-text);border-color:var(--vms-color-border);border-radius:var(--vms-input-radius)}
+.topbar{border-radius:0}.muted,small,label,.eyebrow,.connection{color:var(--vms-color-muted)}
+input,select,textarea{background:var(--vms-color-input-bg);color:var(--vms-color-text);border:1px solid var(--vms-color-border);border-radius:var(--vms-input-radius);min-height:var(--vms-input-height);font-size:var(--vms-input-font-size)}
+button,.btn{border-radius:var(--vms-input-radius);min-height:var(--vms-input-height)}
+.btn-primary,.primary-action,.mark,.brand-mark,button:not(.ghost):not(.btn-outline):not(.user-row):not(.record):not(.danger):not([role=tab]){background:var(--vms-color-primary);color:var(--vms-color-on-primary)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--vms-color-focus);outline-offset:2px}
+.danger{color:var(--vms-color-error)}.green{color:var(--vms-color-success)}.red{color:var(--vms-color-error)}
+.rail,.info-panel{background:var(--vms-color-primary);color:var(--vms-color-on-primary)}
+#mp-demo-banner{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 16px;background:var(--vms-color-surface);color:var(--vms-color-text);border-bottom:1px solid var(--vms-color-border);font-size:13px}
+#mp-demo-banner a{color:var(--vms-color-primary)}#mp-demo-banner button{margin-left:auto}

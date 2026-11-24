@@ -1,0 +1,20 @@
+{
+  "name": "vdms-central-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.5",
+    "@types/react-dom": "19.1.5",
+    "typescript": "5.8.3",
+    "vite": "6.3.5"
+  }
+}

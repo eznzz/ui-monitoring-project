@@ -1,136 +1,58 @@
-name: Central Platform concept browser smoke
+name: VDMS frontend preview
 on:
   push:
     branches: [preview]
-  pull_request:
-    paths:
-      - 'modules/platform/contract-demo/**'
-      - '.github/workflows/platform-concept-browser.yml'
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: platform-preview-${{ github.ref }}
+  group: vdms-preview
   cancel-in-progress: true
 jobs:
-  browser-smoke:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install isolated browser test tools
+      - name: Build upstream frontend
         run: |
-          npm install --no-save --no-package-lock @playwright/test
-          npx playwright install --with-deps chromium
-      - name: Serve static prototype
-        run: |
-          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/monitoring-concept-http.log 2>&1 &
-          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8765/modules/platform/contract-demo/index.html >/dev/null && exit 0; sleep 1; done
-          exit 1
-      - name: Validate versioned Pages bundle before publication
-        run: |
-          tmpdir="$(mktemp -d)"
-          mkdir -p "$tmpdir/preview" "$tmpdir/modules/platform/contract-demo"
-          cp preview/index.html "$tmpdir/preview/index.html"
-          cp modules/platform/contract-demo/index.html "$tmpdir/modules/platform/contract-demo/index.html"
-          python3 scripts/version_pages_assets.py "$tmpdir" "$GITHUB_SHA"
-          grep -Fq "concept.js?v=$GITHUB_SHA" "$tmpdir/modules/platform/contract-demo/index.html"
-          grep -Fq "mp-deployment-commit" "$tmpdir/preview/index.html"
-          grep -Fq "сборка ${GITHUB_SHA:0:7}" "$tmpdir/preview/index.html"
-      - name: Browser scenarios
-        run: npx playwright test modules/platform/contract-demo/tests/browser.spec.cjs preview/preview.spec.cjs preview/visual.spec.cjs --reporter=line
-      - name: Check third-party live preview proxy (informational)
-        continue-on-error: true
-        run: |
-          curl --location --show-error --max-time 25 --output /tmp/preview-public.html --write-out 'HTTP: %{http_code} content_type: %{content_type} bytes: %{size_download}\\n' 'https://raw.githack.com/eznzz/ui-monitoring-project/preview/preview/index.html'
-          grep -q 'Monitoring Project — UI Preview' /tmp/preview-public.html
-      - name: Verify commit-pinned browser preview
-        run: |
-          curl --fail --location --show-error --retry 6 --retry-delay 2 --retry-all-errors --max-time 25 \
-            --output /tmp/preview-pinned.html \
-            "https://raw.githack.com/eznzz/ui-monitoring-project/${GITHUB_SHA}/preview/index.html"
-          grep -q 'mp-dashboard-tile' /tmp/preview-pinned.html
-          echo "Verified commit preview: https://raw.githack.com/eznzz/ui-monitoring-project/${GITHUB_SHA}/preview/index.html"
-      - name: Upload visual review screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: platform-design-review
-          path: test-results/visual-*.png
-          if-no-files-found: warn
-      - name: Upload failure diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: concept-browser-failure
-          path: test-results/
-
-      - name: Stage static site for GitHub Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
+          cd frontend/central-workspace
+          npm ci
+          VITE_C01_P4_LAB_UI=1 VITE_PLATFORM_MAIL_ADMIN_UI=1 VITE_C01_RESTRICTED_REVIEW_APPROVAL=1 npm run build
+          cd ../tenant-console
+          npm install --no-package-lock
+          npm run build
+      - name: Stage Pages
         run: |
           mkdir -p _site
           cp -R preview modules components tokens _site/
-          cp index.html style.css script.js mobile.css _site/
+          cp style.css script.js mobile.css _site/
+          cp -R frontend/central-workspace/dist _site/preview/central
+          cp -R frontend/tenant-console/dist _site/preview/tenant
+          printf '<!doctype html><meta http-equiv="refresh" content="0;url=./preview/"><a href="./preview/">Preview</a>' > _site/index.html
           touch _site/.nojekyll
-          python3 scripts/version_pages_assets.py _site "${GITHUB_SHA}"
-          cat > _site/index.html <<'HTML'
-          <!doctype html>
-          <html lang="ru">
-          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-          <meta name="robots" content="noindex,nofollow">
-          <meta http-equiv="refresh" content="0;url=./preview/?v=${GITHUB_SHA}">
-          <title>Monitoring Project — Preview</title></head>
-          <body><p>Перейти к <a href="./preview/?v=${GITHUB_SHA}">Monitoring Project Preview</a>.</p></body>
-          </html>
-          HTML
-          test -f _site/preview/index.html
-          test -f _site/modules/platform/contract-demo/index.html
-          test -f _site/tokens/tokens.css
-          test -f _site/style.css
-      - name: Package GitHub Pages site
-        if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
-        uses: actions/upload-pages-artifact@v4
+      - name: Browser smoke
+        run: |
+          npm install --no-save --no-package-lock @playwright/test
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8765 --directory _site --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          for i in $(seq 1 20); do curl -sf http://127.0.0.1:8765/preview/central/ && break; sleep 1; done
+          npx playwright test preview/ported.spec.cjs --reporter=line
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
-
-  deploy-pages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/preview'
-    needs: browser-smoke
+  deploy:
+    if: github.ref == 'refs/heads/preview'
+    needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Deploy validated preview to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-      - name: Verify published UI version and Owner/Reviewer routes
-        env:
-          SITE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 24); do
-            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/preview/?verify=${GITHUB_SHA}" -o /tmp/pages-preview.html || true
-            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/modules/platform/contract-demo/index.html?verify=${GITHUB_SHA}" -o /tmp/pages-concept.html || true
-            curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/modules/platform/contract-demo/concept.js?verify=${GITHUB_SHA}" -o /tmp/pages-concept.js || true
-            if grep -Fq "name=\"mp-deployment-commit\" content=\"${GITHUB_SHA}\"" /tmp/pages-preview.html &&
-               grep -Fq "name=\"mp-deployment-commit\" content=\"${GITHUB_SHA}\"" /tmp/pages-concept.html &&
-               grep -Fq 'id="company-more"' /tmp/pages-concept.html &&
-               grep -Fq 'const homeSection=' /tmp/pages-concept.js &&
-               ! grep -Fq 'value="reader"' /tmp/pages-concept.html; then
-              echo "Verified live GitHub Pages build: ${GITHUB_SHA}"
-              echo "Live preview: ${SITE_URL%/}/preview/?v=${GITHUB_SHA}"
-              exit 0
-            fi
-            echo "Published build not yet consistent (attempt ${attempt}/24)"
-            sleep 5
-          done
-          echo "ERROR: GitHub Pages HTML and JS do not match deployed commit ${GITHUB_SHA}" >&2
-          exit 1
+      - uses: actions/deploy-pages@v4
+        id: deploy
