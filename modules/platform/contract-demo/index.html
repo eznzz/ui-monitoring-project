@@ -25,20 +25,16 @@
  <main class="mp-login-main"><div class="mp-login-box">
   <div class="mp-login-toolbar"><span class="mp-demo-chip">UI prototype / mock</span><button type="button" class="mp-btn mp-btn--secondary" id="login-theme">◐ Тёмная тема</button></div>
   <section class="content__card mp-login-form-card">
-   <header class="mp-login-form-heading"><span class="mp-eyebrow">Начало работы</span><h2 id="login-heading">Platform Login</h2><p class="mp-help">POST /login → POST /access → GET /me. В публичном макете нет ввода пароля, TOTP и настоящих запросов.</p></header>
-   <div class="mp-stack">
-    <div class="form-row mp-field"><label for="demo-actor">Тестовый субъект (фикстура)</label><select id="demo-actor"><option value="owner">Platform Owner · mock</option><option value="reviewer">Reviewer · mock</option></select></div>
-    <div class="form-row mp-field"><label for="demo-server-mode">Конфигурация сервера (фикстура)</label><select id="demo-server-mode">
-<option value="standard">Стандартная · одобрения выключены</option>
-<option value="restricted">Restricted · одобрения разрешены (mock)</option>
-<option value="lab">LAB · диагностика и одобрения (mock)</option>
-</select><p class="mp-help">Флаги сервера VDMS проверяются на backend. Переключатель здесь воспроизводит их доступность, без API или MFA.</p></div>
-<div class="form-row mp-field"><label for="demo-login-status">Ответ сервера (сценарий)</label><select id="demo-login-status"><option value="success">204 → 200 → 200 · Успех</option><option value="401">401 · Отказ в доступе</option><option value="503">503 · Сервис недоступен</option></select></div>
-    <div class="mp-login-actions"><button class="btn mp-btn mp-btn--primary mp-btn--full" id="mock-login" type="button"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Сымитировать вход</button><button class="mp-btn mp-btn--secondary" id="mock-logout" type="button">Сымитировать выход</button>
-    <p class="mp-note">Секреты не вводятся и не сохраняются. Проверка прав выполняется только внутри mock-сценариев.</p></div>
-    <div class="mp-subtle mp-stack" id="session-panel" aria-live="polite">Сессия отсутствует. Никакие учётные данные не запрашиваются.</div>
-    <button class="mp-btn mp-btn--secondary mp-btn--full" id="open-platform" type="button">Открыть Platform Admin →</button>
-   </div>
+   <header class="mp-login-form-heading"><span class="mp-eyebrow">Platform / VDMS API · demo</span><h2 id="login-heading">Sign in</h2><p class="mp-help">Экран повторяет поля VDMS Central Workspace. Это публичный UI-макет без подключения к API.</p></header>
+   <form class="mp-stack" id="platform-login-form" autocomplete="off">
+    <div class="form-row mp-field"><label for="platform-login-name">Platform login</label><input id="platform-login-name" name="mock-login-name" type="text" maxlength="128" autocomplete="off" spellcheck="false" autocapitalize="none" placeholder="owner.demo или reviewer.demo" required></div>
+    <div class="form-row mp-field"><label for="platform-login-password">Password</label><input id="platform-login-password" name="mock-password" type="password" autocomplete="new-password" placeholder="demo-only" required></div>
+    <div class="form-row mp-field"><label for="platform-login-totp">Authenticator code</label><input id="platform-login-totp" name="mock-totp" type="text" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required></div>
+    <div class="mp-login-actions"><button class="btn mp-btn mp-btn--primary mp-btn--full" id="mock-login" type="submit">Sign in</button>
+     <p class="mp-note">Только демонстрационные значения: <strong>owner.demo</strong> или <strong>reviewer.demo</strong>, пароль <strong>demo-only</strong>, код <strong>000000</strong>. Не вводите реальные пароли или коды из приложения-аутентификатора. Значения не передаются и не сохраняются.</p>
+     <p class="mp-error" id="platform-login-error" role="alert" aria-live="polite"></p>
+    </div>
+   </form>
   </section>
   <p class="mp-login-reference">Эталон: <a href="../../../components/index.html">Monitoring Project Design System</a></p>
  </div></main>
@@ -94,7 +90,7 @@
       </div>
     </header>
 <main class="content mp-main-content" id="main">
-<header class="mp-page-head"><div><span class="mp-eyebrow">Platform Administration · Central Node</span><h1 id="page-heading">Вход / MFA</h1><p>Визуальный макет с имитацией ответов. Ни один запрос не отправляется на сервер VDMS.</p></div></header>
+<header class="mp-page-head"><div><span class="mp-eyebrow">Platform Administration · Central Node</span><h1 id="page-heading">Вход / MFA</h1><p>Интерактивный UI-макет. Введённые демо-значения обрабатываются только в браузере; запросы на VDMS не отправляются.</p></div></header>
 <p class="mp-feedback" role="status" id="feedback" aria-live="polite">Режим: локальные фикстуры. Пароли, TOTP и токены здесь не обрабатываются.</p>
 
 <section class="mp-dashboard mp-stack" data-screen="overview" id="screen-overview" hidden aria-labelledby="overview-heading">

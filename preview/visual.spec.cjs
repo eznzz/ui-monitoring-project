@@ -1,3 +1,9 @@
+async function demoLogin(page,actor='owner'){
+ await page.locator('#platform-login-name').fill(actor==='reviewer'?'reviewer.demo':'owner.demo');
+ await page.locator('#platform-login-password').fill('demo-only');
+ await page.locator('#platform-login-totp').fill('000000');
+ await page.locator('#mock-login').click();
+}
 const { test, expect } = require('@playwright/test');
 const url = 'http://127.0.0.1:8765/modules/platform/contract-demo/index.html';
 test('capture design-system layouts for visual review', async ({page})=>{
@@ -6,9 +12,8 @@ test('capture design-system layouts for visual review', async ({page})=>{
  await expect(page.locator('#screen-login')).toBeVisible();
  await page.locator('.mp-login-form-card').evaluate(el=>Promise.all(el.getAnimations().map(animation=>animation.finished)));
  await page.screenshot({path:'test-results/visual-login-desktop.png',fullPage:true});
- await page.locator('#demo-actor').selectOption('owner');
- await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ await demoLogin(page,'owner');
+
  await expect(page.locator('#screen-overview')).toBeVisible();
  await page.screenshot({path:'test-results/visual-owner-overview-desktop.png',fullPage:true});
  await page.locator('#concept-nav a[data-page="companies"]').click();
