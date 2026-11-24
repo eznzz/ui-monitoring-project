@@ -50,18 +50,23 @@ test('API rules have canonical inset on desktop and mobile',async ({page})=>{
  await page.locator('#concept-nav a[data-page="contract"]').click();
  const card=page.locator('#screen-contract');
  await expect(card).toBeVisible();
- await expect(card.locator('.vms-alert')).toHaveCount(6);
+ await expect(card.locator('[role="list"] > .vms-alert[role="listitem"]')).toHaveCount(6);
+ await expect(card.locator('.vms-alert[role="status"]')).toHaveCount(1);
+ await expect(card.locator('.vms-alert')).toHaveCount(7);
  async function assertInset(){
   const result=await card.evaluate(el=>{
    const bounds=el.getBoundingClientRect();
-   const child=el.querySelector('.vms-alert');
-   const rect=child.getBoundingClientRect();
-   const p=child.querySelector('span').getBoundingClientRect();
-   return {left:rect.left-bounds.left, inner:p.left-rect.left,right:bounds.right-rect.right};
+   return [...el.querySelectorAll('.vms-alert')].map(child=>{
+    const rect=child.getBoundingClientRect();
+    const p=child.querySelector('span').getBoundingClientRect();
+    return {left:rect.left-bounds.left,inner:p.left-rect.left,right:bounds.right-rect.right};
+   });
   });
-  expect(result.left).toBeGreaterThan(10);
-  expect(result.inner).toBeGreaterThanOrEqual(16);
-  expect(result.right).toBeGreaterThan(10);
+  for(const inset of result){
+   expect(inset.left).toBeGreaterThan(10);
+   expect(inset.inner).toBeGreaterThanOrEqual(16);
+   expect(inset.right).toBeGreaterThan(10);
+  }
  }
  await assertInset();
  await page.setViewportSize({width:390,height:844});
