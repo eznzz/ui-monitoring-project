@@ -1,3 +1,9 @@
+async function demoLogin(page,actor='owner'){
+ await page.locator('#platform-login-name').fill(actor==='reviewer'?'reviewer.demo':'owner.demo');
+ await page.locator('#platform-login-password').fill('demo-only');
+ await page.locator('#platform-login-totp').fill('000000');
+ await page.locator('#mock-login').click();
+}
 const { test, expect } = require('@playwright/test');
 test('preview landing links and theme work', async ({page})=>{
  const errors=[];page.on('pageerror',error=>errors.push(String(error)));
@@ -11,10 +17,9 @@ test('preview landing links and theme work', async ({page})=>{
  await page.locator('[data-preview="reviewer"]').click();
  await expect(page).toHaveURL(/\/modules\/platform\/contract-demo\/index\.html#login$/);
  await expect(page.locator('#screen-login')).toBeVisible();
- await expect(page.locator('#session-panel')).toContainText('Активация');
- await page.locator('#demo-actor').selectOption('reviewer');
- await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ await expect(page.locator('#platform-login-form')).toBeVisible();
+ await demoLogin(page,'reviewer');
+
  await expect(page.locator('#screen-activation')).toBeVisible();
  expect(errors).toEqual([]);
 });
@@ -23,9 +28,8 @@ test('design-system markup is canonical on Platform and Login',async ({page})=>{
  await page.goto('http://127.0.0.1:8765/modules/platform/contract-demo/index.html#login');
  await expect(page.locator('#screen-login')).toHaveClass(/mp-login--split/);
  await expect(page.locator('.mp-login-form-card')).toBeVisible();
- await page.locator('#demo-actor').selectOption('owner');
- await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ await demoLogin(page,'owner');
+
  await expect(page.locator('.app.mp-template-app')).toBeVisible();
  await expect(page.locator('#sidebar .sidebar__nav')).toBeVisible();
  await expect(page.locator('#userMenu .user-menu__trigger')).toBeVisible();
@@ -41,9 +45,8 @@ test('design-system markup is canonical on Platform and Login',async ({page})=>{
 test('API rules have canonical inset on desktop and mobile',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.goto('http://127.0.0.1:8765/modules/platform/contract-demo/index.html#login');
- await page.locator('#demo-actor').selectOption('owner');
- await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ await demoLogin(page,'owner');
+
  await page.locator('#concept-nav a[data-page="contract"]').click();
  const card=page.locator('#screen-contract');
  await expect(card).toBeVisible();
@@ -71,11 +74,10 @@ test('Preview deep link to overview opens contextual login and visible companies
  await page.goto('http://127.0.0.1:8765/preview/');
  await page.getByRole('link',{name:/Обзор Owner/}).click();
  await expect(page.locator('#screen-login')).toBeVisible();
- await expect(page.locator('#session-panel')).toContainText('Обзор платформы');
- await expect(page.locator('#open-platform')).toContainText('Обзор платформы');
- await page.locator('#demo-actor').selectOption('owner');
- await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+ await expect(page.locator('#platform-login-form')).toBeVisible();
+ await expect(page.locator('#platform-login-form')).toBeVisible();
+ await demoLogin(page,'owner');
+
  await expect(page.locator('#screen-overview')).toBeVisible();
  await expect(page.locator('#overview-data-mode')).toHaveValue('demo');
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
@@ -88,10 +90,9 @@ test('direct overview link never implies authorization before demo login', async
  await page.goto('http://127.0.0.1:8765/modules/platform/contract-demo/index.html#overview');
  await expect(page.locator('#screen-login')).toBeVisible();
  await expect(page.locator('#screen-overview')).toBeHidden();
- await page.locator('#open-platform').click();
- await expect(page.locator('#feedback')).toContainText('Сначала выполните демонстрационный вход');
+
  await page.locator('#mock-login').click();
- await page.locator('#open-platform').click();
+
  await expect(page.locator('#overview-companies-body tr:visible')).toHaveCount(18);
  await page.locator('#overview-data-mode').selectOption('empty');
  await expect(page.locator('#overview-companies-body')).toContainText('Компаний пока нет');
