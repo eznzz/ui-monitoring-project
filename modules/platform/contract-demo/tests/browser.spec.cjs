@@ -531,6 +531,7 @@ test('Owner home is overview, Reviewer home is activation, explicit Company deep
 test('direct Company route still opens Companies after Owner mock login',async ({page})=>{
  await page.goto(url+'#companies');
  await expect(page.locator('#screen-login')).toBeVisible();
+ await fillIdentity(page,'owner');
  await page.locator('#mock-login').click();
  
  await expect(page.locator('#screen-companies')).toBeVisible();
