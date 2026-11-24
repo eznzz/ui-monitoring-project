@@ -32,7 +32,6 @@
 .company-data-table .data-table th{font-size:12px;font-weight:600;color:var(--muted)}
 .company-data-table .data-table tr:last-child td{border-bottom:0}
 .company-data-table .data-table tbody tr:hover{background:var(--subtle)}
-.company-data-table .data-table input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
 .company-data-table .data-table .sort-control{color:inherit;border:0;background:transparent;font-weight:inherit;cursor:pointer;padding:5px 2px;text-align:left}
 .company-data-table .data-table .sort-control:hover{color:var(--brand)}
 .company-data-table .data-table .sort-control[aria-pressed=true]{color:var(--brand)}
@@ -102,7 +101,6 @@
     text-align: left;
   }
 .company-data-table .data-table tbody td:first-child{ align-items: center; }
-.company-data-table .data-table tbody td:first-child input{ margin-left: auto; }
 .company-data-table .data-table tbody .table-empty{
     display: block;
     width: 100%;

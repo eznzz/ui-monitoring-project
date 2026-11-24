@@ -145,7 +145,7 @@
 <section class="mp-card mp-stack" data-screen="companies" id="screen-companies" hidden aria-labelledby="companies-heading">
   <div class="mp-row mp-between"><div><h2 class="mp-section-title" id="companies-heading">Реестр компаний</h2><p class="mp-help">GET /companies · permission tenant.read · поиск, фильтры и постраничный просмотр загруженных данных</p></div><button id="new-company" class="mp-btn mp-btn--primary" type="button">Новая компания</button></div>
   <div class="company-data-table">
-   <p class="hint table-intro" id="company-search-hint">Поиск и сортировка по загруженным демонстрационным записям, включая профиль компании. Выбор строк не изменяет данные.</p>
+   <p class="hint table-intro" id="company-search-hint">Поиск и сортировка по загруженным демонстрационным записям, включая профиль компании.</p>
    <div class="table-toolbar">
     <div class="field table-search"><label for="company-search">Поиск компании</label><input id="company-search" type="search" placeholder="Название, код, UUID или реквизиты" autocomplete="off" aria-describedby="company-search-hint"></div>
     <div class="field table-filter"><label for="company-status">Статус</label><select id="company-status"><option value="all">Все статусы</option><option value="draft">draft</option><option value="provisioning">provisioning</option><option value="active">active</option><option value="suspended">suspended</option><option value="disabled">disabled</option></select></div>
@@ -154,7 +154,6 @@
    <label class="mobile-sort field" for="company-mobile-sort"><span>Сортировка карточек</span><select id="company-mobile-sort"><option value="">Порядок загрузки</option><option value="name:1">Компания: А—Я</option><option value="name:-1">Компания: Я—А</option><option value="code:1">Код: А—Я</option><option value="code:-1">Код: Я—А</option><option value="status:1">Статус: А—Я</option><option value="status:-1">Статус: Я—А</option><option value="revision:1">Revision: по возрастанию</option><option value="revision:-1">Revision: по убыванию</option></select></label>
    <div class="table-scroll" tabindex="0" role="region" aria-label="Таблица компаний, прокручиваемая по горизонтали">
     <table class="data-table"><caption class="visually-hidden">Реестр компаний</caption><thead><tr>
-     <th scope="col"><input id="company-select-all" type="checkbox" aria-label="Выбрать все показанные компании"></th>
      <th scope="col"><button type="button" class="sort-control" data-company-sort="name">Компания <span aria-hidden="true">↕</span></button></th>
      <th scope="col"><button type="button" class="sort-control" data-company-sort="code">Код <span aria-hidden="true">↕</span></button></th>
      <th scope="col"><button type="button" class="sort-control" data-company-sort="status">Статус <span aria-hidden="true">↕</span></button></th>
@@ -166,7 +165,6 @@
     <div class="table-pagination"><button type="button" class="button secondary small" id="company-prev">Назад</button><span id="company-page" aria-live="polite">1 / 1</span><button type="button" class="button secondary small" id="company-next">Вперёд</button></div>
    </div>
    <p class="hint" id="company-filter-summary" aria-live="polite"></p>
-   <p class="hint" id="company-selection" role="status" aria-live="polite">Выбрано строк: 0</p>
   </div>
   <section class="mp-subtle mp-stack" id="company-detail" aria-live="polite"><p>Выберите компанию для просмотра карточки.</p></section>
 </section>

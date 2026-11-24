@@ -26,7 +26,7 @@ const seed=[
  {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c816","code":"aurora","name":"Aurora Data (demo)","status":"draft","revision":1,"profile":{"legalName":"Aurora Data AB","tradeName":"Aurora","description":"New draft with incomplete setup","registrationNumber":"DEMO-AURORA","taxNumber":"","countryCode":"SE","contactEmail":"aurora@example.test","website":""}},
  {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c817","code":"vector","name":"Vector Services (demo)","status":"active","revision":7,"profile":{"legalName":"Vector Services SAS","tradeName":"Vector","description":"Multiple modules and users fixture","registrationNumber":"DEMO-VECTOR","taxNumber":"","countryCode":"FR","contactEmail":"vector@example.test","website":""}},
  {"tenantId":"8e185467-876c-4c7d-8f6e-d9dd7b29c818","code":"tidewater","name":"Tidewater Solutions (demo)","status":"draft","revision":2,"profile":{"legalName":"Tidewater Solutions Ltd.","tradeName":"Tidewater","description":"New draft for review testing","registrationNumber":"DEMO-TIDEWATER","taxNumber":"","countryCode":"GB","contactEmail":"tidewater@example.test","website":""}}];
-const companySelection=new Set();let companySortKey="",companySortDir=1,companyVisible=[],companyPage=0,companyPageCount=1;const companyPageSize=4;
+let companySortKey="",companySortDir=1,companyPage=0,companyPageCount=1;const companyPageSize=4;
 let companies=structuredClone(seed), dataMode="demo", session=null, page="login", requestedPage=null, selectedId=null, editingId=null;
 let reviews=[], reviewDecisions=[], forcedConflict=false, serverMode="standard";
 const $=id=>document.getElementById(id);
@@ -123,7 +123,7 @@ function login(event){
  navigate(destination);
 }
 function logout(){
- companySelection.clear();companySortKey="";companySortDir=1;companyPage=0;
+ companySortKey="";companySortDir=1;companyPage=0;
  session=null;requestedPage=null;
  $("platform-login-form").reset();
  $("platform-login-error").textContent="";
@@ -140,7 +140,7 @@ function changeDataMode(next,force=false){
  if(!["demo","empty"].includes(next)||(next===dataMode&&!force))return;
  dataMode=next;
  companies=next==="demo"?structuredClone(seed):[];
- companySelection.clear();companySortKey="";companySortDir=1;
+ companySortKey="";companySortDir=1;
  reviews=[];reviewDecisions=[];invitations.length=0;
  reviewerChecked=false;selectedInvitationId="";reviewerDetailLoaded=false;
  showHistory=false;selectedId=null;editingId=null;forcedConflict=false;companyPage=0;logShown=Number($("log-limit").value);
@@ -154,18 +154,11 @@ function changeDataMode(next,force=false){
  feedback(dataMode==="empty"?"Пустое состояние: компании и связанные фикстуры очищены (только в браузере).":"Демо-данные восстановлены. Ранее созданные mock-записи сброшены.");
  updateActions();
 }
-function syncCompanySelection(){
- const all=$("company-select-all"),count=companyVisible.filter(c=>companySelection.has(c.tenantId)).length;
- all.checked=companyVisible.length>0&&count===companyVisible.length;all.indeterminate=count>0&&count<companyVisible.length;all.disabled=!companyVisible.length;
- document.querySelectorAll("[data-company-select]").forEach(box=>{box.checked=companySelection.has(box.dataset.companySelect);});
- $("company-selection").textContent="Выбрано строк: "+companySelection.size;
-}
 function renderCompanies(){
  const tbody=$("companies-body");tbody.replaceChildren();
  const filter=$("company-status").value,query=$("company-search").value.trim().toLowerCase();
  if(!permitted("tenant.read")){
-  const tr=document.createElement("tr"),td=textNode("td","403 · нет tenant.read. Войдите через тестовую фикстуру с правом чтения.");td.colSpan=6;td.className="table-empty";tr.append(td);tbody.append(tr);
-  companyVisible=[];companySelection.clear();syncCompanySelection();
+  const tr=document.createElement("tr"),td=textNode("td","403 · нет tenant.read. Войдите через тестовую фикстуру с правом чтения.");td.colSpan=5;td.className="table-empty";tr.append(td);tbody.append(tr);
   companyPage=0;companyPageCount=1;$("company-prev").disabled=true;$("company-next").disabled=true;$("company-page").textContent="1 / 1";$("company-range").textContent="Нет доступа";$("company-detail").replaceChildren(textNode("p","Карточка недоступна без tenant.read."));return;
  }
  const normalized=text=>String(text??"").toLocaleLowerCase("ru").normalize("NFKC");
@@ -177,15 +170,10 @@ function renderCompanies(){
  });
  if(companySortKey)filtered.sort((a,b)=>companySortDir*(companySortKey==="revision"?a.revision-b.revision:String(a[companySortKey]).localeCompare(String(b[companySortKey]),"ru",{numeric:true})));
  companyPageCount=Math.max(1,Math.ceil(filtered.length/companyPageSize));companyPage=Math.min(Math.max(0,companyPage),companyPageCount-1);
- const shown=filtered.slice(companyPage*companyPageSize,(companyPage+1)*companyPageSize);companyVisible=shown;
- const validIds=new Set(companies.map(c=>c.tenantId));for(const id of companySelection)if(!validIds.has(id))companySelection.delete(id);
- if(!shown.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет компаний с такими параметрами поиска.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=6;td.className="table-empty";tr.append(td);tbody.append(tr);}
+ const shown=filtered.slice(companyPage*companyPageSize,(companyPage+1)*companyPageSize);
+ if(!shown.length){const tr=document.createElement("tr");const td=textNode("td",companies.length?"Нет компаний с такими параметрами поиска.":"Компаний пока нет. Выберите демо-набор в Overview или создайте черновик.");td.colSpan=5;td.className="table-empty";tr.append(td);tbody.append(tr);}
  for(const c of shown){
   const tr=document.createElement("tr");
-  const selection=document.createElement("td");selection.dataset.label="Выбор";const checkbox=document.createElement("input");
-  checkbox.type="checkbox";checkbox.checked=companySelection.has(c.tenantId);checkbox.dataset.companySelect=c.tenantId;checkbox.setAttribute("aria-label","Выбрать компанию "+c.name);
-  checkbox.addEventListener("change",()=>{checkbox.checked?companySelection.add(c.tenantId):companySelection.delete(c.tenantId);syncCompanySelection();});
-  selection.append(checkbox);tr.append(selection);
   for(const key of ["name","code","status","revision"]){const cell=document.createElement("td");cell.dataset.label={name:"Компания",code:"Код",status:"Статус",revision:"Revision"}[key];
    if(key==="status"){const pill=textNode("span",c.status);pill.className="table-status-pill";pill.dataset.status=c.status;cell.append(pill);}else cell.textContent=c[key];tr.append(cell);
   }
@@ -197,7 +185,6 @@ function renderCompanies(){
  $("company-prev").disabled=companyPage===0;
  $("company-next").disabled=companyPage>=companyPageCount-1;
  $("company-range").textContent=filtered.length?"Показано "+shown.length+" из "+filtered.length:"Компаний: 0";
- syncCompanySelection();
  document.querySelectorAll("[data-company-sort]").forEach(button=>{const active=button.dataset.companySort===companySortKey;button.setAttribute("aria-pressed",String(active));button.querySelector("span").textContent=active?(companySortDir===1?"↑":"↓"):"↕";button.closest("th").setAttribute("aria-sort",active?(companySortDir===1?"ascending":"descending"):"none");});
  $("company-mobile-sort").value=companySortKey?companySortKey+":"+companySortDir:"";
  // Client-side pages of the loaded mock records; real API cursor fetching is unchanged in scope.
@@ -334,7 +321,6 @@ $("review-decision-form").addEventListener("submit",e=>{
  renderReviews();
 });
 $("platform-login-form").addEventListener("submit",login);
-$("company-select-all").addEventListener("change",()=>{const checked=$("company-select-all").checked;companyVisible.forEach(c=>checked?companySelection.add(c.tenantId):companySelection.delete(c.tenantId));syncCompanySelection();});
 document.querySelectorAll("[data-company-sort]").forEach(button=>button.addEventListener("click",()=>{const next=button.dataset.companySort;companySortDir=next===companySortKey?-companySortDir:1;companySortKey=next;companyPage=0;renderCompanies();}));
 $("company-mobile-sort").addEventListener("change",()=>{const [key,dir]=$("company-mobile-sort").value.split(":");companySortKey=key;companySortDir=Number(dir)||1;companyPage=0;renderCompanies();});
 $("company-status").addEventListener("change",()=>{companyPage=0;renderCompanies();});
