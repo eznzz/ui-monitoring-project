@@ -286,7 +286,8 @@ test('full overview separates Platform company counts and demo Tenant users/modu
  await page.locator('#overview-companies-body tr').last().getByRole('button',{name:'Открыть'}).click();
  await expect(page.locator('#screen-companies')).toBeVisible();
  await expect(page.locator('#company-detail')).toContainText('Tidewater Solutions');
- await expect(page.locator('#company-range')).toHaveText('Показано 18 из 18');
+ await expect(page.locator('#company-range')).toHaveText('Показано 2 из 18');
+ await expect(page.locator('#company-page')).toHaveText('5 / 5');
  expect(errors).toEqual([]);
 });
 test('overview protects tenant preview and remains accessible on mobile',async ({page})=>{
@@ -440,36 +441,41 @@ test('LAB-only route toggles and active Reviewer permissions are independent',as
  await expect(page.locator('#concept-nav a[data-page="mail"]')).toBeHidden();
 });
 
-test('company list progressively appends 5 entries and supports 10-entry batch',async ({page})=>{
+test('company list follows catalog pagination with four rows per page',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
- await expect(page.locator('#screen-overview')).toBeVisible();
  await page.locator('#concept-nav a[data-page="companies"]').click();
- await expect(page.locator('#company-range')).toHaveText('Показано 5 из 18');
- await expect(page.locator('#companies-body tr')).toHaveCount(5);
- await expect(page.locator('#company-more')).toHaveText('Показать ещё 5');
- await page.locator('#company-more').click();
- await expect(page.locator('#companies-body tr')).toHaveCount(10);
- await expect(page.locator('#company-range')).toHaveText('Показано 10 из 18');
- await page.locator('#company-more').click();
- await expect(page.locator('#companies-body tr')).toHaveCount(15);
- await expect(page.locator('#company-more')).toHaveText('Показать ещё 3');
- await page.locator('#company-more').click();
- await expect(page.locator('#companies-body tr')).toHaveCount(18);
- await expect(page.locator('#company-range')).toHaveText('Показано 18 из 18');
- await expect(page.locator('#company-more')).toBeHidden();
+ const rows=page.locator('#companies-body tr'),prev=page.locator('#company-prev'),next=page.locator('#company-next'),counter=page.locator('#company-page');
+ await expect(rows).toHaveCount(4);
+ await expect(counter).toHaveText('1 / 5');
+ await expect(prev).toBeDisabled();
+ await expect(next).toBeEnabled();
+ await page.locator('#company-select-all').check();
+ await next.click();
+ await expect(counter).toHaveText('2 / 5');
+ await expect(rows).toHaveCount(4);
+ await expect(page.locator('#companies-body')).not.toContainText('North Shipping');
+ await expect(page.locator('#company-selection')).toHaveText('Выбрано строк: 4');
+ await prev.click();
+ await expect(counter).toHaveText('1 / 5');
+ await expect(page.locator('#company-select-all')).toBeChecked();
+ for(let i=0;i<4;i++)await next.click();
+ await expect(counter).toHaveText('5 / 5');
+ await expect(rows).toHaveCount(2);
+ await expect(page.locator('#company-range')).toHaveText('Показано 2 из 18');
+ await expect(next).toBeDisabled();
  await page.locator('#company-status').selectOption('draft');
- await expect(page.locator('#company-range')).toHaveText('Показано 5 из 5');
- await expect(page.locator('#companies-body tr')).toHaveCount(5);
+ await expect(counter).toHaveText('1 / 2');
+ await expect(rows).toHaveCount(4);
+ await next.click();
+ await expect(rows).toHaveCount(1);
+ await expect(next).toBeDisabled();
  await page.locator('#company-status').selectOption('all');
- await page.locator('#company-batch').selectOption('10');
- await expect(page.locator('#companies-body tr')).toHaveCount(10);
- await expect(page.locator('#company-more')).toHaveText('Показать ещё 8');
- await page.locator('#company-more').click();
- await expect(page.locator('#companies-body tr')).toHaveCount(18);
- await expect(page.locator('#company-more')).toBeHidden();
+ await next.click();
  await page.locator('#company-search').fill('harbor');
- await expect(page.locator('#companies-body tr')).toHaveCount(1);
+ await expect(counter).toHaveText('1 / 1');
+ await expect(rows).toHaveCount(1);
+ await expect(prev).toBeDisabled();await expect(next).toBeDisabled();
  await expect(page.locator('#company-range')).toHaveText('Показано 1 из 1');
  await page.locator('#company-search').fill('');
  await page.setViewportSize({width:390,height:844});
@@ -482,7 +488,8 @@ test('company list empty state does not offer additional entries',async ({page})
  await page.locator('#overview-open-companies').click();
  await expect(page.locator('#company-range')).toHaveText('Компаний: 0');
  await expect(page.locator('#companies-body')).toContainText('Компаний пока нет');
- await expect(page.locator('#company-more')).toBeHidden();
+ await expect(page.locator('#company-next')).toBeDisabled();
+ await expect(page.locator('#company-prev')).toBeDisabled();
 });
 test('audit log appends further events using 5 or 10, resets after filtering',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -535,14 +542,14 @@ test('direct Company route still opens Companies after Owner mock login',async (
  await page.locator('#mock-login').click();
  
  await expect(page.locator('#screen-companies')).toBeVisible();
- await expect(page.locator('#company-range')).toHaveText('Показано 5 из 18');
+ await expect(page.locator('#company-range')).toHaveText('Показано 4 из 18');
 });
 
 test('company search finds unloaded rows by name, code, UUID and profile and resets',async ({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
- await expect(page.locator('#companies-body tr')).toHaveCount(5);
+ await expect(page.locator('#companies-body tr')).toHaveCount(4);
  await page.locator('#company-search').fill('polar');
  await expect(page.locator('#company-filter-summary')).toContainText('Найдено: 1');
  await expect(page.locator('#companies-body tr')).toHaveCount(1);
@@ -553,11 +560,12 @@ test('company search finds unloaded rows by name, code, UUID and profile and res
  await expect(page.locator('#companies-body')).toContainText('Polar Research');
  await page.locator('#company-search').fill('no-such-company');
  await expect(page.locator('#companies-body')).toContainText('Нет компаний с такими параметрами поиска');
- await expect(page.locator('#company-more')).toBeHidden();
+ await expect(page.locator('#company-next')).toBeDisabled();
+ await expect(page.locator('#company-prev')).toBeDisabled();
  await page.locator('#company-reset').click();
  await expect(page.locator('#company-search')).toHaveValue('');
  await expect(page.locator('#company-filter-summary')).toContainText('Все загруженные компании: 18');
- await expect(page.locator('#companies-body tr')).toHaveCount(5);
+ await expect(page.locator('#companies-body tr')).toHaveCount(4);
  await page.locator('#company-status').selectOption('draft');
  await page.locator('#company-search').fill('north');
  await expect(page.locator('#companies-body tr')).toHaveCount(1);
@@ -642,14 +650,15 @@ test('18 demo companies have unique VDMS codes, lifecycle variety and linked Ten
 test('audit footer controls match companies position under their tables and mobile behavior',async ({page})=>{
  await signIn(page,'owner');
  await page.locator('#concept-nav a[data-page="companies"]').click();
- const companyFooter=page.locator('#screen-companies .mp-page-tools');
+ const companyFooter=page.locator('#screen-companies .table-footer');
  await expect(companyFooter.locator('#company-range')).toBeVisible();
- await expect(companyFooter.locator('#company-batch')).toBeVisible();
- await expect(companyFooter.locator('#company-more')).toBeVisible();
- const companyTable=page.locator('#screen-companies .mp-basic-table-wrap');
+ await expect(companyFooter.locator('#company-prev')).toBeVisible();
+ await expect(companyFooter.locator('#company-page')).toBeVisible();
+ await expect(companyFooter.locator('#company-next')).toBeVisible();
+ const companyTable=page.locator('#screen-companies .table-scroll');
  const companyPositions=await page.evaluate(()=>{
-  const footer=document.querySelector('#screen-companies .mp-page-tools');
-  const table=document.querySelector('#screen-companies .mp-basic-table-wrap');
+  const footer=document.querySelector('#screen-companies .table-footer');
+  const table=document.querySelector('#screen-companies .table-scroll');
   return {below:footer.getBoundingClientRect().top>=table.getBoundingClientRect().bottom};
  });
  expect(companyPositions.below).toBe(true);
@@ -681,9 +690,9 @@ test('Companies adopts catalog Data Table controls and responsive rows',async ({
  await page.locator('#mock-login').click();
  const table=page.locator('#screen-companies .data-table');
  await expect(table).toBeVisible();
- await expect(table.locator('tbody .table-status-pill')).toHaveCount(5);
+ await expect(table.locator('tbody .table-status-pill')).toHaveCount(4);
  await page.locator('#company-select-all').check();
- await expect(page.locator('#company-selection')).toHaveText('Выбрано строк: 5');
+ await expect(page.locator('#company-selection')).toHaveText('Выбрано строк: 4');
  await table.locator('tbody input[type=checkbox]').first().uncheck();
  await expect(page.locator('#company-select-all')).toHaveJSProperty('indeterminate',true);
  await page.locator('[data-company-sort="name"]').click();

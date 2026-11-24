@@ -57,7 +57,6 @@
 .company-data-table .mobile-sort{display:none}
 .company-data-table .field{min-width:0}
 .company-data-table .table-pagination{flex-wrap:wrap}
-.company-data-table .table-pagination select{height:32px}
 .company-data-table :is(button,input,select):focus-visible{outline:2px solid var(--brand);outline-offset:3px;box-shadow:0 0 0 3px var(--ring)}
 @media(max-width:760px){.company-data-table .table-toolbar{display:grid;grid-template-columns:1fr}.company-data-table .table-search,.company-data-table .table-filter{width:100%}}
 @media(max-width:600px){.company-data-table .table-scroll{

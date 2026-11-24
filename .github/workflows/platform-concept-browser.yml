@@ -122,7 +122,9 @@ jobs:
             curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "${SITE_URL%/}/modules/platform/contract-demo/concept.js?verify=${GITHUB_SHA}" -o /tmp/pages-concept.js || true
             if grep -Fq "name=\"mp-deployment-commit\" content=\"${GITHUB_SHA}\"" /tmp/pages-preview.html &&
                grep -Fq "name=\"mp-deployment-commit\" content=\"${GITHUB_SHA}\"" /tmp/pages-concept.html &&
-               grep -Fq 'id="company-more"' /tmp/pages-concept.html &&
+               grep -Fq 'id="company-prev"' /tmp/pages-concept.html &&
+               grep -Fq 'id="company-next"' /tmp/pages-concept.html &&
+               ! grep -Fq 'id="company-more"' /tmp/pages-concept.html &&
                grep -Fq 'const homeSection=' /tmp/pages-concept.js &&
                ! grep -Fq 'value="reader"' /tmp/pages-concept.html; then
               echo "Verified live GitHub Pages build: ${GITHUB_SHA}"
